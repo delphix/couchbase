@@ -18,7 +18,7 @@ from plugin_internal_exceptions.plugin_exception import handle_plugin_exception,
 from controller import helper_lib
 from controller.internal_couchbase_library.couchbase_operation import CouchbaseProcess
 import logging
-import db_commands_data.constants_variables
+
 # Global logger for this File
 logger = logging.getLogger(__name__)
 
@@ -96,29 +96,6 @@ def _do_provision(provision_process, snapshot):
         #     logger.debug("Failed in provisioning operation.")
         #     logger.error("Failed in provisioning operation.")
 
-    file_path = provision_process.parameters.mount_path+"/"+db_commands_data.constants_variables.INDEX_SCRIPT
-    index_script_data = helper_lib.read_file(provision_process.connection,file_path)
-    # index_script_data="\""+str(index_script_data)+"\""
-    # logger.debug("index_script_data {}".format(index_script_data))
-    #creating indexes
-    all_script=index_script_data[0]
-    all_script = "\"" + str(all_script) + "\""
-    logger.debug("all_script: {}".format(all_script))
-    for script in all_script.split("\n"):
-        script = "\"" +str(script.strip('"'))+ "\""    # Removing double quotes from first and last line
-        script = script.replace("`", "\`")             # Replacing back tick with \`
-        logger.debug("Running for script {}".format(script))
-        provision_process.execute_index_script(script)
-
-    #Build indexs
-    find_index_script = provision_process.get_index_script()
-    for script in find_index_script:
-        logger.debug("Running for script {}".format(script))
-        provision_process.execute_index_script(script)
-
-    #Monitor indexes
-    provision_process.monitor_build_indexs()
-
     try:
         # getting config directory path
         directory = provision_process.get_config_directory()
@@ -132,7 +109,6 @@ def _do_provision(provision_process, snapshot):
 
         # Adding bucket list in config file path .config file, inside .delphix folder
         helper_lib.write_file(provision_process.connection, content, config_file_path)
-
 
     except Exception as err:
         logger.error("Failed to Dump the bucket info in config file with error {}".format(err.message))

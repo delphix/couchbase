@@ -50,7 +50,12 @@ delphixos ALL=NOPASSWD: \
 /bin/mount, /bin/umount
 ```
 
-### TESTED VERSIONS
+#### TESTED VERSIONS
 - Tested with couchbase 5.5/6.0 on Linux 7
+
+
+#### SUPPORT FEATURES
+- XDCR, CB backkup manager
+
 
 

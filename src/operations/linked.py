@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED = True
 SNAP_SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED = True
 
-
 # @handle_plugin_exception(ResyncFailedError)
 def resync(staged_source, repository, source_config, input_parameters):
     logger.debug("In Re-sync...")
@@ -274,9 +273,6 @@ def pre_snapshot(staged_source, repository, source_config, input_parameters):
                 msg = "dSource Creation / Snapsync for dSource {} is in progress. Same staging server {} cannot be used for other operations".format(dsource_name,input_parameters.couchbase_host)
                 helper_lib.write_file(rx_connection, msg, snapsync_filename )
 
-        index_script_data = pre_snapshot_process.generate_index_script()
-        file_path = staged_source.parameters.mount_path+"/"+ db_commands_data.constants_variables.INDEX_SCRIPT
-        helper_lib.write_file(rx_connection, index_script_data, file_path)
         logger.info("Stopping Couchbase")
         pre_snapshot_process.stop_couchbase()
 

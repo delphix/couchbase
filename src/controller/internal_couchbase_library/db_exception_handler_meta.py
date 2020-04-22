@@ -42,7 +42,6 @@ SHUTDOWN_FAILED = "shutdown failed"
 SERVICE_UNAVAILABLE_ERROR = "is not available on target"
 UNEXPECTED_ERROR1 = "Running this command will totally PURGE database data from disk. Do you really want to do"
 INVALID_BACKUP_DIR = "Archive directory .* doesn't exist"
-BUILD_IN_PROGRESS ="Build Already In Progress"
 # This is meta class which decorates the each instance functions with exception handling.
 # No need to handle common part in each function of class.
 class DatabaseExceptionHandlerMeta(type):
@@ -86,7 +85,6 @@ class DatabaseExceptionHandlerMeta(type):
                 re.search(BUCKET_NAME_ALREADY_EXIST, error_string) or
                 re.search(MULTIPLE_VDB_ERROR, error_string) or
                 re.search(SHUTDOWN_FAILED, error_string) or
-                re.search(BUILD_IN_PROGRESS, error_string)or
                 re.search(ALREADY_CLUSTER_INIT, error_string)):
             logger.debug("Gracefully accepted the last exception")
             return

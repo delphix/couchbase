@@ -105,7 +105,7 @@ class CommandHandler:
             'get_config_directory': "{mount_path}/.delphix",
             'get_indexes_name': "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=\"SELECT\
                                                        name FROM system:indexes where keyspace_id = {index} AND state = 'deferred'\"",
-            'build_index': " {base_path}/cbq -e 127.0.0.1:8091 -u {username} -p {password} -q=true\
+            'build_index': " {base_path}/cbq -e {hostname}:{port} -u {username} -p {password} -q=true\
                                                         -s=echo \"BUILD INDEX ON {index_name}\" {index_name}",
             'is_build_completed': "{base_path}/cbq -e {hostname}:{port} -u {username} -p {password} -q=true -s=\"SELECT\
                                                          COUNT(*) as unbuilt FROM system:indexes WHERE keyspace_id ={index} AND state <> 'online'",
@@ -114,17 +114,14 @@ class CommandHandler:
             'server_info': "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ",
             'read_file': "cat {filename}",
             'monitor_replication': "curl --silent -u {source_username}:$password http://{source_hostname}:{source_port}/pools/default/buckets/{bucket_name}/stats/replications%2F{uuid}%2F{bucket_name}%2F{bucket_name}%2Fchanges_left",
-            'write_file': "echo \'{data}\' > {filename}",
+            'write_file': "echo {data} > {filename}",
             'check_file': "[ -f {file_path} ] && echo 'Found'",
             'get_ip_of_hostname' : 'hostname -i',
             'check_directory': "[ -d {dir_path} ] && echo 'Found'",
             'delete_file': "rm  -f  {filename}",
             'get_dlpx_bin': "echo $DLPX_BIN_JQ",
             'unmount_file_system' : "sudo /bin/umount {mount_path}",
-            'generate_index_script': "curl -s {username}:$password@127.0.0.1:9102/getIndexStatus|$DLPX_BIN_JQ '.status[].definition'|sed -e 's/^\"//g' -e 's/\"$//g' -e 's/`/\\`/g'",
-            'get_index_script': "curl -s {username}:$password@127.0.0.1:9102/getIndexStatus|$DLPX_BIN_JQ -r '.status[]|(\"build index on \" + \"`\" + .bucket + \"`\" + \"(\" + .name + \")\")'",
-            'execute_index_script': "{base_path}/cbq -e 127.0.0.1:8091 -u {username} -p $password  -q=true -s={index_script}",
-            'monitor_build_indexs': "{base_path}/cbq -e 127.0.0.1:8091 -u {username} -p $password -q=true -s=\"SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'\"|$DLPX_BIN_JQ .results[].unbuilt",
+
         }
         self.__commands = ReadOnlyDict(self.__commands)
     @property

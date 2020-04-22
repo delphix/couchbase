@@ -14,9 +14,6 @@ from plugin_internal_exceptions.base_exception import Response
 # logger object
 logger = logging.getLogger(__name__)
 
-replace1 = "# Session Timeout Enabled on dumb\n"
-replace2 = "# Session Timeout Enabled on dumb"
-
 def execute_bash(source_connection, command_name, callback_func=None, **kwargs ):
     """
 
@@ -49,14 +46,10 @@ def execute_bash(source_connection, command_name, callback_func=None, **kwargs )
     output = result.stdout.strip()
     error = result.stderr.strip()
     exit_code = result.exit_code
-    logger.debug("REMOVE THIS: {}".format(command))
+
     if exit_code != 0:
         logger.debug("Executed command is \n{}\n\n".format(" ".join(command.split())))
 
-    output = output.replace(replace1, "")
-    output = output.replace(replace2, "")
-    output = output.strip('\n')
-    output = output.strip()
     # Verify the exit code of each executed command. 0 means command ran successfully and for other code it is failed.
     # For failed cases we need to find the scenario in which programs will die and otherwise execution will continue.
     _handle_exit_code(exit_code, error, output, callback_func)

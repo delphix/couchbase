@@ -136,7 +136,6 @@ class CouchbaseProcess(SchemaResource):
         env['bucket_name'] = bucket_name
         env['shell_path'] = self.repository.cb_shell_path
         env['hostname'] = self.connection.environment.host.name
-
         return utilities.execute_bash(self.connection, command_name='bucket_edit_ramquota', **env)
 
     def bucket_delete(self, bucket_name):
@@ -601,50 +600,6 @@ class CouchbaseProcess(SchemaResource):
                 ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, 'cb_backup_full', **env)
 
-    def generate_index_script(self):
-        logger.debug("Generating index script...")
-        jq_bin_path =  bin_directory, std_err, exit_code = utilities.execute_bash(self.connection, command_name='get_dlpx_bin')
-        env = {
-               "hostname": self.source.staged_connection.environment.host.name,
-               'username': self.parameters.couchbase_admin,
-               'jq_path':jq_bin_path,
-               ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        stdout, stderr, exit_code = utilities.execute_bash(self.connection, 'generate_index_script', **env)
-        return stdout
-
-    def get_index_script(self):
-        logger.debug("Generating index script...")
-        env = {
-               'username': self.parameters.couchbase_admin,
-               ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        stdout, stderr, exit_code = utilities.execute_bash(self.connection, 'get_index_script', **env)
-        return stdout
-
-    def execute_index_script(self, index_script_command):
-        logger.debug("Executing index script...")
-        env = {'base_path': helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),
-               'username': self.parameters.couchbase_admin, 'index_script': index_script_command,
-               ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        logger.debug("env detail is : {}".format(env))
-        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name='execute_index_script',
-                                                                    **env)
-        logger.debug("Indexes are {}".format(command_output))
-
-    def monitor_build_indexs(self):
-        logger.debug("Monitoring building indexs...")
-        env = {'base_path': helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),
-               'username': self.parameters.couchbase_admin,
-               ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        logger.debug("env detail is : ".format(env))
-        command_output, std_err, exit_code = utilities.execute_bash(self.connection,
-                                                                    command_name='monitor_build_indexs',
-                                                                    **env)
-        while (int(command_output)>0):
-            helper_lib.sleepForSecond(5)
-            command_output, std_err, exit_code = utilities.execute_bash(self.connection,
-                                                                        command_name='monitor_build_indexs',
-                                                                        **env)
-        logger.debug("Monitoring completed")
 
     @staticmethod
     def __get_environment_common_detail(parameters):
