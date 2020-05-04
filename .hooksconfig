@@ -1,7 +1,0 @@
-[gate]
-       name = dsil-reference-architecture
-       shortname = dsil-reference-architecture
-       notify = git-notify-dsil-reference-architecture@delphix.com
-       gate-approvers = gatekeepers-dsil-reference-architecture
-       commit-check = skip
-       tags-allowed = true
