@@ -6,6 +6,7 @@
 from dlpx.virtualization.platform import Mount, MountSpecification, Plugin, Status
 from operations import discovery, linked, virtual
 from utils import setup_logger
+from db_commands.constants import EVICTION_POLICY
 
 
 plugin = Plugin()
@@ -46,18 +47,13 @@ def linked_post_snapshot(staged_source, repository, source_config, snapshot_para
 def linked_mount_specification(staged_source, repository):
     mount_path = staged_source.parameters.mount_path
     environment = staged_source.staged_connection.environment
+    linked.check_mount_path(staged_source, repository)
     mounts = [Mount(environment, mount_path)]
-
     return MountSpecification(mounts)
 
 
 @plugin.linked.pre_snapshot()
 def linked_pre_snapshot(staged_source, repository, source_config, snapshot_parameters):
-    # TODO
-    # Below 2 parameters are for future enhancements when upgrade is supported
-    staged_source.parameters.bucket_eviction_policy = "valueOnly"
-    staged_source.parameters.bucket_size = 0
-
     if int(snapshot_parameters.resync) == 1:
         #linked.resync(staged_source, repository, source_config, staged_source.parameters.d_source_type)
         linked.resync(staged_source, repository, source_config, staged_source.parameters)
@@ -90,7 +86,7 @@ def reconfigure(virtual_source, repository, source_config, snapshot):
 
 @plugin.virtual.pre_snapshot()
 def virtual_pre_snapshot(virtual_source, repository, source_config):
-    virtual.vdb_pre_snapshot()
+    virtual.vdb_pre_snapshot(virtual_source, repository, source_config)
 
 
 @plugin.virtual.post_snapshot()

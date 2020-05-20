@@ -91,6 +91,7 @@
       "clusterFTSRAMSize",
       "clusterEventingRAMSize",
       "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
       "couchbaseAdmin",
       "couchbaseAdminPassword"],
     "ordering": [
@@ -102,6 +103,7 @@
       "clusterFTSRAMSize",
       "clusterEventingRAMSize",
       "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
       "couchbaseAdmin",
       "couchbaseAdminPassword",
       "fts_service",
@@ -157,6 +159,13 @@
         "description": "",
         "default": 1024
       },
+      "bucketEvictionPolicy": {
+        "type": "string",
+        "prettyName": "Bucket Eviction Policy",
+        "description": "The memory-cache eviction policy for this bucket.",
+        "enum": ["valueOnly", "fullEviction"],
+        "default": "valueOnly"
+      },
       "couchbaseAdmin": {
         "type": "string",
         "prettyName": "Target Couchbase Admin User",
@@ -204,6 +213,8 @@
       "clusterFTSRAMSize",
       "clusterEventingRAMSize",
       "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
+      "bucketSize",
       "couchbaseAdmin",
       "couchbaseAdminPassword",
       "xdcrAdmin",
@@ -222,6 +233,8 @@
       "clusterFTSRAMSize",
       "clusterEventingRAMSize",
       "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
+      "bucketSize",
       "couchbaseAdmin",
       "couchbaseAdminPassword",
       "xdcrAdmin",
@@ -307,6 +320,19 @@
         "prettyName": "Cluster Analytics RAM Size",
         "description": "",
         "default": 1024
+      },
+       "bucketEvictionPolicy": {
+        "type": "string",
+        "prettyName": "Bucket Eviction Policy",
+        "description": "The memory-cache eviction policy for this bucket.",
+        "enum": ["valueOnly", "fullEviction"],
+        "default": "valueOnly"
+      },
+       "bucketSize": {
+        "type": "integer",
+        "prettyName": "Bucket Size",
+        "description": "The default bucket size",
+        "default": 0
       },
       "couchbaseAdmin": {
         "type": "string",
