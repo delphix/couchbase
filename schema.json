@@ -1,0 +1,442 @@
+{
+  "repositoryDefinition": {
+    "type": "object",
+    "required": [
+      "cbInstallPath",
+      "cbShellPath",
+      "prettyName"
+    ],
+    "properties": {
+      "cbInstallPath": {
+        "type": "string",
+        "format": "unixpath",
+        "prettyName": "Couchbase Install Path",
+        "description": "Path to Couchbase binaries"
+      },
+      "cbShellPath": {
+        "type": "string",
+        "format": "unixpath",
+        "prettyName": "Couchbase Shell Path",
+        "description": "Path to Couchbase Shell"
+      },
+      "version": {
+        "type": "string",
+        "prettyName": "Version",
+        "description": "Couchbase Version"
+      },
+      "prettyName": {
+        "type": "string",
+        "prettyName": "Identity Name",
+        "description": "Pretty name of this repository"
+      }
+    },
+    "nameField": "prettyName",
+    "identityFields": [
+      "cbInstallPath",
+      "cbShellPath"
+    ]
+  },
+  "sourceConfigDefinition": {
+    "type": "object",
+    "required": [
+      "couchbaseSrcHost",
+      "couchbaseSrcPort",
+      "dbPath",
+      "prettyName"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "couchbaseSrcHost": {
+        "type": "string",
+        "prettyName": "Source Host",
+        "description": "",
+        "default": ""
+      },
+      "couchbaseSrcPort": {
+        "type": "integer",
+        "prettyName": "Source Couchbase Port",
+        "description": "",
+        "default": 8091
+      },
+      "dbPath": {
+        "type": "string",
+        "format": "unixpath",
+        "prettyName": "DB Data Path",
+        "description": "",
+        "default": ""
+      },
+      "prettyName": {
+        "type": "string",
+        "prettyName": "Identity Field",
+        "description": "Recommended : Couchbase<Port>",
+        "default": ""
+      }
+    },
+    "nameField": "prettyName",
+    "identityFields": [
+      "dbPath",
+      "couchbaseSrcPort",
+      "prettyName"
+    ]
+  },
+  "virtualSourceDefinition": {
+    "type": "object",
+    "additionalProperties" : false,
+    "required": [
+      "couchbasePort",
+      "mountPath",
+      "tgtClusterName",
+      "clusterRAMSize",
+      "clusterIndexRAMSize",
+      "clusterFTSRAMSize",
+      "clusterEventingRAMSize",
+      "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
+      "couchbaseAdmin",
+      "couchbaseAdminPassword"],
+    "ordering": [
+      "couchbasePort",
+      "mountPath",
+      "tgtClusterName",
+      "clusterRAMSize",
+      "clusterIndexRAMSize",
+      "clusterFTSRAMSize",
+      "clusterEventingRAMSize",
+      "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
+      "couchbaseAdmin",
+      "couchbaseAdminPassword",
+      "fts_service",
+      "analytics_service",
+      "eventing_service"],
+    "properties" : {
+      "couchbasePort": {
+        "type": "integer",
+        "prettyName": "Target Port Number",
+        "description": "",
+        "default": 8091
+      },
+      "mountPath": {
+        "type": "string",
+        "prettyName": "Mount Path",
+        "format": "unixpath",
+        "description": "",
+        "default": ""
+      },
+      "tgtClusterName": {
+        "type": "string",
+        "prettyName": "Target Cluster Name",
+        "description": "",
+        "default": ""
+      },
+      "clusterRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster RAM Size",
+        "description": "",
+        "default": 2000
+      },
+      "clusterIndexRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster Index RAM Size",
+        "description": "",
+        "default": 256
+      },
+      "clusterFTSRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster FTS RAM Size",
+        "description": "",
+        "default": 256
+      },
+      "clusterEventingRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster Eventing RAM Size",
+        "description": "",
+        "default": 256
+      },
+      "clusterAnalyticsRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster Analytics RAM Size",
+        "description": "",
+        "default": 1024
+      },
+      "bucketEvictionPolicy": {
+        "type": "string",
+        "prettyName": "Bucket Eviction Policy",
+        "description": "The memory-cache eviction policy for this bucket.",
+        "enum": ["valueOnly", "fullEviction"],
+        "default": "valueOnly"
+      },
+      "couchbaseAdmin": {
+        "type": "string",
+        "prettyName": "Target Couchbase Admin User",
+        "description": "",
+        "default": "Administrator"
+      },
+      "couchbaseAdminPassword": {
+        "type": "string",
+        "format": "password",
+        "prettyName": "Target Couchbase Admin Password",
+        "description": "",
+        "default": ""
+      },
+      "fts_service": {
+        "default": true,
+        "type": "boolean",
+        "prettyName": "FTS Service",
+        "description": ""
+      },
+      "analytics_service": {
+        "default": true,
+        "type": "boolean",
+        "prettyName": "Analytics Service",
+        "description": ""
+      },
+      "eventing_service": {
+        "default": true,
+        "type": "boolean",
+        "prettyName": "Eventing Service",
+        "description": ""
+      }
+    }
+  },
+  "linkedSourceDefinition": {
+    "type": "object",
+    "additionalProperties" : false,
+    "required": [
+      "dSourceType",
+      "couchbaseHost",
+      "couchbasePort",
+      "mountPath",
+      "stgClusterName",
+      "clusterRAMSize",
+      "clusterIndexRAMSize",
+      "clusterFTSRAMSize",
+      "clusterEventingRAMSize",
+      "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
+      "bucketSize",
+      "couchbaseAdmin",
+      "couchbaseAdminPassword",
+      "xdcrAdmin",
+      "xdcrAdminPassword"
+    ],
+    "ordering" : [
+      "dSourceType",
+      "couchbaseHost",
+      "couchbasePort",
+      "couchbaseBakLoc",
+      "couchbaseBakRepo",
+      "mountPath",
+      "stgClusterName",
+      "clusterRAMSize",
+      "clusterIndexRAMSize",
+      "clusterFTSRAMSize",
+      "clusterEventingRAMSize",
+      "clusterAnalyticsRAMSize",
+      "bucketEvictionPolicy",
+      "bucketSize",
+      "couchbaseAdmin",
+      "couchbaseAdminPassword",
+      "xdcrAdmin",
+      "xdcrAdminPassword",
+      "fts_service",
+      "analytics_service",
+      "eventing_service",
+        "config_settings_prov"
+    ],
+    "properties" : {
+      "dSourceType": {
+        "type": "string",
+        "prettyName": "dSource Type",
+        "description": "",
+        "enum": ["Couchbase Backup Manager", "XDCR"],
+        "default": "XDCR"
+      },
+      "couchbaseHost": {
+        "type": "string",
+        "prettyName": "Staging Couchbase Host",
+        "description": "",
+        "default": ""
+      },
+      "couchbasePort": {
+        "type": "integer",
+        "prettyName": "Staging Port Number",
+        "description": "",
+        "default": 8091
+      },
+      "couchbaseBakLoc": {
+        "type": "string",
+        "format": "unixpath",
+        "prettyName": "Backup Location",
+        "description": "Backups taken via cbbackupmgr",
+        "default": ""
+      },
+      "couchbaseBakRepo": {
+        "type": "string",
+        "format": "unixpath",
+        "prettyName": "Backup Repository",
+        "description": "Repository used by cbbackupmgr",
+        "default": ""
+      },
+      "mountPath": {
+        "type": "string",
+        "format": "unixpath",
+        "prettyName": "Mount Path",
+        "description": "",
+        "default": ""
+      },
+      "stgClusterName": {
+        "type": "string",
+        "prettyName": "Staging Cluster Name",
+        "description": "",
+        "default": ""
+      },
+      "clusterRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster RAM Size",
+        "description": "",
+        "default": 2000
+      },
+      "clusterIndexRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster Index RAM Size",
+        "description": "",
+        "default": 256
+      },
+      "clusterFTSRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster FTS RAM Size",
+        "description": "",
+        "default": 256
+      },
+      "clusterEventingRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster Eventing RAM Size",
+        "description": "",
+        "default": 256
+      },
+      "clusterAnalyticsRAMSize": {
+        "type": "integer",
+        "prettyName": "Cluster Analytics RAM Size",
+        "description": "",
+        "default": 1024
+      },
+       "bucketEvictionPolicy": {
+        "type": "string",
+        "prettyName": "Bucket Eviction Policy",
+        "description": "The memory-cache eviction policy for this bucket.",
+        "enum": ["valueOnly", "fullEviction"],
+        "default": "valueOnly"
+      },
+       "bucketSize": {
+        "type": "integer",
+        "prettyName": "Bucket Size",
+        "description": "The default bucket size",
+        "default": 0
+      },
+      "couchbaseAdmin": {
+        "type": "string",
+        "prettyName": "Staging Couchbase Admin User",
+        "description": "",
+        "default": "Administrator"
+      },
+      "couchbaseAdminPassword": {
+        "type": "string",
+        "format": "password",
+        "prettyName": "Staging Couchbase Admin Password",
+        "description": "",
+        "default": ""
+      },
+      "xdcrAdmin": {
+        "type": "string",
+        "prettyName": "Source Couchbase XDCR Admin User",
+        "description": "",
+        "default": "Administrator"
+      },
+      "xdcrAdminPassword": {
+        "type": "string",
+        "format": "password",
+        "prettyName": "Source Couchbase XDCR Admin Password",
+        "description": "",
+        "default": ""
+      },
+      "fts_service": {
+        "default": true,
+        "type": "boolean",
+        "prettyName": "FTS Service",
+        "description": ""
+      },
+      "analytics_service": {
+        "default": true,
+        "type": "boolean",
+        "prettyName": "Analytics Service",
+        "description": ""
+      },
+      "eventing_service": {
+        "default": true,
+        "type": "boolean",
+        "prettyName": "Eventing Service",
+        "description": ""
+      },
+      "config_settings_prov" : {
+        "type": "array",
+        "prettyName": "Config Settings",
+        "description": "Bucket list to be included in Cross Data Center Replication (XDCR)",
+        "items": {
+          "type": "object",
+          "required": [
+            "bucketName"
+          ],
+          "ordering": [
+            "bucketName"
+          ],
+          "properties": {
+            "bucketName": {
+              "type": "string",
+              "prettyName": "Bucket Name",
+              "default": "",
+              "maxLength": 40
+            }
+          }
+        }
+      }
+    }
+  },
+  "snapshotDefinition": {
+    "type" : "object",
+    "required": [
+      "snapshotId",
+      "timeStamp",
+      "couchbaseHost",
+      "couchbasePort",
+      "dbPath",
+      "bucketList"
+    ],
+    "additionalProperties" : false,
+    "properties" : {
+      "snapshotId": {
+        "type": "string",
+        "prettyName": "Snapshot ID",
+        "description": "A unique ID for this snapshot"
+      },
+      "timeStamp": {
+        "type": "string",
+        "prettyName": "Snapshot Timestamp",
+        "description": ""
+      },
+      "couchbaseHost": {
+        "type": "string"
+      },
+      "couchbasePort": {
+        "type": "integer"
+      },
+      "dbPath": {
+        "format": "unixpath",
+        "type": "string"
+      },
+      "bucketList": {
+        "type": "string"
+      }
+    }
+  }
+}
