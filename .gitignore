@@ -1,0 +1,10 @@
+/lib/*
+/local/*
+/.dvp-gen-output/*
+*idea*
+/src/generated/*
+*.pyc
+*generated*
+artifact.json
+.DS_Store
+__pycache__/
