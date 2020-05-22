@@ -1,11 +1,13 @@
 ![](images/image1.png)
 
 
+
+
+
 Couchbase EDSI Plugin - Install/Configure on Delphix Engine
 
 
-**\
-**
+
 
 Table of Contents
 =================
