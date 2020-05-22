@@ -12,34 +12,33 @@ Couchbase EDSI Plugin - Install/Configure on Delphix Engine
 Table of Contents
 =================
 
-[Table of Contents 3](#table-of-contents)
+[Table of Contents](#table-of-contents)
 
-[Purpose 4](#purpose)
+[Purpose](#purpose)
 
-[Audience 4](#audience)
+[Audience](#audience)
 
-[Prerequisites 4](#prerequisites)
+[Prerequisites](#prerequisites)
 
-[Install Couchbase EDSI Plugin 4](#install-couchbase-edsi-plugin)
+[Install Couchbase EDSI Plugin](#install-couchbase-edsi-plugin)
 
-[Refresh Environment 7](#refresh-environment)
+[Refresh Environment](#refresh-environment)
 
-[Create Sourceconfig 8](#create-sourceconfig)
+[Create Sourceconfig](#create-sourceconfig)
 
-[Create dSource 9](#create-dsource)
+[Create dSource](#create-dsource)
 
-[XDCR Method 9](#xdcr-method)
+[XDCR Method](#xdcr-method)
 
-[Couchbase Backup Manager Method 13](#couchbase-backup-manager-method)
+[Couchbase Backup Manager Method](#couchbase-backup-manager-method)
 
-[Provision VDB 14](#provision-vdb)
+[Provision VDB](#provision-vdb)
 
-[Appendix 15](#appendix)
+[Appendix](#appendix)
 
-[Known Issues 15](#known-issues)
+[Known Issues](#known-issues)
 
-[Simultaneous dSource creation 15](#simultaneous-dsource-creation)
-
+[Simultaneous dSource creation](#simultaneous-dsource-creation)
  
 
 Purpose
