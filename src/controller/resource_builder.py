@@ -51,7 +51,7 @@ class Resource(object):
         """
         # Validating the type of builder. It must be of two type (type or Resource). Else it will raise an Exception for
         # other cases like string, int or object of any other class.
-        if isinstance(builder, type) or isinstance(builder, Resource):
+        if isinstance(builder, type) or isinstance(builder, Resource) or builder.__class__.__name__ == 'Resource':
             self.connection = builder.connection
             self.repository = builder.repository
             self.source_config = builder.source_config
