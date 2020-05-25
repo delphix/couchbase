@@ -8,3 +8,9 @@
 artifact.json
 .DS_Store
 __pycache__/
+*.html
+*assets/
+*coverage*
+*ModuleWiseCoverage
+*CodeCoverage
+*venv/
