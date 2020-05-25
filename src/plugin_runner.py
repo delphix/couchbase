@@ -55,7 +55,6 @@ def linked_mount_specification(staged_source, repository):
 @plugin.linked.pre_snapshot()
 def linked_pre_snapshot(staged_source, repository, source_config, snapshot_parameters):
     if int(snapshot_parameters.resync) == 1:
-        #linked.resync(staged_source, repository, source_config, staged_source.parameters.d_source_type)
         linked.resync(staged_source, repository, source_config, staged_source.parameters)
     linked.pre_snapshot(staged_source, repository, source_config, staged_source.parameters)
 
