@@ -36,11 +36,6 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
 
 
 ### <a id="requirements-plugin"></a>Prerequisites
-* macOS 10.14+, Ubuntu 16.04+, or Windows 10
-* Python 2.7 (Python 3 is not supported)
-* Java 7+
-* Delphix Engine 5.3.x / 6.0.x and above
-
 **Source Requirements:** Couchbase database user with following privileges
 *   XDCR_ADMIN
 *   DATA_MONITOR
@@ -117,9 +112,9 @@ Download the plugin logs using below command:
 ```dvp download-logs -c plugin_config.yml -e <Delphix_Engine_Name> -u admin --password <password>```
 
 #### Unit test logs: 
-#####SummaryReport:
+##### SummaryReport:
 A report with name `Report.html` generates at project directory which contains the summary of test passed vs failed. If any test case got failed then complete stack trace can be seen in that test case section.
-#####Module wise coverage report:
+##### Module wise coverage report:
 2. There is a report folder `CodeCoverage`(can change the directory name in config file `pytest.ini`) generate which contains html files. Those files helps in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
 
 
