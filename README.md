@@ -1,11 +1,17 @@
 ![](images/image1.png) 
 
-##What Does a Delphix Plugin Do?
+
+
+
+
+
+## 
+## What Does a Delphix Plugin Do?
 Delphix is a data management platform that provides the ability to securely copy and share datasets. Using virtualization, you will ingest your data sources and create virtual data copies, which are full read-write capable database instances that use a small fraction of the resources a normal database copy would require. The Delphix engine has built-in support for interfacing with certain types of datasets, such as Oracle, SQL Server and ASE.
 
 The Delphix virtualization SDK (https://github.com/delphix/virtualization-sdk) provides an interface for building custom data source integrations for the Delphix Dynamic Data Platform. The end users can design/implement a custom plugin which enable them to use custom data source like MongoDB, Cassandra, Couchbase or something else similar to as if they are using a built-in dataset type with Delphix Engine.
 
-##Couchbase Plugin
+## Couchbase Plugin
 Couchbase plugin is developed to virtualize couchbase data source leveraging the following built-in couchbase technologies:
   - Cross Data Center Replication (XDCR) allows data to be replicated across clusters that are potentially located in different data centers.
   - Cbbackupmgr allows data to be restored on staging host of Couchbase Server. 
@@ -16,23 +22,20 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
 
 
 ### Table of Contents
-1. [Plugin workflow](#pluginworkflow)
-2. [Prerequisites](#requirements-)
-3. [Build and Upload Plugin](#upload-toolkit)
-4. [Virtualizing Couchbase](#user-documentation)
-5. [Download logs](#run_unit_test_case)
-6. [Tested Versions](#tested-versions)
-7. [Supported Features](#support-features)
-8. [Unsupported Features](#unsupported-features)
-9. [Known Issues](#known_issue)
-10.  [How to Contribute](#contribute)
-11.  [Statement of Support](#statement-of-support)
-12.  [License](#license)
+1. [Prerequisites](#requirements-plugin)
+2. [Build and Upload Plugin](#upload-plugin)
+3. [Virtualizing Couchbase](#user-documentation)
+4. [Download logs](#run_unit_test_case)
+5. [Tested Versions](#tested-versions)
+6. [Supported Features](#support-features)
+7. [Unsupported Features](#unsupported-features)
+8. [Known Issues](#known_issue)
+9.  [How to Contribute](#contribute)
+10.  [Statement of Support](#statement-of-support)
+11.  [License](#license)
 
 
-### <a id="pluginworkflow"></a>Plugin workflow
-
-### <a id="Prerequisites"></a>Prerequisites
+### <a id="requirements-plugin"></a>Prerequisites
 * macOS 10.14+, Ubuntu 16.04+, or Windows 10
 * Python 2.7 (Python 3 is not supported)
 * Java 7+
@@ -73,7 +76,7 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
     /bin/mount, /bin/umount
     ```
 
-### <a id="upload-toolkit"></a>Build plugin, Upload plugin and Unit Test Run
+### <a id="upload-plugin"></a>Build plugin, Upload plugin and Unit Test Run
   * Create a virtual environment and install required libraries(dvp, pytest, pytest-html & pytest-cov) using script `virtualEnvSetup.sh`.
     
   ```bash
