@@ -5,6 +5,8 @@
 
 
 
+
+
 ## 
 ## What Does a Delphix Plugin Do?
 Delphix is a data management platform that provides the ability to securely copy and share datasets. Using virtualization, you will ingest your data sources and create virtual data copies, which are full read-write capable database instances that use a small fraction of the resources a normal database copy would require. The Delphix engine has built-in support for interfacing with certain types of datasets, such as Oracle, SQL Server and ASE.
@@ -71,41 +73,40 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
     /bin/mount, /bin/umount
     ```
 
-### <a id="upload-plugin"></a>Build plugin, Upload plugin and Unit Test Run
-  * Create a virtual environment and install required libraries(dvp, pytest, pytest-html & pytest-cov) using script `virtualEnvSetup.sh`.
+### <a id="upload-plugin"></a>Steps to build, upload and run unit tests for plugin
+  1. Create a virtual environment and install required libraries(dvp, pytest, pytest-html & pytest-cov) using script `virtualEnvSetup.sh`.
     
   ```bash
-    cd <complete path of project directory>
-    ./virtualEnvSetup.sh <virtual enviornment name>
+    cd <complete path of project directory till `src` directory>
+    ./test/virtualEnvSetup.sh <virtual enviornment name>
 For example:
     cd /Users/<your-user-name>/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
-    ./virtualEnvSetup.sh "MyLocalEnv"
+    ./test/virtualEnvSetup.sh "MyLocalEnv"
 ```
     
-  * Activate the virtualenv:
+  2.  Run this command to activate the virtual environment created in step 1:
    ```bash
-    . MyLocalEnv/bin/activate
+    . test/MyLocalEnv/bin/activate
    ```
 
-  *  Build the source code. It generates the build with name of artifacts.json:
+  3.  Build the source code. It generates the build with name `artifacts.json`:
 ```bash
     dvp build
 ```
     
-   * Upload the artifacts.json on Delphix Engine:
+   4. Upload the `artifacts.json` ( generated in step 3 ) on Delphix Engine:
 ```bash
     dvp upload -e <Delphix_Engine_Name> -u <username> --password <password>
 ```
-  * Unit test run: Make sure that you have already built the source code( using `dvp build` ) before running unit tests. 
+   5. Unit test run: Make sure to build the source code( using `dvp build` ) before running unit tests
   ```bash
-     pytest
+     pytest test/
 ```
 
 ### <a id="user-documentation"></a> How to Virtualize Couchbase
-The following document provides details on how to virtualize couchbase dataset, step-by-step information on how to link, provision couchbase dataset.
-(https://github.com/delphix/couchbase-plugin/blob/master/CouchbaseUserDocumentation.md)
+The following document provides details on how to virtualize couchbase dataset, step-by-step information on how to link, provision couchbase dataset: [CouchbaseUserDocumentation.md](https://github.com/delphix/couchbase-plugin/blob/master/CouchbaseUserDocumentation.md)
 
-### <a id="run_unit_test_case"></a>Download logs
+### <a id="run_unit_test_case"></a>Download plugin logs
 #### Plugin Logs:
 Download the plugin logs using below command:
 
@@ -113,9 +114,9 @@ Download the plugin logs using below command:
 
 #### Unit test logs: 
 ##### SummaryReport:
-A report with name `Report.html` generates at project directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.
+A report with name `Report.html` gets generated in `test` directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.
 ##### Module wise coverage report:
-There is a report folder `CodeCoverage`(can change the folder name in config file `pytest.ini`) generated which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
+There is a report folder `CodeCoverage`(can change the folder name in config file `pytest.ini`) generated in `test` directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
 
 
 
