@@ -60,9 +60,11 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
        `/opt/couchbase/bin/couchbase-cli bucket-list --cluster <sourcehost>:8091  --username $username --password $password`
     
     * Create config file using below command. This file will be required at the time of dSource creation using CBBACKUPMGR.
+      
       `/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix`
     
     * Get data from source host in backup directory of staging host
+    
     `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
        
   
