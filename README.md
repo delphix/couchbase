@@ -53,13 +53,19 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
     delphixos ALL=NOPASSWD: \ 
     /bin/mount, /bin/umount
     ```
-6. Customers who intends to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instruction to avoid source/production server dependency.
-   - Provide all the source server buckets related information in a text file and place it under the backup location.
-   - FilePath : <Toolkit-Directory-Path>/couchbase_src_bucket_info
-                In this file add output of below command:
-                /opt/couchbase/bin/couchbase-cli bucket-list --cluster <sourcehost>:8091  --username $username --password $pass
-                From here all source bucket list information we can fetch and other related data of this bucket should be placed at backup location.
-                :param filename: filename(couchbase_src_bucket_info.cfg) where bucket information is kept.
+6. Customers who intends to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.
+
+    * Provide all source server buckets related information( using below command ) in a file and place at `<Toolkit-Directory-Path>/couchbase_src_bucket_info.cfg`:
+  
+       `/opt/couchbase/bin/couchbase-cli bucket-list --cluster <sourcehost>:8091  --username $username --password $password`
+    
+    * Create config file using below command. This file will be required at the time of dSource creation using CBBACKUPMGR.
+      `/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix`
+    
+    * Get data from source host in backup directory of staging host
+    `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
+       
+  
 
 **Target Requirements**: O/S user with following privileges
 1. Regular o/s user.
