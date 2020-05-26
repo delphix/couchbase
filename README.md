@@ -65,7 +65,7 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
     
     * Get data from source host in backup directory of staging host
     
-    `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
+      `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
        
   
 
@@ -85,7 +85,7 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
   1. Create a virtual environment and install required libraries(dvp, pytest, pytest-html & pytest-cov) using script `virtualEnvSetup.sh`.
     
   ```bash
-    cd <complete path of project directory till `src` directory>
+    cd <complete path of project directory till `couchbase-plugin` directory>
     ./test/virtualEnvSetup.sh <virtual enviornment name>
 For example:
     cd /Users/<your-user-name>/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
