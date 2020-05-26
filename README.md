@@ -44,7 +44,7 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
 1. Regular o/s user.
 2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]
 3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]
-4. Empty folder on host to mount nfs filesystem. This is just and empty folder with no space requirements and act as base folder for nfs mounts.
+4. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as base folder for nfs mounts.
 5. sudo privileges for mount, umount. See sample below assuming `delphix_os` is used as delphix user.
     ```shell
     Defaults:delphixos !requiretty
@@ -96,7 +96,7 @@ For example:
 ```bash
     dvp upload -e <Delphix_Engine_Name> -u <username> --password <password>
 ```
-  * Unit test run:
+  * Unit test run: Make sure that you have already built the source code( using `dvp build` ) before running unit tests. 
   ```bash
      pytest
 ```
@@ -113,9 +113,9 @@ Download the plugin logs using below command:
 
 #### Unit test logs: 
 ##### SummaryReport:
-A report with name `Report.html` generates at project directory which contains the summary of test passed vs failed. If any test case got failed then complete stack trace can be seen in that test case section.
+A report with name `Report.html` generates at project directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.
 ##### Module wise coverage report:
-2. There is a report folder `CodeCoverage`(can change the directory name in config file `pytest.ini`) generate which contains html files. Those files helps in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
+There is a report folder `CodeCoverage`(can change the folder name in config file `pytest.ini`) generated which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
 
 
 
@@ -137,13 +137,7 @@ A report with name `Report.html` generates at project directory which contains t
 
 ### <a id="contribute"></a>How to Contribute
 
-All contributors are required to sign the Delphix Contributor Agreement prior to contributing code to an open source
-repository. This process is handled automatically by [cla-assistant](https://cla-assistant.io/). Simply open a pull
-request and a bot will automatically check to see if you have signed the latest agreement. If not, you will be prompted
-to do so as part of the pull request process.
-
-This project operates under the [Delphix Code of Conduct](https://delphix.github.io/code-of-conduct.html). By
-participating in this project you agree to abide by its terms.
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) to understand the pull requests process.
 
 ### <a id="statement-of-support"></a>Statement of Support
 
