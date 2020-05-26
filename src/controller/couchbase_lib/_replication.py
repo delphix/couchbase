@@ -101,9 +101,8 @@ class _ReplicationMixin(Resource, MixinInterface):
         stream_id, cluster_name = self.get_stream_id()
         kwargs = {ENV_VAR_KEY: {'source_password': self.parameters.xdcr_admin_password}}
         env = _ReplicationMixin.generate_environment_map(self)
-        cmd = CommandFactory.pause_replication(cluster_name=cluster_name, **env)
         for replication_id in stream_id:
-            kwargs["id"] = replication_id
+            cmd = CommandFactory.pause_replication(cluster_name=cluster_name, id=replication_id, **env)
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
             logger.debug(stdout)
 
@@ -112,9 +111,8 @@ class _ReplicationMixin(Resource, MixinInterface):
         stream_id, cluster_name = self.get_stream_id()
         kwargs = {ENV_VAR_KEY: {'source_password': self.parameters.xdcr_admin_password}}
         env = _ReplicationMixin.generate_environment_map(self)
-        cmd = CommandFactory.resume_replication(cluster_name=cluster_name, **env)
-        for id in stream_id:
-            kwargs["id"] = id
+        for s_id in stream_id:
+            cmd = CommandFactory.resume_replication(cluster_name=cluster_name, id=s_id , **env)
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
             logger.debug(stdout)
 
@@ -129,7 +127,6 @@ class _ReplicationMixin(Resource, MixinInterface):
         env = _ReplicationMixin.generate_environment_map(self)
 
         for id in stream_id:
-            kwargs["id"] = id
             cmd = CommandFactory.delete_replication(cluster_name=cluster_name, id=id, **env)
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
             if exit_code != 0:
