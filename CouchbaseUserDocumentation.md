@@ -4,6 +4,8 @@
 
 
 
+
+
 Couchbase EDSI Plugin - Install/Configure on Delphix Engine
 
 
@@ -15,8 +17,6 @@ Table of Contents
 [Table of Contents](#table-of-contents)
 
 [Purpose](#purpose)
-
-[Audience](#audience)
 
 [Prerequisites](#prerequisites)
 
@@ -34,8 +34,6 @@ Table of Contents
 
 [Provision VDB](#provision-vdb)
 
-[Appendix](#appendix)
-
 [Known Issues](#known-issues)
 
 [Simultaneous dSource creation](#simultaneous-dsource-creation)
@@ -44,27 +42,14 @@ Table of Contents
 Purpose
 =======
 
-This document will help to install configure couchbase edsi
-
-a)  .....
-
-b)  .....
-
-c)  .....
-
-Audience
-========
-
--   Delphix Administrators
-
--   Solution / Technical Architects
+This document contains the screenshot of the steps required to install and configure the couchbase plugin. With the help of these steps can create dSource and VDB.
 
 Prerequisites
 =============
 
 -   Install delphix engine 5.3.x and above
 
--   Install couchbase binaries on source and target servers
+-   Install couchbase binaries on source, staging and target servers
 
 Install Couchbase EDSI Plugin
 =============================
@@ -136,9 +121,6 @@ Provision VDB
 ![](images/image26.png)
 ![](images/image27.png)
 
-
-Appendix
-========
 
 Known Issues
 ------------
