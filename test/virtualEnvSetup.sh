@@ -28,7 +28,7 @@ if [[ "$env_name" == "" ]] ; then
     printMessage "Setting default virtual environment name as: $env_name"
 fi
 
-ROOT_DIR=$PWD
+ROOT_DIR=$PWD/test
 VIRTUAL_ENV_PATH="${ROOT_DIR}"/${env_name}
 if [[ -d ${VIRTUAL_ENV_PATH} ]] ; then
     printMessage "${VIRTUAL_ENV_PATH} exist, please provide different name"
@@ -62,5 +62,5 @@ fi
 
 printMessage "Set up completed in virtual environment ${VIRTUAL_ENV_FOLDER}"
 deactivate
-printMessage "Deactivated the environment. Execute: . ${env_name}/bin/activate to activate again"
-printMessage "To delete this setup, execute: rm -rf $env_name"
+printMessage "Deactivated the environment. Execute: . test/${env_name}/bin/activate to activate again"
+printMessage "To delete this setup, execute: rm -rf test/$env_name"

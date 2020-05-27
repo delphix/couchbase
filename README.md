@@ -5,6 +5,8 @@
 
 
 
+
+
 ## 
 ## What Does a Delphix Plugin Do?
 Delphix is a data management platform that provides the ability to securely copy and share datasets. Using virtualization, you will ingest your data sources and create virtual data copies, which are full read-write capable database instances that use a small fraction of the resources a normal database copy would require. The Delphix engine has built-in support for interfacing with certain types of datasets, such as Oracle, SQL Server and ASE.
@@ -44,20 +46,28 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
 1. Regular o/s user.
 2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]
 3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]
-4. Empty folder on host to mount nfs filesystem. This is just and empty folder with no space requirements and act as base folder for nfs mounts.
+4. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as base folder for nfs mounts.
 5. sudo privileges for mount, umount. See sample below assuming `delphix_os` is used as delphix user.
     ```shell
     Defaults:delphixos !requiretty
     delphixos ALL=NOPASSWD: \ 
     /bin/mount, /bin/umount
     ```
-6. Customers who intends to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instruction to avoid source/production server dependency.
-   - Provide all the source server buckets related information in a text file and place it under the backup location.
-   - FilePath : <Toolkit-Directory-Path>/couchbase_src_bucket_info
-                In this file add output of below command:
-                /opt/couchbase/bin/couchbase-cli bucket-list --cluster <sourcehost>:8091  --username $username --password $pass
-                From here all source bucket list information we can fetch and other related data of this bucket should be placed at backup location.
-                :param filename: filename(couchbase_src_bucket_info.cfg) where bucket information is kept.
+6. Customers who intends to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.
+
+    * Provide all source server buckets related information( using below command ) in a file and place at `<Toolkit-Directory-Path>/couchbase_src_bucket_info.cfg`:
+  
+       `/opt/couchbase/bin/couchbase-cli bucket-list --cluster <sourcehost>:8091  --username $username --password $password`
+    
+    * Create config file using below command. This file will be required at the time of dSource creation using CBBACKUPMGR.
+      
+      `/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix`
+    
+    * Get data from source host in backup directory of staging host
+    
+      `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
+       
+  
 
 **Target Requirements**: O/S user with following privileges
 1. Regular o/s user.
@@ -71,41 +81,40 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
     /bin/mount, /bin/umount
     ```
 
-### <a id="upload-plugin"></a>Build plugin, Upload plugin and Unit Test Run
-  * Create a virtual environment and install required libraries(dvp, pytest, pytest-html & pytest-cov) using script `virtualEnvSetup.sh`.
+### <a id="upload-plugin"></a>Steps to build, upload and run unit tests for plugin
+  1. Create a virtual environment and install required libraries(dvp, pytest, pytest-html & pytest-cov) using script `virtualEnvSetup.sh`.
     
   ```bash
-    cd <complete path of project directory>
-    ./virtualEnvSetup.sh <virtual enviornment name>
+    cd <complete path of project directory till `couchbase-plugin` directory>
+    ./test/virtualEnvSetup.sh <virtual enviornment name>
 For example:
     cd /Users/<your-user-name>/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
-    ./virtualEnvSetup.sh "MyLocalEnv"
+    ./test/virtualEnvSetup.sh "MyLocalEnv"
 ```
     
-  * Activate the virtualenv:
+  2.  Run this command to activate the virtual environment created in step 1:
    ```bash
-    . MyLocalEnv/bin/activate
+    . test/MyLocalEnv/bin/activate
    ```
 
-  *  Build the source code. It generates the build with name of artifacts.json:
+  3.  Build the source code. It generates the build with name `artifacts.json`:
 ```bash
     dvp build
 ```
     
-   * Upload the artifacts.json on Delphix Engine:
+   4. Upload the `artifacts.json` ( generated in step 3 ) on Delphix Engine:
 ```bash
     dvp upload -e <Delphix_Engine_Name> -u <username> --password <password>
 ```
-  * Unit test run:
+   5. Unit test run: Make sure to build the source code( using `dvp build` ) before running unit tests
   ```bash
-     pytest
+     pytest test/
 ```
 
 ### <a id="user-documentation"></a> How to Virtualize Couchbase
-The following document provides details on how to virtualize couchbase dataset, step-by-step information on how to link, provision couchbase dataset.
-(https://github.com/delphix/couchbase-plugin/blob/master/CouchbaseUserDocumentation.md)
+The following document provides details on how to virtualize couchbase dataset, step-by-step information on how to link, provision couchbase dataset: [CouchbaseUserDocumentation.md](https://github.com/delphix/couchbase-plugin/blob/master/CouchbaseUserDocumentation.md)
 
-### <a id="run_unit_test_case"></a>Download logs
+### <a id="run_unit_test_case"></a>Download plugin logs
 #### Plugin Logs:
 Download the plugin logs using below command:
 
@@ -113,9 +122,9 @@ Download the plugin logs using below command:
 
 #### Unit test logs: 
 ##### SummaryReport:
-A report with name `Report.html` generates at project directory which contains the summary of test passed vs failed. If any test case got failed then complete stack trace can be seen in that test case section.
+A report with name `Report.html` gets generated in `test` directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.
 ##### Module wise coverage report:
-2. There is a report folder `CodeCoverage`(can change the directory name in config file `pytest.ini`) generate which contains html files. Those files helps in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
+There is a report folder `CodeCoverage`(can change the folder name in config file `pytest.ini`) generated in `test` directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.
 
 
 
@@ -137,13 +146,7 @@ A report with name `Report.html` generates at project directory which contains t
 
 ### <a id="contribute"></a>How to Contribute
 
-All contributors are required to sign the Delphix Contributor Agreement prior to contributing code to an open source
-repository. This process is handled automatically by [cla-assistant](https://cla-assistant.io/). Simply open a pull
-request and a bot will automatically check to see if you have signed the latest agreement. If not, you will be prompted
-to do so as part of the pull request process.
-
-This project operates under the [Delphix Code of Conduct](https://delphix.github.io/code-of-conduct.html). By
-participating in this project you agree to abide by its terms.
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) to understand the pull requests process.
 
 ### <a id="statement-of-support"></a>Statement of Support
 
