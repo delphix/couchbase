@@ -10,7 +10,6 @@ jobs:
       matrix:
         python-version: [2.7]
         os: [ubuntu-latest, macos-latest]
-        package: [couchbase-plugin]
 
     steps:
     - name: Checkout ${{ matrix.package }} project
