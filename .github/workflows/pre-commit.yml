@@ -25,7 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r test/requirements.txt
     - name: Test ${{ matrix.package }} project with pytest
-      working-directory: ${{ matrix.package }}
       run: |
         dvp build
         python -m pytest test/
