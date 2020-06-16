@@ -1,30 +1,14 @@
-![](images/image1.png)
 
-
-
-
-
-
-
-Couchbase EDSI Plugin - Install/Configure on Delphix Engine
-
+#Linking Couchbase Data Source
 
 
 
 Table of Contents
 =================
 
-[Table of Contents](#table-of-contents)
-
 [Purpose](#purpose)
 
 [Prerequisites](#prerequisites)
-
-[Install Couchbase EDSI Plugin](#install-couchbase-edsi-plugin)
-
-[Refresh Environment](#refresh-environment)
-
-[Create Sourceconfig](#create-sourceconfig)
 
 [Create dSource](#create-dsource)
 
@@ -32,59 +16,41 @@ Table of Contents
 
 [Couchbase Backup Manager Method](#couchbase-backup-manager-method)
 
-[Provision VDB](#provision-vdb)
-
-[Known Issues](#known-issues)
-
-[Simultaneous dSource creation](#simultaneous-dsource-creation)
- 
 
 Purpose
 =======
+Linking a data source will create a dSource object on the engine and allow Delphix to ingest data from this source. The dSource is an object that the Delphix Virtualization Engine uses to create and update virtual copies of your database. 
 
-This document contains the screenshot of the steps required to install and configure the couchbase plugin. With the help of these steps can create dSource and VDB.
+
 
 Prerequisites
 =============
 
--   Install delphix engine 5.3.x and above
+-   Discovery and source config object should be created on staging host before proceeding to link couchbase dataset 
 
--   Install couchbase binaries on source, staging and target servers
-
-Install Couchbase EDSI Plugin
-=============================
-
-![](images/image2.png)
-
-![](images/image3.png)
-
-![](images/image4.png)
-
-![](images/image5.png)
-
-![](images/image6.png)
-
-![](images/image7.png)
-
-![](images/image8.png)
-
-Refresh Environment
-===================
-
-![](images/image9.png)
-
-Create Sourceconfig
-===================
-
-![](images/image10.png)
-
-![](images/image11.png)
 
 Create dSource
 ==============
 
+Steps:
+
+1. Login to Delphix Management application.
+2. Click Manage >  Datasets
+3. Select Add dSource.
+4. In the Add dSource wizard, select the couchbase source config you just created on the staging host.
+5. Enter the Couchbase-specific parameters for your dSource configuration.
+6. Select the dSource type from the drop-down available on dSource wizard.
+
  XDCR Method
 -----------
+Cross data center replication allows data to be replicated across clusters that are potentially located in different data centers.
+
+
+Enter the details for "Staging Couchbase host" - FQDN or IP address recommended
+Enter the details for "Staging Port Number" available on staging host. The default port for couchbase is 8091.
+Enter the details for "Mount Path" available on staging host. This empty folder acts as a base for NFS mounts.
+Enter the details for "Staging Cluster Name" you would like Delphix to setup on your staging host.
+Enter the configuration details for your staging cluster as per resource availability on the staging host.
 
 ![](images/image12.png)
 
@@ -113,20 +79,3 @@ Complete the wizard and click submit.
 ![](images/image22.png)
 ![](images/image23.png)
 
-Provision VDB
-=============
-
-![](images/image24.png)
-![](images/image25.png)
-![](images/image26.png)
-![](images/image27.png)
-
-
-Known Issues
-------------
-
-### Simultaneous dSource creation
-
-![](images/image28.png)
-
-![](images/image29.png)
