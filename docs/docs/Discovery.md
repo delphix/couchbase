@@ -60,10 +60,10 @@ Environments exist to contain `repositories`, and each environment may have any 
 ![](images/image10.png)
 
 6. Add required details in `Add database` section.
- . `Source Couchbase port`: Port number
- . `Source Host`: Source host address
- . `identity field`: Proivide unique name for staging database
- . `DB data path`: Provide couchbase datapath available on your staging host
+ - `Source Couchbase port`: Port number
+ - `Source Host`: Source host address
+ - `identity field`: Proivide unique name for staging database
+ - `DB data path`: Provide couchbase datapath available on your staging host
 
 ![](images/image11.png)
 
@@ -83,10 +83,10 @@ We can enter any random or dummy value in this field of source host name when we
 ![](images/image10.png)
 
 6. 6. Add required details in `Add database` section.
- . `Source Couchbase port`: Port number
- . `Source Host`: Put dummy value for now
- . `identity field`: Proivide unique name for staging database
- . `DB data path`: Put dummy value for now
+ - `Source Couchbase port`: Port number
+ - `Source Host`: Put dummy value for now
+ - `identity field`: Proivide unique name for staging database
+ - `DB data path`: Put dummy value for now
 
 ![](images/image11.png)
 
