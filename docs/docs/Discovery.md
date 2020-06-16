@@ -14,7 +14,7 @@ Couchbase EDSI Plugin - Step by step understanding the discovery operation
 Purpose
 =======
 
-Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes( installing a new database home )to an already set up environment in the Delphix application, we need to perform environment refresh. 
+Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. 
 
 
 
@@ -25,7 +25,7 @@ Prerequisites
 
 -   Installation of the couchbase Plugin is required before the discovery 
 
--   Environment variable `$COUCHBASE_PATH ` should be set which contains binary path
+-   Environment variable `$COUCHBASE_PATH ` should set on staging/target host, which contains binary path of couchbase
 
 
 
@@ -52,7 +52,7 @@ Environments exist to contain `repositories`, and each environment may have any 
 `Repository` contains database instances and in each repository any number of `SourceConfig` objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add `SourceConfig` objects through which can create a dSource. 
 
 
-*For XDCR setup:*
+**XDCR setup:**
 
 1. Login to the Delphix Management application.
 2. Click Manage.
@@ -68,7 +68,7 @@ Environments exist to contain `repositories`, and each environment may have any 
 
 
 
-*For CBBKPMGR setup:*
+**CBBKPMGR setup:**
 
 Here steps is same as we saw in XDCR setup. Since this approach is zero touch production based, no need to fill the exact details of source host. This is bug that source config is coming same for both type of approaches. For now, we can fill dummy data in field of `source host` name.
 
