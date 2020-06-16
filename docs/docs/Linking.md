@@ -2,10 +2,6 @@
 # Linking Couchbase Data Source
 
 
-
-Table of Contents
-=================
-
 [Purpose](#purpose)
 
 [Prerequisites](#prerequisites)
@@ -91,7 +87,7 @@ Cross data center replication allows data to be replicated across clusters that 
 
 ![](images/image18.png)
 
- Couchbase Backup Manager Method 
+Couchbase Backup Manager Method 
 -------------------------------
 Follow below instructions before going to create dsource to avoid source/production server dependency.
 - Provide source server buckets related information in a file and place at `/tmp/couchbase_src_bucket_info.cfg`
@@ -102,6 +98,8 @@ Follow below instructions before going to create dsource to avoid source/product
 
 - Backup Location: Get data from source host in backup directory of staging host
 `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
+
+Steps:
 
 1. Login to Delphix Management application.
 2. Click Manage >  Datasets
