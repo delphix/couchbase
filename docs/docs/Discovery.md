@@ -52,7 +52,8 @@ Environments exist to contain `repositories`, and each environment may have any 
 `Repository` contains database instances and in each repository any number of `SourceConfig` objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add `SourceConfig` objects through which can create a dSource. 
 
 
-*For XDCR setup*
+*For XDCR setup:*
+
 1. Login to the Delphix Management application.
 2. Click Manage.
 3. Select Environments.
@@ -68,8 +69,8 @@ Environments exist to contain `repositories`, and each environment may have any 
 
 
 *For CBBKPMGR setup:*
-Here steps is same as we saw in XDCR setup. Since this approach is zero touch production based, no need to fill the exact details of source host. This is bug that source config is coming same for both type of approaches. For now, we can fill dummy data in field of `source host` name.
 
+Here steps is same as we saw in XDCR setup. Since this approach is zero touch production based, no need to fill the exact details of source host. This is bug that source config is coming same for both type of approaches. For now, we can fill dummy data in field of `source host` name.
 
 1. Login to the Delphix Management application.
 2. Click Manage.
