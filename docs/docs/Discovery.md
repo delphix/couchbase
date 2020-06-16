@@ -1,5 +1,4 @@
-Couchbase EDSI Plugin - Step by step understanding the discovery operation
-
+# Discovery operation
 
 
 [Refresh Environment](#refresh-environment)
@@ -10,12 +9,10 @@ Couchbase EDSI Plugin - Step by step understanding the discovery operation
 
 
  
-
 Purpose
 =======
 
 Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. 
-
 
 
 Prerequisites
@@ -29,12 +26,12 @@ Prerequisites
 
 
 
-
 Refresh Environment
 ===================
 Environment refresh will update the metadata associated with that environment and sends a new plugin to the host.
 
 Steps: 
+
 1. Login to the Delphix Management application.
 2. Click Manage.
 3. Select Environments.
@@ -62,7 +59,11 @@ Environments exist to contain `repositories`, and each environment may have any 
 
 ![](images/image10.png)
 
-6. Add required details in pop up
+6. Add required details in `Add database` section.
+ . `Source Couchbase port`: Port number
+ . `Source Host`: Source host address
+ . `identity field`: Proivide unique name for staging database
+ . `DB data path`: Provide couchbase datapath available on your staging host
 
 ![](images/image11.png)
 
@@ -81,7 +82,11 @@ We can enter any random or dummy value in this field of source host name when we
 
 ![](images/image10.png)
 
-6. Add required details in pop up
+6. 6. Add required details in `Add database` section.
+ . `Source Couchbase port`: Port number
+ . `Source Host`: Put dummy value for now
+ . `identity field`: Proivide unique name for staging database
+ . `DB data path`: Put dummy value for now
 
 ![](images/image11.png)
 
