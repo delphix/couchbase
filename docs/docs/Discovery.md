@@ -70,7 +70,8 @@ Environments exist to contain `repositories`, and each environment may have any 
 
 **CBBKPMGR setup:**
 
-Here steps is same as we saw in XDCR setup. Since this approach is zero touch production based, no need to fill the exact details of source host. This is bug that source config is coming same for both type of approaches. For now, we can fill dummy data in field of `source host` name.
+The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
+We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.
 
 1. Login to the Delphix Management application.
 2. Click Manage.
