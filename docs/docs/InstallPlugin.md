@@ -15,8 +15,11 @@ Prerequisites
 -   Install couchbase binaries on source, staging and target servers
 
 
-Provision VDB
-=============
+Install Couchbase Plugin
+========================
+
+Using GUI:
+----------
 
 1. Click on Manage and then Plugins
 
@@ -31,10 +34,18 @@ Provision VDB
 ![](images/image4.png)
 
 4. Select the `build(artifacts.json)` 
+
 ![](images/image5.png)
 
 5. Click on close button
+
 ![](images/image6.png)
 
 6. See the plugin version in `Plugins` section
+
 ![](images/image7.png)
+
+
+Using dvp command:
+-----------------
+ `dvp upload -e <Delphix_Engine_Name> -u <username> --password <password>`
