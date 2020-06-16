@@ -1,5 +1,6 @@
 arrange:
   - Overview.md
+  - InstallPlugin.md
   - Discovery.md
   - Linking.md
   - Provisioning.md
