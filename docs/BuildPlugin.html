@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Steps to build, upload and run unit tests for plugin · Test Site</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="#  Provision VDB"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Steps to build, upload and run unit tests for plugin · Test Site"/><meta property="og:type" content="website"/><meta property="og:url" content="https://pratap-akhand.github.io/delphix/"/><meta property="og:description" content="#  Provision VDB"/><meta property="og:image" content="https://pratap-akhand.github.io/delphix/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://pratap-akhand.github.io/delphix/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/delphix/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://pratap-akhand.github.io/delphix/blog/atom.xml" title="Test Site Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://pratap-akhand.github.io/delphix/blog/feed.xml" title="Test Site Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/delphix/js/scrollSpy.js"></script><link rel="stylesheet" href="/delphix/css/main.css"/><script src="/delphix/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/delphix/"><img class="logo" src="/delphix/img/favicon.ico" alt="Test Site"/><h2 class="headerTitleWithLogo">Test Site</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavItemActive"><a href="/delphix/docs/BuildPlugin" target="_self">Docs</a></li><li class="siteNavItemActive"><a href="/delphix/docs/BuildPlugin" target="_self">API</a></li><li class=""><a href="/delphix/help" target="_self">Help</a></li><li class=""><a href="/delphix/blog/" target="_self">Blog</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Steps to build, upload and run unit tests for plugin</h1></header><article><div><span><h1><a class="anchor" aria-hidden="true" id="provision-vdb"></a><a href="#provision-vdb" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Provision VDB</h1>
+<p><a href="#purpose">Purpose</a></p>
+<p><a href="#prerequisites">Prerequisites</a></p>
+<p><a href="#provision-vdb">Provision VDB</a></p>
+<h1><a class="anchor" aria-hidden="true" id="purpose"></a><a href="#purpose" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Purpose</h1>
+<p>Virtual databases are a virtualized copies of dSource.</p>
+<h1><a class="anchor" aria-hidden="true" id="prerequisites"></a><a href="#prerequisites" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prerequisites</h1>
+<ul>
+<li><p>Required a linked dSource from a source host</p></li>
+<li><p>Added compatible target environment on Delphix enging</p></li>
+</ul>
+<h1><a class="anchor" aria-hidden="true" id="provision-vdb-1"></a><a href="#provision-vdb-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Provision VDB</h1>
+<ol>
+<li>Click on the icon</li>
+</ol>
+<p><img src="images/image24.png" alt=""></p>
+<ol start="2">
+<li><p>Select the target host from dropdown and
+<img src="images/image25.png" alt=""></p></li>
+<li><p>Enter the values as below in target configuration</p></li>
+</ol>
+<ul>
+<li><code>Target Port Number</code>: Port number to start services</li>
+<li><code>Mount Path</code>: NFS mount path where dSource snapshot will be mounted by engine</li>
+<li><code>Target Cluster name</code>: Cluster name you would like Delphix to setup on your target host.</li>
+<li><code>Cluster Ram Size</code></li>
+<li><code>Cluster Index Ram Size</code></li>
+<li><code>Cluster FTS Ram Size</code></li>
+<li><code>Cluster Eventing Ram Size</code></li>
+<li><code>Cluster Analytics Ram Size</code></li>
+<li><code>Target couchbase Admin User</code></li>
+<li><code>Target couchbase Admin password</code></li>
+</ul>
+<p><img src="images/image26.png" alt=""></p>
+<ol start="4">
+<li><p>Provision vFiles: Add vdb name and target group
+<img src="images/image27.png" alt=""></p></li>
+<li><p>No need to add Policies, just press Next button</p></li>
+<li><p>No need to add Masking, just press Next button</p></li>
+<li><p>No need to add Hooks, just press Next button</p></li>
+<li><p>Preview the summary and submit</p></li>
+<li><p>Once VDB is created successfully, you can review the datasets on Manage &gt; Datasets &gt; vdb Name.</p></li>
+</ol>
+</span></div></article></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/delphix/" class="nav-home"><img src="/delphix/img/favicon.ico" alt="Test Site" width="66" height="58"/></a><div><h5>Docs</h5><a href="/delphix/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/delphix/docs/en/doc2.html">Guides (or other categories)</a><a href="/delphix/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/delphix/en/users.html">User Showcase</a><a href="https://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/delphix/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/delphix/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Your Name or Your Company Name</section></footer></div></body></html>
