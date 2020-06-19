@@ -14,3 +14,7 @@ __pycache__/
 *ModuleWiseCoverage
 *CodeCoverage
 *venv/
+*.dockerignore
+*Dockerfile
+*docker-compose.yml
+*node_modules*

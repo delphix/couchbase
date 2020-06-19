@@ -1,3 +1,7 @@
+---
+id: BuildPlugin
+title: Steps to build, upload and run unit tests for plugin
+---
 
 Steps to build, upload and run unit tests for plugin:
 -----------------------------------------------------

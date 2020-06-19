@@ -1,4 +1,8 @@
-#  Install Couchbase Plugin
+---
+id: InstallPlugin
+title: Install Couchbase Plugin
+---
+
 
 
 [Prerequisites](#prerequisites)
@@ -23,27 +27,27 @@ Using GUI:
 
 1. Click on Manage and then Plugins
 
-![](images/image2.png)
+![](/couchbase-plugin/img/image2.png)
 
 2. Click on `+` icon
 
-![](images/image3.png)
+![](/couchbase-plugin/img/image3.png)
 
 3. Click on Upload or Upgrade a plugin
 
-![](images/image4.png)
+![](/couchbase-plugin/img/image4.png)
 
 4. Select the `build(artifacts.json)` 
 
-![](images/image5.png)
+![](/couchbase-plugin/img/image5.png)
 
 5. Click on close button
 
-![](images/image6.png)
+![](/couchbase-plugin/img/image6.png)
 
 6. See the plugin version in `Plugins` section
 
-![](images/image7.png)
+![](/couchbase-plugin/img/image7.png)
 
 
 Using dvp command:

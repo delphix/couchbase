@@ -1,4 +1,7 @@
-# Discovery operation
+---
+id: Discovery
+title: Discovery operation
+---
 
 
 [Refresh Environment](#refresh-environment)
@@ -39,7 +42,7 @@ Steps:
 5. Select the Refresh icon.
 6. In the Refresh confirmation dialog select Refresh.
 
-![](images/image9.png)
+![](/couchbase-plugin/img/image9.png)
 
 
 
@@ -57,7 +60,7 @@ Environments exist to contain `repositories`, and each environment may have any 
 4. Select the repository
 5. Click on `+` icon ( Shown in next image )
 
-![](images/image10.png)
+![](/couchbase-plugin/img/image10.png)
 
 6. Add required details in `Add database` section.
  - `Source Couchbase port`: Port number
@@ -65,7 +68,7 @@ Environments exist to contain `repositories`, and each environment may have any 
  - `identity field`: Proivide unique name for staging database
  - `DB data path`: Provide couchbase datapath available on your staging host
 
-![](images/image11.png)
+![](/couchbase-plugin/img/image11.png)
 
 
 
@@ -80,7 +83,7 @@ We can enter any random or dummy value in this field of source host name when we
 4. Select the repository.
 5. Click on `+` icon ( Shown in next image ).
 
-![](images/image10.png)
+![](/couchbase-plugin/img/image10.png)
 
 6. 6. Add required details in `Add database` section.
  - `Source Couchbase port`: Port number
@@ -88,6 +91,6 @@ We can enter any random or dummy value in this field of source host name when we
  - `identity field`: Proivide unique name for staging database
  - `DB data path`: Put dummy value for now
 
-![](images/image11.png)
+![](/couchbase-plugin/img/image11.png)
 
 
