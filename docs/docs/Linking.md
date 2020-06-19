@@ -1,7 +1,5 @@
----
-id: Linking
-title: Linking Couchbase Data Source
----
+
+# Linking Couchbase Data Source
 
 
 [Purpose](#purpose)
@@ -55,22 +53,21 @@ Cross data center replication allows data to be replicated across clusters that 
 - Cluster Eventing RAM Size
 - Cluster Analysis RAM Size
 
-![](/couchbase-plugin/img/image12.png)
+![](images/image12.png)
 
-![](/couchbase-plugin/img/image13.png)
+![](images/image13.png)
 
 6. Click on (+) plus symbol to modify configuration settings. This option allows to include bucket lists which should be part of couchbase cross data center replication (XDCR).
 
-![](/couchbase-plugin/img/image14.png)
+![](images/image14.png)
 
 7. Enter the details of Bucket Name to be part of XDCR.
 
-![](/couchbase-plugin/img/image15.png)
+![](images/image15.png)
 
 8. Provide the details for "dSource Name" and "Target group" on the dSource configuration page.
 
-![](/couchbase-plugin/img/image16.png)
-
+![](images/image16.png)
 
 9. On the data management page, select the following:
 - Staging Environment: This will be your staging host where source config was created.
@@ -80,17 +77,15 @@ Cross data center replication allows data to be replicated across clusters that 
 
 11. Click the submit button which will initiate the linking process.
 
-
-![](/couchbase-plugin/img/image17.png)
+![](images/image17.png)
 
 12. Once dSource is created successfully, you can review the datasets on Manage > Datasets > dSource Name.
 
-![](/couchbase-plugin/img/image19.png)
+![](images/image19.png)
 
 13. Review the datasets on Manage > Environment > Database section.
 
-![](/couchbase-plugin/img/image18.png)
-
+![](images/image18.png)
 
 Couchbase Backup Manager Method 
 -------------------------------
@@ -120,8 +115,6 @@ Steps:
 Note: When we select dSource Type as Couchbase Backup Manager, we do not require any details for `Staging Couchbase Host` field.
 10. Remaining steps for cbbackupmgr ingestion are similar to XDCR.
 
-
-![](/couchbase-plugin/img/image22.png)
-![](/couchbase-plugin/img/image23.png)
-
+![](images/image22.png)
+![](images/image23.png)
 

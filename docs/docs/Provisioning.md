@@ -1,8 +1,4 @@
----
-id: Provisioning
-title: Provision VDB
----
-
+#  Provision VDB
 
 
 [Purpose](#purpose)
@@ -30,12 +26,10 @@ Provision VDB
 
 1. Click on the icon
 
-
-![](/couchbase-plugin/img/image24.png)
+![](images/image24.png)
 
 2. Select the target host from dropdown and 
-![](/couchbase-plugin/img/image25.png)
-
+![](images/image25.png)
 
 3. Enter the values as below in target configuration
 - `Target Port Number`: Port number to start services
@@ -49,12 +43,10 @@ Provision VDB
 - `Target couchbase Admin User`
 - `Target couchbase Admin password`
 
-
-![](/couchbase-plugin/img/image26.png)
+![](images/image26.png)
 
 4. Provision vFiles: Add vdb name and target group
-![](/couchbase-plugin/img/image27.png)
-
+![](images/image27.png)
 
 5. No need to add Policies, just press Next button
 
