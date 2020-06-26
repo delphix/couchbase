@@ -1,24 +1,4 @@
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
 
-// See https://docusaurus.io/docs/site-config for all the possible
-// site configuration options.
-
-// List of projects/orgs using your project for the users page.
-const users = [
-  {
-    caption: 'User1',
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/image.jpg'.
-    image: '/img/delphix-logo-white.png',
-    infoLink: 'https://www.delphix.com',
-    pinned: true,
-  },
-];
 
 const siteConfig = {
   title: 'Couchbase Plugin', // Title for your website.
@@ -26,15 +6,14 @@ const siteConfig = {
   url: 'https://delphix.github.io', // Your website URL
   baseUrl: '/couchbase-plugin/', // Base URL for your project */
   projectName: 'couchbase-plugin',
-  organizationName: 'delphix',
-
+  organizationName: 'pratap-akhand',
 
 
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     {doc: 'Overview', label: 'Docs'},
-    {page: 'help', label: 'Help'},
+    {href: 'https://github.com/delphix/couchbase-plugin', label: 'GitHub'},
     { search: true },
   ],
 
@@ -42,16 +21,16 @@ const siteConfig = {
 
 
   /* path to images for header/footer */
-  headerIcon: '/img/delphix-logo-white.png',
-  footerIcon: '/img/delphix-logo-white.png',
+  headerIcon: '/img/logo11.png',
+  footerIcon: '/img/logo11.png',
   favicon: '/img/logo.png',
 
 
 
   /* Colors for website */
   colors: {
-    primaryColor: 'dodgerblue',
-    secondaryColor: 'red',
+    primaryColor: "MediumTurquoise",
+    secondaryColor: "#808080",
   },
 
 
@@ -86,7 +65,6 @@ const siteConfig = {
   cleanUrl: true,
 
   // Open Graph and Twitter card images.
-  ogImage: 'img/undraw_online.svg',
 
 
   // For sites with a sizable amount of content, set collapsible to true.

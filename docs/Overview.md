@@ -1,6 +1,6 @@
 ---
 id: Overview
-title: Couchbase-plugin Overview
+title: Overview
 ---
 
 Couchbase Plugin
@@ -10,13 +10,11 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
 - Cross Data Center Replication (XDCR) allows data to be replicated across clusters that are potentially located in different data centers.
 - Cbbackupmgr allows data to be restored on staging host of Couchbase Server.
 
-## Ingest Couchbase:
+Ingest Couchbase
+----------------
 
-Couchbase cluster/single instance using (XDCR ingestion mechanism) 
-
-                  or
-              
-Couchbase backup peice using (CBBACKUPMGR ingestion mechanism) - Zero Touch Production.
+1. Couchbase cluster/single instance using (XDCR ingestion mechanism) 
+2. Couchbase backup peice using (CBBACKUPMGR ingestion mechanism) - Zero Touch Production.
 
 ### <a id="requirements-plugin"></a>Prerequisites
 **Source Requirements:** Couchbase database user with following privileges

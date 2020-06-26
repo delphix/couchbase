@@ -1,11 +1,10 @@
 {
   "docs": {
     "Overview": ["Overview"],
-    "InstallPlugin": ["InstallPlugin"],
-    "BuildPlugin": ["BuildPlugin"],
+    "Installation": ["Installation"],
+    "PluginDevelopment": ["PluginDevelopment"],
     "Discovery": ["Discovery"],
     "Linking": ["Linking"],
     "Provisioning": ["Provisioning"]
-
   }
 }

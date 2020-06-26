@@ -1,6 +1,6 @@
 ---
-id: InstallPlugin
-title: Install Couchbase Plugin
+id: Installation
+title: Installation
 ---
 
 
@@ -21,7 +21,7 @@ Prerequisites
 Install Couchbase Plugin
 ========================
 
-Using GUI:
+Using GUI
 ----------
 
 1. Click on Manage and then Plugins
@@ -50,6 +50,9 @@ Using GUI:
 ![](/couchbase-plugin/img/image7.png)
 
 
-Using dvp command:
+Using dvp command
 -----------------
  `dvp upload -e <Delphix_Engine_Name> -u <username> --password <password>`
+
+
+Delphix Engine's documentation on installing plugins: [PluginManagement](https://docs.delphix.com/docs/datasets/unstructured-files-and-app-data/delphix-engine-plugin-management)

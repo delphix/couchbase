@@ -5,33 +5,48 @@
     "previous": "Previous",
     "tagline": "Virtualise couchbase data sets",
     "docs": {
-      "BuildPlugin": {
-        "title": "Steps to build, upload and run unit tests for plugin"
+      "CODE_OF_CONDUCT": {
+        "title": "CODE_OF_CONDUCT"
       },
       "Discovery": {
         "title": "Discovery operation"
       },
-      "InstallPlugin": {
-        "title": "Install Couchbase Plugin"
+      "index": {
+        "title": "index"
+      },
+      "Installation": {
+        "title": "Installation"
       },
       "Linking": {
         "title": "Linking Couchbase Data Source"
       },
       "Overview": {
-        "title": "Couchbase-plugin Overview"
+        "title": "Overview"
+      },
+      "PluginDevelopment": {
+        "title": "Plugin Development"
       },
       "Provisioning": {
         "title": "Provision VDB"
+      },
+      "pull_request_template": {
+        "title": "pull_request_template"
+      },
+      "readme": {
+        "title": "readme"
+      },
+      "SUPPORT": {
+        "title": "SUPPORT"
       }
     },
     "links": {
       "Docs": "Docs",
-      "Help": "Help"
+      "GitHub": "GitHub"
     },
     "categories": {
       "Overview": "Overview",
-      "InstallPlugin": "InstallPlugin",
-      "BuildPlugin": "BuildPlugin",
+      "Installation": "Installation",
+      "PluginDevelopment": "PluginDevelopment",
       "Discovery": "Discovery",
       "Linking": "Linking",
       "Provisioning": "Provisioning"
