@@ -31,21 +31,21 @@
       
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
-      <link rel="shortcut icon" href="../images/logo.png">
+      <link rel="shortcut icon" href="./image/logo.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-2.9.2">
     
     
       
-        <title>Installation - Couchbase Plugin</title>
+        <title>PluginDevelopment - Couchbase Plugin</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.fbb7f3af.css">
+      <link rel="stylesheet" href="./assets/stylesheets/application.fbb7f3af.css">
       
       
     
     
-      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="./assets/javascripts/modernizr.1aa3b519.js"></script>
     
     
       <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
@@ -54,9 +54,9 @@
         <style>body,input{font-family:"Helvetica Neue","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Ubuntu Mono","Courier New",Courier,monospace}</style>
       
     
-    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    <link rel="stylesheet" href="./assets/fonts/material-icons.css">
     
-      <link rel="stylesheet" href="../stylesheets/extra.css">
+      <link rel="stylesheet" href="stylesheets/extra.css">
     
     
   </head>
@@ -92,7 +92,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#prerequisites" tabindex="1" class="md-skip">
+      <a href="#build-plugin" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -103,7 +103,7 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         <a href="" title="Couchbase Plugin" class="md-header-nav__button md-logo">
           
-            <img src="../images/delphix-logo-white.png" width="153" height="15">
+            <img src="./image/delphix-logo-white.png" width="153" height="15">
           
         </a>
       </div>
@@ -118,7 +118,7 @@
                 Couchbase Plugin
               </span>
               <span class="md-header-nav__topic">
-                Installation
+                PluginDevelopment
               </span>
             
           
@@ -172,7 +172,7 @@
       </div>
     
     <div class="md-source__repository">
-      Github URL
+      Github
     </div>
   </a>
 
@@ -198,7 +198,7 @@
   <label class="md-nav__title md-nav__title--site" for="__drawer">
     <span class="md-nav__button md-logo">
       
-        <img src="../images/delphix-logo-white.png" width="48" height="48">
+        <img src="./image/delphix-logo-white.png" width="48" height="48">
       
     </span>
     Couchbase Plugin
@@ -220,7 +220,7 @@
       </div>
     
     <div class="md-source__repository">
-      Github URL
+      Github
     </div>
   </a>
 
@@ -234,8 +234,8 @@
 
 
   <li class="md-nav__item">
-    <a href="Discovery/" title="Developer Community" class="md-nav__link">
-      Developer Community
+    <a href="index.html" title="Overview" class="md-nav__link">
+      Overview
     </a>
   </li>
 
@@ -246,8 +246,131 @@
 
 
   <li class="md-nav__item">
-    <a href="Discovery/" title="Requirements" class="md-nav__link">
-      Requirements
+    <a href="Discovery.html" title="Discovery" class="md-nav__link">
+      Discovery
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Installation.html" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Linking.html" title="Linking" class="md-nav__link">
+      Linking
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        PluginDevelopment
+      </label>
+    
+    <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-nav__link md-nav__link--active">
+      PluginDevelopment
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build-plugin" title="Build plugin" class="md-nav__link">
+    Build plugin
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upload-plugin" title="Upload plugin" class="md-nav__link">
+    Upload plugin
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-test-of-plugin-code" title="Unit Test of Plugin code" class="md-nav__link">
+    Unit Test of Plugin code
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summaryreport" title="SummaryReport:" class="md-nav__link">
+    SummaryReport:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-wise-coverage-report" title="Module wise coverage report:" class="md-nav__link">
+    Module wise coverage report:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-plugin-logs" title="Debug plugin logs" class="md-nav__link">
+    Debug plugin logs
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Provisioning.html" title="Provisioning" class="md-nav__link">
+      Provisioning
     </a>
   </li>
 
@@ -266,8 +389,63 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build-plugin" title="Build plugin" class="md-nav__link">
+    Build plugin
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upload-plugin" title="Upload plugin" class="md-nav__link">
+    Upload plugin
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-test-of-plugin-code" title="Unit Test of Plugin code" class="md-nav__link">
+    Unit Test of Plugin code
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summaryreport" title="SummaryReport:" class="md-nav__link">
+    SummaryReport:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-wise-coverage-report" title="Module wise coverage report:" class="md-nav__link">
+    Module wise coverage report:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-plugin-logs" title="Debug plugin logs" class="md-nav__link">
+    Debug plugin logs
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
   
 </nav>
                   </div>
@@ -280,46 +458,46 @@
               
                 
                 
-                <p><a href="#prerequisites">Prerequisites</a></p>
-<p><a href="#provision-vdb">How To install plugin</a></p>
-<h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
-<ul>
-<li>
-<p>Install delphix engine 5.3.x and above</p>
-</li>
-<li>
-<p>Install couchbase binaries on source, staging and target servers</p>
-</li>
-</ul>
-<h1 id="install-couchbase-plugin">Install Couchbase Plugin<a class="headerlink" href="#install-couchbase-plugin" title="Permanent link">&para;</a></h1>
-<h2 id="using-gui">Using GUI<a class="headerlink" href="#using-gui" title="Permanent link">&para;</a></h2>
+                  <h1>PluginDevelopment</h1>
+                
+                <h2 id="build-plugin">Build plugin<a class="headerlink" href="#build-plugin" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Click on Manage and then Plugins</li>
+<li>Create a virtual environment and install required libraries(dvp, pytest, pytest-html &amp; pytest-cov) using script <code>virtualEnvSetup.sh</code>.</li>
 </ol>
-<p><img alt="Screenshot" src="/image/image2.png" /></p>
-<ol>
-<li>Click on <code>+</code> icon</li>
-</ol>
-<p><img alt="Screenshot" src="/image/image3.png" /></p>
-<ol>
-<li>Click on Upload or Upgrade a plugin</li>
-</ol>
-<p><img alt="Screenshot" src="/image/image4.png" /></p>
-<ol>
-<li>Select the <code>build(artifacts.json)</code> </li>
-</ol>
-<p><img alt="Screenshot" src="/image/image5.png" /></p>
-<ol>
-<li>Click on close button</li>
-</ol>
-<p><img alt="Screenshot" src="/image/image6.png" /></p>
-<ol>
-<li>See the plugin version in <code>Plugins</code> section</li>
-</ol>
-<p><img alt="Screenshot" src="/image/image7.png" /></p>
-<h2 id="using-dvp-command">Using dvp command<a class="headerlink" href="#using-dvp-command" title="Permanent link">&para;</a></h2>
-<p><code>dvp upload -e &lt;Delphix_Engine_Name&gt; -u &lt;username&gt; --password &lt;password&gt;</code></p>
-<p>Delphix Engine's documentation on installing plugins: <a href="https://docs.delphix.com/docs/datasets/unstructured-files-and-app-data/delphix-engine-plugin-management">PluginManagement</a></p>
+<p><code>``bash
+    cd &lt;complete path of project directory till</code>couchbase-plugin` directory&gt;
+    ./test/virtualEnvSetup.sh <virtual enviornment name>
+For example:
+    cd /Users/<your-user-name>/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
+    ./test/virtualEnvSetup.sh "MyLocalEnv"</p>
+<div class="codehilite"><pre><span></span><code>  2.  Run this command to activate the virtual environment created in step 1.
+   ```bash
+    . test/MyLocalEnv/bin/activate
+   ```
+
+  3.  Build the source code. It generates the build with name `artifacts.json`:
+```bash
+    dvp build
+</code></pre></div>
+
+
+<h2 id="upload-plugin">Upload plugin<a class="headerlink" href="#upload-plugin" title="Permanent link">&para;</a></h2>
+<p>Upload the <code>artifacts.json</code> ( generated in step 3 ) on Delphix Engine:</p>
+<div class="codehilite"><pre><span></span><code>    dvp upload -e &lt;Delphix_Engine_Name&gt; -u &lt;username&gt; --password &lt;password&gt;
+</code></pre></div>
+
+
+<h2 id="unit-test-of-plugin-code">Unit Test of Plugin code<a class="headerlink" href="#unit-test-of-plugin-code" title="Permanent link">&para;</a></h2>
+<p>Unit test run: Make sure to build the source code( using <code>dvp build</code> ) before running unit tests
+  <code>bash
+     pytest test/</code></p>
+<h5 id="summaryreport">SummaryReport:<a class="headerlink" href="#summaryreport" title="Permanent link">&para;</a></h5>
+<p>A report with name <code>Report.html</code> gets generated in <code>test</code> directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.</p>
+<h5 id="module-wise-coverage-report">Module wise coverage report:<a class="headerlink" href="#module-wise-coverage-report" title="Permanent link">&para;</a></h5>
+<p>There is a report folder <code>CodeCoverage</code>(can change the folder name in config file <code>pytest.ini</code>) generated in <code>test</code> directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.</p>
+<h2 id="debug-plugin-logs">Debug plugin logs<a class="headerlink" href="#debug-plugin-logs" title="Permanent link">&para;</a></h2>
+<p>Download the plugin logs using below command:</p>
+<p><code>dvp download-logs -c plugin_config.yml -e &lt;Delphix_Engine_Name&gt; -u admin --password &lt;password&gt;</code></p>
                 
                   
                 
@@ -337,6 +515,41 @@
         
 <footer class="md-footer">
   
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="Linking.html" title="Linking" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Linking
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="Provisioning.html" title="Provisioning" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Provisioning
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-footer-copyright">
@@ -349,7 +562,7 @@
       
         
   <div class="md-footer-social">
-    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    <link rel="stylesheet" href="./assets/fonts/font-awesome.css">
     
       <a href="https://www.delphix.com/" class="md-footer-social__link fa fa-sitemap"></a>
     
@@ -370,9 +583,9 @@
       
     </div>
     
-      <script src="../assets/javascripts/application.878fdd8d.js"></script>
+      <script src="./assets/javascripts/application.878fdd8d.js"></script>
       
-      <script>app.initialize({version:"1.1.2",url:{base:".."}})</script>
+      <script>app.initialize({version:"1.1.2",url:{base:"."}})</script>
       
     
     

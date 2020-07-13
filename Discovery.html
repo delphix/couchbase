@@ -31,21 +31,21 @@
       
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
-      <link rel="shortcut icon" href="../images/logo.png">
+      <link rel="shortcut icon" href="./image/logo.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-2.9.2">
     
     
       
-        <title>PluginDevelopment - Couchbase Plugin</title>
+        <title>Discovery - Couchbase Plugin</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.fbb7f3af.css">
+      <link rel="stylesheet" href="./assets/stylesheets/application.fbb7f3af.css">
       
       
     
     
-      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="./assets/javascripts/modernizr.1aa3b519.js"></script>
     
     
       <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
@@ -54,9 +54,9 @@
         <style>body,input{font-family:"Helvetica Neue","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Ubuntu Mono","Courier New",Courier,monospace}</style>
       
     
-    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    <link rel="stylesheet" href="./assets/fonts/material-icons.css">
     
-      <link rel="stylesheet" href="../stylesheets/extra.css">
+      <link rel="stylesheet" href="stylesheets/extra.css">
     
     
   </head>
@@ -92,7 +92,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#build-plugin" tabindex="1" class="md-skip">
+      <a href="#purpose" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -103,7 +103,7 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         <a href="" title="Couchbase Plugin" class="md-header-nav__button md-logo">
           
-            <img src="../images/delphix-logo-white.png" width="153" height="15">
+            <img src="./image/delphix-logo-white.png" width="153" height="15">
           
         </a>
       </div>
@@ -118,7 +118,7 @@
                 Couchbase Plugin
               </span>
               <span class="md-header-nav__topic">
-                PluginDevelopment
+                Discovery
               </span>
             
           
@@ -172,7 +172,7 @@
       </div>
     
     <div class="md-source__repository">
-      Github URL
+      Github
     </div>
   </a>
 
@@ -198,7 +198,7 @@
   <label class="md-nav__title md-nav__title--site" for="__drawer">
     <span class="md-nav__button md-logo">
       
-        <img src="../images/delphix-logo-white.png" width="48" height="48">
+        <img src="./image/delphix-logo-white.png" width="48" height="48">
       
     </span>
     Couchbase Plugin
@@ -220,7 +220,7 @@
       </div>
     
     <div class="md-source__repository">
-      Github URL
+      Github
     </div>
   </a>
 
@@ -234,8 +234,41 @@
 
 
   <li class="md-nav__item">
-    <a href="Discovery/" title="Developer Community" class="md-nav__link">
-      Developer Community
+    <a href="index.html" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+    <a href="Discovery.html" title="Discovery" class="md-nav__link md-nav__link--active">
+      Discovery
+    </a>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Installation.html" title="Installation" class="md-nav__link">
+      Installation
     </a>
   </li>
 
@@ -246,8 +279,32 @@
 
 
   <li class="md-nav__item">
-    <a href="Discovery/" title="Requirements" class="md-nav__link">
-      Requirements
+    <a href="Linking.html" title="Linking" class="md-nav__link">
+      Linking
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-nav__link">
+      PluginDevelopment
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Provisioning.html" title="Provisioning" class="md-nav__link">
+      Provisioning
     </a>
   </li>
 
@@ -266,63 +323,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
   
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#build-plugin" title="Build plugin" class="md-nav__link">
-    Build plugin
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upload-plugin" title="Upload plugin" class="md-nav__link">
-    Upload plugin
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#unit-test-of-plugin-code" title="Unit Test of Plugin code" class="md-nav__link">
-    Unit Test of Plugin code
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#summaryreport" title="SummaryReport:" class="md-nav__link">
-    SummaryReport:
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#module-wise-coverage-report" title="Module wise coverage report:" class="md-nav__link">
-    Module wise coverage report:
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#debug-plugin-logs" title="Debug plugin logs" class="md-nav__link">
-    Debug plugin logs
-  </a>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
   
 </nav>
                   </div>
@@ -335,46 +337,78 @@
               
                 
                 
-                  <h1>PluginDevelopment</h1>
-                
-                <h2 id="build-plugin">Build plugin<a class="headerlink" href="#build-plugin" title="Permanent link">&para;</a></h2>
+                <p><a href="#refresh-environment">Refresh Environment</a></p>
+<p><a href="#create-sourceconfig">Create sourceconfig for XDCR setup</a></p>
+<p><a href="#create-dsource">Create sourceconfig for cbbackupmgr setup</a></p>
+<h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
+<p>Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. </p>
+<h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
+<ul>
+<li>
+<p>A source environment must be added to the Delphix Engine</p>
+</li>
+<li>
+<p>Installation of the couchbase Plugin is required before the discovery </p>
+</li>
+<li>
+<p>Environment variable <code>$COUCHBASE_PATH</code> should set on staging/target host, which contains binary path of couchbase</p>
+</li>
+</ul>
+<h1 id="refresh-environment">Refresh Environment<a class="headerlink" href="#refresh-environment" title="Permanent link">&para;</a></h1>
+<p>Environment refresh will update the metadata associated with that environment and sends a new plugin to the host.</p>
+<p>Steps: </p>
 <ol>
-<li>Create a virtual environment and install required libraries(dvp, pytest, pytest-html &amp; pytest-cov) using script <code>virtualEnvSetup.sh</code>.</li>
+<li>Login to the Delphix Management application.</li>
+<li>Click Manage.</li>
+<li>Select Environments.</li>
+<li>In the Environments panel, click the name of the environment you want to refresh.</li>
+<li>Select the Refresh icon.</li>
+<li>In the Refresh confirmation dialog select Refresh.</li>
 </ol>
-<p><code>``bash
-    cd &lt;complete path of project directory till</code>couchbase-plugin` directory&gt;
-    ./test/virtualEnvSetup.sh <virtual enviornment name>
-For example:
-    cd /Users/<your-user-name>/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
-    ./test/virtualEnvSetup.sh "MyLocalEnv"</p>
-<div class="codehilite"><pre><span></span><code>  2.  Run this command to activate the virtual environment created in step 1.
-   ```bash
-    . test/MyLocalEnv/bin/activate
-   ```
-
-  3.  Build the source code. It generates the build with name `artifacts.json`:
-```bash
-    dvp build
-</code></pre></div>
-
-
-<h2 id="upload-plugin">Upload plugin<a class="headerlink" href="#upload-plugin" title="Permanent link">&para;</a></h2>
-<p>Upload the <code>artifacts.json</code> ( generated in step 3 ) on Delphix Engine:</p>
-<div class="codehilite"><pre><span></span><code>    dvp upload -e &lt;Delphix_Engine_Name&gt; -u &lt;username&gt; --password &lt;password&gt;
-</code></pre></div>
-
-
-<h2 id="unit-test-of-plugin-code">Unit Test of Plugin code<a class="headerlink" href="#unit-test-of-plugin-code" title="Permanent link">&para;</a></h2>
-<p>Unit test run: Make sure to build the source code( using <code>dvp build</code> ) before running unit tests
-  <code>bash
-     pytest test/</code></p>
-<h5 id="summaryreport">SummaryReport:<a class="headerlink" href="#summaryreport" title="Permanent link">&para;</a></h5>
-<p>A report with name <code>Report.html</code> gets generated in <code>test</code> directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.</p>
-<h5 id="module-wise-coverage-report">Module wise coverage report:<a class="headerlink" href="#module-wise-coverage-report" title="Permanent link">&para;</a></h5>
-<p>There is a report folder <code>CodeCoverage</code>(can change the folder name in config file <code>pytest.ini</code>) generated in <code>test</code> directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.</p>
-<h2 id="debug-plugin-logs">Debug plugin logs<a class="headerlink" href="#debug-plugin-logs" title="Permanent link">&para;</a></h2>
-<p>Download the plugin logs using below command:</p>
-<p><code>dvp download-logs -c plugin_config.yml -e &lt;Delphix_Engine_Name&gt; -u admin --password &lt;password&gt;</code></p>
+<p><img alt="Screenshot" src="/image/image9.png" /></p>
+<h1 id="create-sourceconfig">Create Sourceconfig<a class="headerlink" href="#create-sourceconfig" title="Permanent link">&para;</a></h1>
+<p>Environments exist to contain <code>repositories</code>, and each environment may have any number of repositories associated with it.
+<code>Repository</code> contains database instances and in each repository any number of <code>SourceConfig</code> objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add <code>SourceConfig</code> objects through which can create a dSource. </p>
+<p><strong>XDCR setup:</strong></p>
+<ol>
+<li>Login to the Delphix Management application.</li>
+<li>Click Manage.</li>
+<li>Select Environments.</li>
+<li>Select the repository</li>
+<li>Click on <code>+</code> icon ( Shown in next image )</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image10.png" /></p>
+<ol>
+<li>Add required details in <code>Add database</code> section.</li>
+<li><code>Source Couchbase port</code>: Port number</li>
+<li><code>Source Host</code>: Source host address</li>
+<li><code>identity field</code>: Proivide unique name for staging database</li>
+<li><code>DB data path</code>: Provide couchbase datapath available on your staging host</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image11.png" /></p>
+<p><strong>CBBKPMGR setup:</strong></p>
+<p>The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
+We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.</p>
+<ol>
+<li>Login to the Delphix Management application.</li>
+<li>Click Manage.</li>
+<li>Select Environments.</li>
+<li>Select the repository.</li>
+<li>Click on <code>+</code> icon ( Shown in next image ).</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image10.png" /></p>
+<ol>
+<li>
+<ol>
+<li>Add required details in <code>Add database</code> section.</li>
+</ol>
+</li>
+<li><code>Source Couchbase port</code>: Port number</li>
+<li><code>Source Host</code>: Put dummy value for now</li>
+<li><code>identity field</code>: Proivide unique name for staging database</li>
+<li><code>DB data path</code>: Put dummy value for now</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image11.png" /></p>
                 
                   
                 
@@ -392,6 +426,41 @@ For example:
         
 <footer class="md-footer">
   
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="index.html" title="Overview" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Overview
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="Installation.html" title="Installation" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Installation
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-footer-copyright">
@@ -404,7 +473,7 @@ For example:
       
         
   <div class="md-footer-social">
-    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    <link rel="stylesheet" href="./assets/fonts/font-awesome.css">
     
       <a href="https://www.delphix.com/" class="md-footer-social__link fa fa-sitemap"></a>
     
@@ -425,9 +494,9 @@ For example:
       
     </div>
     
-      <script src="../assets/javascripts/application.878fdd8d.js"></script>
+      <script src="./assets/javascripts/application.878fdd8d.js"></script>
       
-      <script>app.initialize({version:"1.1.2",url:{base:".."}})</script>
+      <script>app.initialize({version:"1.1.2",url:{base:"."}})</script>
       
     
     
