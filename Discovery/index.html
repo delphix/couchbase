@@ -31,21 +31,21 @@
       
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
-      <link rel="shortcut icon" href="./images/logo.png">
+      <link rel="shortcut icon" href="../images/logo.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-2.9.2">
     
     
       
-        <title>Couchbase Plugin</title>
+        <title>Discovery - Couchbase Plugin</title>
       
     
     
-      <link rel="stylesheet" href="./assets/stylesheets/application.fbb7f3af.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.fbb7f3af.css">
       
       
     
     
-      <script src="./assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
     
     
       <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
@@ -54,9 +54,9 @@
         <style>body,input{font-family:"Helvetica Neue","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Ubuntu Mono","Courier New",Courier,monospace}</style>
       
     
-    <link rel="stylesheet" href="./assets/fonts/material-icons.css">
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
     
   </head>
@@ -92,7 +92,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#overview" tabindex="1" class="md-skip">
+      <a href="#purpose" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -103,7 +103,7 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         <a href="" title="Couchbase Plugin" class="md-header-nav__button md-logo">
           
-            <img src="./images/delphix-logo-white.png" width="153" height="15">
+            <img src="../images/delphix-logo-white.png" width="153" height="15">
           
         </a>
       </div>
@@ -118,7 +118,7 @@
                 Couchbase Plugin
               </span>
               <span class="md-header-nav__topic">
-                Overview
+                Discovery
               </span>
             
           
@@ -198,7 +198,7 @@
   <label class="md-nav__title md-nav__title--site" for="__drawer">
     <span class="md-nav__button md-logo">
       
-        <img src="./images/delphix-logo-white.png" width="48" height="48">
+        <img src="../images/delphix-logo-white.png" width="48" height="48">
       
     </span>
     Couchbase Plugin
@@ -232,6 +232,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -242,64 +254,10 @@
       
     
     
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        Overview
-      </label>
-    
-    <a href="" title="Overview" class="md-nav__link md-nav__link--active">
-      Overview
-    </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#ingest-couchbase" title="Ingest Couchbase" class="md-nav__link">
-    Ingest Couchbase
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
-    Prerequisites
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
-  
-</nav>
-    
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="Discovery/" title="Discovery" class="md-nav__link">
+    <a href="Discovery/" title="Discovery" class="md-nav__link md-nav__link--active">
       Discovery
     </a>
+    
   </li>
 
     
@@ -368,35 +326,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#ingest-couchbase" title="Ingest Couchbase" class="md-nav__link">
-    Ingest Couchbase
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
-    Prerequisites
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -408,56 +337,78 @@
               
                 
                 
-                <h1 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h1>
-<p>Couchbase plugin is developed to virtualize couchbase data source leveraging the following built-in couchbase technologies:</p>
+                <p><a href="#refresh-environment">Refresh Environment</a></p>
+<p><a href="#create-sourceconfig">Create sourceconfig for XDCR setup</a></p>
+<p><a href="#create-dsource">Create sourceconfig for cbbackupmgr setup</a></p>
+<h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
+<p>Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. </p>
+<h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
-<li>Cross Data Center Replication (XDCR) allows data to be replicated across clusters that are potentially located in different data centers.</li>
-<li>Cbbackupmgr allows data to be restored on staging host of Couchbase Server.</li>
+<li>
+<p>A source environment must be added to the Delphix Engine</p>
+</li>
+<li>
+<p>Installation of the couchbase Plugin is required before the discovery </p>
+</li>
+<li>
+<p>Environment variable <code>$COUCHBASE_PATH</code> should set on staging/target host, which contains binary path of couchbase</p>
+</li>
 </ul>
-<h2 id="ingest-couchbase">Ingest Couchbase<a class="headerlink" href="#ingest-couchbase" title="Permanent link">&para;</a></h2>
+<h1 id="refresh-environment">Refresh Environment<a class="headerlink" href="#refresh-environment" title="Permanent link">&para;</a></h1>
+<p>Environment refresh will update the metadata associated with that environment and sends a new plugin to the host.</p>
+<p>Steps: </p>
 <ol>
-<li>Couchbase cluster/single instance using (XDCR ingestion mechanism) </li>
-<li>Couchbase backup peice using (CBBACKUPMGR ingestion mechanism) - Zero Touch Production.</li>
+<li>Login to the Delphix Management application.</li>
+<li>Click Manage.</li>
+<li>Select Environments.</li>
+<li>In the Environments panel, click the name of the environment you want to refresh.</li>
+<li>Select the Refresh icon.</li>
+<li>In the Refresh confirmation dialog select Refresh.</li>
 </ol>
-<h3 id="prerequisites"><a id="requirements-plugin"></a>Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<p><strong>Source Requirements:</strong> Couchbase database user with following privileges
-*   XDCR_ADMIN
-*   DATA_MONITOR</p>
-<p><strong>Staging Requirements</strong>: O/S user with following privileges
-1. Regular o/s user.
-2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]
-3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]
-4. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as base folder for nfs mounts.
-5. sudo privileges for mount, umount. See sample below assuming <code>delphix_os</code> is used as delphix user.
-    <code>shell
-    Defaults:delphixos !requiretty
-    delphixos ALL=NOPASSWD: \ 
-    /bin/mount, /bin/umount</code>
-6. Customers who intends to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.</p>
-<div class="codehilite"><pre><span></span><code>* Provide all source server buckets related information( using below command ) in a file and place at `&lt;Toolkit-Directory-Path&gt;/couchbase_src_bucket_info.cfg`:
-
-   `/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091  --username $username --password $password`
-
-* Create config file using below command. This file will be required at the time of dSource creation using CBBACKUPMGR.
-
-  `/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix`
-
-* Get data from source host in backup directory of staging host
-
-  `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password`
-</code></pre></div>
-
-
-<p><strong>Target Requirements</strong>: O/S user with following privileges
-1. Regular o/s user.
-2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]
-3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]
-4. Empty folder on host to mount nfs filesystem. This is just and empty folder with no space requirements and act as base folder for nfs mounts.
-5. sudo privileges for mount, umount. See sample below assuming <code>delphix_os</code> is used as delphix user.
-    <code>shell
-    Defaults:delphixos !requiretty
-    delphixos ALL=NOPASSWD: \ 
-    /bin/mount, /bin/umount</code></p>
+<p><img alt="Screenshot" src="/image/image9.png" /></p>
+<h1 id="create-sourceconfig">Create Sourceconfig<a class="headerlink" href="#create-sourceconfig" title="Permanent link">&para;</a></h1>
+<p>Environments exist to contain <code>repositories</code>, and each environment may have any number of repositories associated with it.
+<code>Repository</code> contains database instances and in each repository any number of <code>SourceConfig</code> objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add <code>SourceConfig</code> objects through which can create a dSource. </p>
+<p><strong>XDCR setup:</strong></p>
+<ol>
+<li>Login to the Delphix Management application.</li>
+<li>Click Manage.</li>
+<li>Select Environments.</li>
+<li>Select the repository</li>
+<li>Click on <code>+</code> icon ( Shown in next image )</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image10.png" /></p>
+<ol>
+<li>Add required details in <code>Add database</code> section.</li>
+<li><code>Source Couchbase port</code>: Port number</li>
+<li><code>Source Host</code>: Source host address</li>
+<li><code>identity field</code>: Proivide unique name for staging database</li>
+<li><code>DB data path</code>: Provide couchbase datapath available on your staging host</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image11.png" /></p>
+<p><strong>CBBKPMGR setup:</strong></p>
+<p>The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
+We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.</p>
+<ol>
+<li>Login to the Delphix Management application.</li>
+<li>Click Manage.</li>
+<li>Select Environments.</li>
+<li>Select the repository.</li>
+<li>Click on <code>+</code> icon ( Shown in next image ).</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image10.png" /></p>
+<ol>
+<li>
+<ol>
+<li>Add required details in <code>Add database</code> section.</li>
+</ol>
+</li>
+<li><code>Source Couchbase port</code>: Port number</li>
+<li><code>Source Host</code>: Put dummy value for now</li>
+<li><code>identity field</code>: Proivide unique name for staging database</li>
+<li><code>DB data path</code>: Put dummy value for now</li>
+</ol>
+<p><img alt="Screenshot" src="/image/image11.png" /></p>
                 
                   
                 
@@ -478,14 +429,28 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
+          <a href="" title="Overview" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Overview
+              </span>
+            </div>
+          </a>
         
-          <a href="Discovery/" title="Discovery" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+        
+          <a href="Installation/" title="Installation" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Discovery
+                Installation
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
@@ -508,7 +473,7 @@
       
         
   <div class="md-footer-social">
-    <link rel="stylesheet" href="./assets/fonts/font-awesome.css">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
     
       <a href="https://www.delphix.com/" class="md-footer-social__link fa fa-sitemap"></a>
     
@@ -529,9 +494,9 @@
       
     </div>
     
-      <script src="./assets/javascripts/application.878fdd8d.js"></script>
+      <script src="../assets/javascripts/application.878fdd8d.js"></script>
       
-      <script>app.initialize({version:"1.1.2",url:{base:"."}})</script>
+      <script>app.initialize({version:"1.1.2",url:{base:".."}})</script>
       
     
     
