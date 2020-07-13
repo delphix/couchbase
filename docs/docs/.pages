@@ -1,0 +1,7 @@
+arrange:
+  - index.md
+  - docs/Installation.md
+  - PluginDevelopment.md
+  - Discovery.md
+  - Linking.md
+  - Provisioning.md

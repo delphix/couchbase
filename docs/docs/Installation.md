@@ -1,8 +1,3 @@
----
-id: Installation
-title: Installation
----
-
 
 [Prerequisites](#prerequisites)
 
@@ -27,27 +22,27 @@ Using GUI
 1. Click on Manage and then Plugins
 
 
-![](/couchbase-plugin/img/image2.png)
+![Screenshot](/image/image2.png)
 
 2. Click on `+` icon
 
-![](/couchbase-plugin/img/image3.png)
+![Screenshot](/image/image3.png)
 
 3. Click on Upload or Upgrade a plugin
 
-![](/couchbase-plugin/img/image4.png)
+![Screenshot](/image/image4.png)
 
 4. Select the `build(artifacts.json)` 
 
-![](/couchbase-plugin/img/image5.png)
+![Screenshot](/image/image5.png)
 
 5. Click on close button
 
-![](/couchbase-plugin/img/image6.png)
+![Screenshot](/image/image6.png)
 
 6. See the plugin version in `Plugins` section
 
-![](/couchbase-plugin/img/image7.png)
+![Screenshot](/image/image7.png)
 
 
 Using dvp command

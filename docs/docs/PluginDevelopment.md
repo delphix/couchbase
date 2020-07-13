@@ -1,8 +1,3 @@
----
-id: PluginDevelopment
-title: Plugin Development
----
-
 Build plugin
 ------------
 

@@ -1,7 +1,3 @@
----
-id: Discovery
-title: Discovery operation
----
 
 
 [Refresh Environment](#refresh-environment)
@@ -42,7 +38,7 @@ Steps:
 5. Select the Refresh icon.
 6. In the Refresh confirmation dialog select Refresh.
 
-![](/couchbase-plugin/img/image9.png)
+![Screenshot](/image/image9.png)
 
 
 
@@ -62,7 +58,7 @@ Environments exist to contain `repositories`, and each environment may have any 
 5. Click on `+` icon ( Shown in next image )
 
 
-![](/couchbase-plugin/img/image10.png)
+![Screenshot](/image/image10.png)
 
 
 6. Add required details in `Add database` section.
@@ -72,7 +68,7 @@ Environments exist to contain `repositories`, and each environment may have any 
  - `DB data path`: Provide couchbase datapath available on your staging host
 
 
-![](/couchbase-plugin/img/image11.png)
+![Screenshot](/image/image11.png)
 
 
 
@@ -88,7 +84,7 @@ We can enter any random or dummy value in this field of source host name when we
 4. Select the repository.
 5. Click on `+` icon ( Shown in next image ).
 
-![](/couchbase-plugin/img/image10.png)
+![Screenshot](/image/image10.png)
 
 
 6. 6. Add required details in `Add database` section.
@@ -98,7 +94,7 @@ We can enter any random or dummy value in this field of source host name when we
  - `DB data path`: Put dummy value for now
 
 
-![](/couchbase-plugin/img/image11.png)
+![Screenshot](/image/image11.png)
 
 
 
