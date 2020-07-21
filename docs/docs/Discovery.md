@@ -38,7 +38,7 @@ Steps:
 5. Select the Refresh icon.
 6. In the Refresh confirmation dialog select Refresh.
 
-![Screenshot](/image/image9.png)
+![Screenshot](/couchbase-plugin/image/image9.png)
 
 
 
@@ -58,7 +58,7 @@ Environments exist to contain `repositories`, and each environment may have any 
 5. Click on `+` icon ( Shown in next image )
 
 
-![Screenshot](/image/image10.png)
+![Screenshot](/couchbase-plugin/image/image10.png)
 
 
 6. Add required details in `Add database` section.
@@ -68,7 +68,7 @@ Environments exist to contain `repositories`, and each environment may have any 
  - `DB data path`: Provide couchbase datapath available on your staging host
 
 
-![Screenshot](/image/image11.png)
+![Screenshot](/couchbase-plugin/image/image11.png)
 
 
 
@@ -84,7 +84,7 @@ We can enter any random or dummy value in this field of source host name when we
 4. Select the repository.
 5. Click on `+` icon ( Shown in next image ).
 
-![Screenshot](/image/image10.png)
+![Screenshot](/couchbase-plugin/image/image10.png)
 
 
 6. 6. Add required details in `Add database` section.
@@ -94,7 +94,7 @@ We can enter any random or dummy value in this field of source host name when we
  - `DB data path`: Put dummy value for now
 
 
-![Screenshot](/image/image11.png)
+![Screenshot](/couchbase-plugin/image/image11.png)
 
 
 

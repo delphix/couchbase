@@ -22,27 +22,27 @@ Using GUI
 1. Click on Manage and then Plugins
 
 
-![Screenshot](/image/image2.png)
+![Screenshot](/couchbase-plugin/image/image2.png)
 
 2. Click on `+` icon
 
-![Screenshot](/image/image3.png)
+![Screenshot](/couchbase-plugin/image/image3.png)
 
 3. Click on Upload or Upgrade a plugin
 
-![Screenshot](/image/image4.png)
+![Screenshot](/couchbase-plugin/image/image4.png)
 
 4. Select the `build(artifacts.json)` 
 
-![Screenshot](/image/image5.png)
+![Screenshot](/couchbase-plugin/image/image5.png)
 
 5. Click on close button
 
-![Screenshot](/image/image6.png)
+![Screenshot](/couchbase-plugin/image/image6.png)
 
 6. See the plugin version in `Plugins` section
 
-![Screenshot](/image/image7.png)
+![Screenshot](/couchbase-plugin/image/image7.png)
 
 
 Using dvp command

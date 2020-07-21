@@ -25,10 +25,10 @@ Provision VDB
 
 1. Click on the icon
 
-![Screenshot](/image/image24.png)
+![Screenshot](/couchbase-plugin/image/image24.png)
 
 2. Select the target host from dropdown and 
-![Screenshot](/image/image25.png)
+![Screenshot](/couchbase-plugin/image/image25.png)
 
 
 3. Enter the values as below in target configuration
@@ -44,10 +44,10 @@ Provision VDB
 - `Target couchbase Admin password`
 
 
-![Screenshot](/image/image26.png)
+![Screenshot](/couchbase-plugin/image/image26.png)
 
 4. Provision vFiles: Add vdb name and target group
-![Screenshot](/image/image27.png)
+![Screenshot](/couchbase-plugin/image/image27.png)
 
 
 5. No need to add Policies, just press Next button

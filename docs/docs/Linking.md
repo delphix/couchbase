@@ -51,21 +51,21 @@ Cross data center replication allows data to be replicated across clusters that 
 - Cluster Eventing RAM Size
 - Cluster Analysis RAM Size
 
-![Screenshot](/image/image12.png)
+![Screenshot](/couchbase-plugin/image/image12.png)
 
-![Screenshot](/image/image13.png)
+![Screenshot](/couchbase-plugin/couchbase-plugin/image/image13.png)
 
 6. Click on (+) plus symbol to modify configuration settings. This option allows to include bucket lists which should be part of couchbase cross data center replication (XDCR).
 
-![Screenshot](/image/image14.png)
+![Screenshot](/couchbase-plugin/image/image14.png)
 
 7. Enter the details of Bucket Name to be part of XDCR.
 
-![Screenshot](/image/image15.png)
+![Screenshot](/couchbase-plugin/image/image15.png)
 
 8. Provide the details for "dSource Name" and "Target group" on the dSource configuration page.
 
-![Screenshot](/image/image16.png)
+![Screenshot](/couchbase-plugin/image/image16.png)
 
 
 9. On the data management page, select the following:
@@ -77,15 +77,15 @@ Cross data center replication allows data to be replicated across clusters that 
 11. Click the submit button which will initiate the linking process.
 
 
-![Screenshot](/image/image17.png)
+![Screenshot](/couchbase-plugin/image/image17.png)
 
 12. Once dSource is created successfully, you can review the datasets on Manage > Datasets > dSource Name.
 
-![Screenshot](/image/image19.png)
+![Screenshot](/couchbase-plugin/image/image19.png)
 
 13. Review the datasets on Manage > Environment > Database section.
 
-![Screenshot](/image/image18.png)
+![Screenshot](/couchbase-plugin/image/image18.png)
 
 
 Couchbase Backup Manager Method 
@@ -117,7 +117,7 @@ Note: When we select dSource Type as Couchbase Backup Manager, we do not require
 10. Remaining steps for cbbackupmgr ingestion are similar to XDCR.
 
 
-![Screenshot](/image/image22.png)
-![Screenshot](/image/image23.png)
+![Screenshot](/couchbase-plugin/image/image22.png)
+![Screenshot](/couchbase-plugin/image/image23.png)
 
 
