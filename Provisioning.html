@@ -36,7 +36,7 @@
     
     
       
-        <title>cDiscovery - Couchbase Plugin</title>
+        <title>Provisioning - Couchbase Plugin</title>
       
     
     
@@ -118,7 +118,7 @@
                 Couchbase Plugin
               </span>
               <span class="md-header-nav__topic">
-                cDiscovery
+                Provisioning
               </span>
             
           
@@ -246,8 +246,8 @@
 
 
   <li class="md-nav__item">
-    <a href="aInstallation.html" title="aInstallation" class="md-nav__link">
-      aInstallation
+    <a href="Installation.html" title="Installation" class="md-nav__link">
+      Installation
     </a>
   </li>
 
@@ -258,8 +258,32 @@
 
 
   <li class="md-nav__item">
-    <a href="bPluginDevelopment.html" title="bPluginDevelopment" class="md-nav__link">
-      bPluginDevelopment
+    <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-nav__link">
+      PluginDevelopment
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Discovery.html" title="Discovery" class="md-nav__link">
+      Discovery
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Linking.html" title="Linking" class="md-nav__link">
+      Linking
     </a>
   </li>
 
@@ -278,34 +302,10 @@
       
     
     
-    <a href="cDiscovery.html" title="cDiscovery" class="md-nav__link md-nav__link--active">
-      cDiscovery
+    <a href="Provisioning.html" title="Provisioning" class="md-nav__link md-nav__link--active">
+      Provisioning
     </a>
     
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="dLinking.html" title="dLinking" class="md-nav__link">
-      dLinking
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="eProvisioning.html" title="eProvisioning" class="md-nav__link">
-      eProvisioning
-    </a>
   </li>
 
     
@@ -336,81 +336,69 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/delphix/couchbase-plugin/edit/master/docs/cDiscovery.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/delphix/couchbase-plugin/edit/master/docs/Provisioning.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <p><a href="#refresh-environment">Refresh Environment</a></p>
-<p><a href="#create-sourceconfig">Create sourceconfig for XDCR setup</a></p>
-<p><a href="#create-dsource">Create sourceconfig for cbbackupmgr setup</a></p>
+                <p><a href="#purpose">Purpose</a></p>
+<p><a href="#prerequisites">Prerequisites</a></p>
+<p><a href="#provision-vdb">Provision VDB</a></p>
 <h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
-<p>Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. </p>
+<p>Virtual databases are a virtualized copies of dSource. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
 <li>
-<p>A source environment must be added to the Delphix Engine</p>
+<p>Required a linked dSource from a source host</p>
 </li>
 <li>
-<p>Installation of the couchbase Plugin is required before the discovery </p>
-</li>
-<li>
-<p>Environment variable <code>$COUCHBASE_PATH</code> should set on staging/target host, which contains binary path of couchbase</p>
+<p>Added compatible target environment on Delphix enging</p>
 </li>
 </ul>
-<h1 id="refresh-environment">Refresh Environment<a class="headerlink" href="#refresh-environment" title="Permanent link">&para;</a></h1>
-<p>Environment refresh will update the metadata associated with that environment and sends a new plugin to the host.</p>
-<p>Steps: </p>
+<h1 id="provision-vdb">Provision VDB<a class="headerlink" href="#provision-vdb" title="Permanent link">&para;</a></h1>
 <ol>
-<li>Login to the Delphix Management application.</li>
-<li>Click Manage.</li>
-<li>Select Environments.</li>
-<li>In the Environments panel, click the name of the environment you want to refresh.</li>
-<li>Select the Refresh icon.</li>
-<li>In the Refresh confirmation dialog select Refresh.</li>
+<li>Click on the icon</li>
 </ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image9.png" /></p>
-<h1 id="create-sourceconfig">Create Sourceconfig<a class="headerlink" href="#create-sourceconfig" title="Permanent link">&para;</a></h1>
-<p>Environments exist to contain <code>repositories</code>, and each environment may have any number of repositories associated with it.
-<code>Repository</code> contains database instances and in each repository any number of <code>SourceConfig</code> objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add <code>SourceConfig</code> objects through which can create a dSource. </p>
-<p><strong>XDCR setup:</strong></p>
-<ol>
-<li>Login to the Delphix Management application.</li>
-<li>Click Manage.</li>
-<li>Select Environments.</li>
-<li>Select the repository</li>
-<li>Click on <code>+</code> icon ( Shown in next image )</li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
-<ol>
-<li>Add required details in <code>Add database</code> section.</li>
-<li><code>Source Couchbase port</code>: Port number</li>
-<li><code>Source Host</code>: Source host address</li>
-<li><code>identity field</code>: Proivide unique name for staging database</li>
-<li><code>DB data path</code>: Provide couchbase datapath available on your staging host</li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image11.png" /></p>
-<p><strong>CBBKPMGR setup:</strong></p>
-<p>The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
-We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.</p>
-<ol>
-<li>Login to the Delphix Management application.</li>
-<li>Click Manage.</li>
-<li>Select Environments.</li>
-<li>Select the repository.</li>
-<li>Click on <code>+</code> icon ( Shown in next image ).</li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image24.png" /></p>
 <ol>
 <li>
-<ol>
-<li>Add required details in <code>Add database</code> section.</li>
-</ol>
+<p>Select the target host from dropdown and 
+<img alt="Screenshot" src="/couchbase-plugin/image/image25.png" /></p>
 </li>
-<li><code>Source Couchbase port</code>: Port number</li>
-<li><code>Source Host</code>: Put dummy value for now</li>
-<li><code>identity field</code>: Proivide unique name for staging database</li>
-<li><code>DB data path</code>: Put dummy value for now</li>
+<li>
+<p>Enter the values as below in target configuration</p>
+</li>
+<li><code>Target Port Number</code>: Port number to start services</li>
+<li><code>Mount Path</code>: NFS mount path where dSource snapshot will be mounted by engine</li>
+<li><code>Target Cluster name</code>: Cluster name you would like Delphix to setup on your target host.</li>
+<li><code>Cluster Ram Size</code></li>
+<li><code>Cluster Index Ram Size</code></li>
+<li><code>Cluster FTS Ram Size</code></li>
+<li><code>Cluster Eventing Ram Size</code></li>
+<li><code>Cluster Analytics Ram Size</code></li>
+<li><code>Target couchbase Admin User</code></li>
+<li><code>Target couchbase Admin password</code></li>
 </ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image11.png" /></p>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image26.png" /></p>
+<ol>
+<li>
+<p>Provision vFiles: Add vdb name and target group
+<img alt="Screenshot" src="/couchbase-plugin/image/image27.png" /></p>
+</li>
+<li>
+<p>No need to add Policies, just press Next button</p>
+</li>
+<li>
+<p>No need to add Masking, just press Next button</p>
+</li>
+<li>
+<p>No need to add Hooks, just press Next button</p>
+</li>
+<li>
+<p>Preview the summary and submit </p>
+</li>
+<li>
+<p>Once VDB is created successfully, you can review the datasets on Manage &gt; Datasets &gt; vdb Name.</p>
+</li>
+</ol>
                 
                   
                 
@@ -431,7 +419,7 @@ We can enter any random or dummy value in this field of source host name when we
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="bPluginDevelopment.html" title="bPluginDevelopment" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="Linking.html" title="Linking" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -440,25 +428,11 @@ We can enter any random or dummy value in this field of source host name when we
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                bPluginDevelopment
+                Linking
               </span>
             </div>
           </a>
         
-        
-          <a href="dLinking.html" title="dLinking" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                dLinking
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
         
       </nav>
     </div>

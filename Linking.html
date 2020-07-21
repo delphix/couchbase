@@ -36,7 +36,7 @@
     
     
       
-        <title>eProvisioning - Couchbase Plugin</title>
+        <title>Linking - Couchbase Plugin</title>
       
     
     
@@ -118,7 +118,7 @@
                 Couchbase Plugin
               </span>
               <span class="md-header-nav__topic">
-                eProvisioning
+                Linking
               </span>
             
           
@@ -246,8 +246,8 @@
 
 
   <li class="md-nav__item">
-    <a href="aInstallation.html" title="aInstallation" class="md-nav__link">
-      aInstallation
+    <a href="Installation.html" title="Installation" class="md-nav__link">
+      Installation
     </a>
   </li>
 
@@ -258,8 +258,8 @@
 
 
   <li class="md-nav__item">
-    <a href="bPluginDevelopment.html" title="bPluginDevelopment" class="md-nav__link">
-      bPluginDevelopment
+    <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-nav__link">
+      PluginDevelopment
     </a>
   </li>
 
@@ -270,20 +270,8 @@
 
 
   <li class="md-nav__item">
-    <a href="cDiscovery.html" title="cDiscovery" class="md-nav__link">
-      cDiscovery
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="dLinking.html" title="dLinking" class="md-nav__link">
-      dLinking
+    <a href="Discovery.html" title="Discovery" class="md-nav__link">
+      Discovery
     </a>
   </li>
 
@@ -302,10 +290,22 @@
       
     
     
-    <a href="eProvisioning.html" title="eProvisioning" class="md-nav__link md-nav__link--active">
-      eProvisioning
+    <a href="Linking.html" title="Linking" class="md-nav__link md-nav__link--active">
+      Linking
     </a>
     
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="Provisioning.html" title="Provisioning" class="md-nav__link">
+      Provisioning
+    </a>
   </li>
 
     
@@ -336,69 +336,111 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/delphix/couchbase-plugin/edit/master/docs/eProvisioning.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/delphix/couchbase-plugin/edit/master/docs/Linking.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <p><a href="#purpose">Purpose</a></p>
 <p><a href="#prerequisites">Prerequisites</a></p>
-<p><a href="#provision-vdb">Provision VDB</a></p>
+<p><a href="#create-dsource">Create dSource</a></p>
+<p><a href="#xdcr-method">XDCR Method</a></p>
+<p><a href="#couchbase-backup-manager-method">Couchbase Backup Manager Method</a></p>
 <h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
-<p>Virtual databases are a virtualized copies of dSource. </p>
+<p>Linking a data source will create a dSource object on the engine and allow Delphix to ingest data from this source. The dSource is an object that the Delphix Virtualization Engine uses to create and update virtual copies of your database. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
+<li>Discovery and source config object should be created on staging host before proceeding to link couchbase dataset </li>
+</ul>
+<h1 id="create-dsource">Create dSource<a class="headerlink" href="#create-dsource" title="Permanent link">&para;</a></h1>
+<p>Steps:</p>
+<ol>
+<li>Login to Delphix Management application.</li>
+<li>Click Manage &gt;  Datasets</li>
+<li>Select Add dSource.</li>
+<li>In the Add dSource wizard, select the couchbase source config you just created on the staging host.</li>
+<li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
+<li>Select the dSource type from the drop-down available on dSource wizard.</li>
+</ol>
+<h2 id="xdcr-method">XDCR Method<a class="headerlink" href="#xdcr-method" title="Permanent link">&para;</a></h2>
+<p>Cross data center replication allows data to be replicated across clusters that are potentially located in different data centers.</p>
+<ol>
+<li>Enter the details for "Staging Couchbase host" - FQDN or IP address recommended</li>
+<li>Enter the details for "Staging Port Number" available on staging host. The default port for couchbase is 8091.</li>
+<li>Enter the details for "Mount Path" available on staging host. This empty folder acts as a base for NFS mounts.</li>
+<li>Enter the details for "Staging Cluster Name" you would like Delphix to setup on your staging host.</li>
+<li>Enter the configuration details for your staging cluster as per resource availability on the staging host.</li>
+<li>Cluster RAM Size</li>
+<li>Cluster Index RAM Size</li>
+<li>Cluster FTS RAM Size</li>
+<li>Cluster Eventing RAM Size</li>
+<li>Cluster Analysis RAM Size</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image12.png" /></p>
+<p><img alt="Screenshot" src="/couchbase-plugin/couchbase-plugin/image/image13.png" /></p>
+<ol>
+<li>Click on (+) plus symbol to modify configuration settings. This option allows to include bucket lists which should be part of couchbase cross data center replication (XDCR).</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image14.png" /></p>
+<ol>
+<li>Enter the details of Bucket Name to be part of XDCR.</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image15.png" /></p>
+<ol>
+<li>Provide the details for "dSource Name" and "Target group" on the dSource configuration page.</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image16.png" /></p>
+<ol>
+<li>On the data management page, select the following:</li>
+<li>Staging Environment: This will be your staging host where source config was created.</li>
 <li>
-<p>Required a linked dSource from a source host</p>
+<p>User: Database OS user with required privileges for linking the dataset.</p>
 </li>
 <li>
-<p>Added compatible target environment on Delphix enging</p>
+<p>On the next section, review the configuration and click on next button to review the final summary.</p>
+</li>
+<li>
+<p>Click the submit button which will initiate the linking process.</p>
+</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image17.png" /></p>
+<ol>
+<li>Once dSource is created successfully, you can review the datasets on Manage &gt; Datasets &gt; dSource Name.</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image19.png" /></p>
+<ol>
+<li>Review the datasets on Manage &gt; Environment &gt; Database section.</li>
+</ol>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image18.png" /></p>
+<h2 id="couchbase-backup-manager-method">Couchbase Backup Manager Method<a class="headerlink" href="#couchbase-backup-manager-method" title="Permanent link">&para;</a></h2>
+<p>Follow below instructions before going to create dsource to avoid source/production server dependency.
+- Provide source server buckets related information in a file and place at <code>/tmp/couchbase_src_bucket_info.cfg</code>
+  <code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091 --username $username --password $password</code></p>
+<ul>
+<li>
+<p>Backup Repository: This file will be required at the time of dSource creation using CBBACKUPMGR.
+  <code>/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix</code></p>
+</li>
+<li>
+<p>Backup Location: Get data from source host in backup directory of staging host
+<code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
 </li>
 </ul>
-<h1 id="provision-vdb">Provision VDB<a class="headerlink" href="#provision-vdb" title="Permanent link">&para;</a></h1>
+<p>Steps:</p>
 <ol>
-<li>Click on the icon</li>
+<li>Login to Delphix Management application.</li>
+<li>Click Manage &gt;  Datasets</li>
+<li>Select Add dSource.</li>
+<li>In the Add dSource wizard, select the couchbase source config you just created on the staging host.</li>
+<li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
+<li>Select the dSource type from the drop-down available on dSource wizard.</li>
+<li>Couchbase Backup Manager: Cbbackupmgr allows data to be restored on staging host of Couchbase Server.</li>
+<li>When we select CBbackupmgr as dSource Type, the following fields on dSource wizard are mandatory.</li>
+<li>Enter the details for "Backup Location" where the backup files generated through cbbackupmgr are present on the staging host.</li>
+<li>Enter the details for "Backup Repository" that contains a backup configuration of staging host. Details on how how to setup backup repository are listed here.</li>
 </ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image24.png" /></p>
-<ol>
-<li>
-<p>Select the target host from dropdown and 
-<img alt="Screenshot" src="/couchbase-plugin/image/image25.png" /></p>
-</li>
-<li>
-<p>Enter the values as below in target configuration</p>
-</li>
-<li><code>Target Port Number</code>: Port number to start services</li>
-<li><code>Mount Path</code>: NFS mount path where dSource snapshot will be mounted by engine</li>
-<li><code>Target Cluster name</code>: Cluster name you would like Delphix to setup on your target host.</li>
-<li><code>Cluster Ram Size</code></li>
-<li><code>Cluster Index Ram Size</code></li>
-<li><code>Cluster FTS Ram Size</code></li>
-<li><code>Cluster Eventing Ram Size</code></li>
-<li><code>Cluster Analytics Ram Size</code></li>
-<li><code>Target couchbase Admin User</code></li>
-<li><code>Target couchbase Admin password</code></li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image26.png" /></p>
-<ol>
-<li>
-<p>Provision vFiles: Add vdb name and target group
-<img alt="Screenshot" src="/couchbase-plugin/image/image27.png" /></p>
-</li>
-<li>
-<p>No need to add Policies, just press Next button</p>
-</li>
-<li>
-<p>No need to add Masking, just press Next button</p>
-</li>
-<li>
-<p>No need to add Hooks, just press Next button</p>
-</li>
-<li>
-<p>Preview the summary and submit </p>
-</li>
-<li>
-<p>Once VDB is created successfully, you can review the datasets on Manage &gt; Datasets &gt; vdb Name.</p>
-</li>
-</ol>
+<p>Note: When we select dSource Type as Couchbase Backup Manager, we do not require any details for <code>Staging Couchbase Host</code> field.
+10. Remaining steps for cbbackupmgr ingestion are similar to XDCR.</p>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image22.png" />
+<img alt="Screenshot" src="/couchbase-plugin/image/image23.png" /></p>
                 
                   
                 
@@ -419,7 +461,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="dLinking.html" title="dLinking" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="Discovery.html" title="Discovery" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -428,11 +470,25 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                dLinking
+                Discovery
               </span>
             </div>
           </a>
         
+        
+          <a href="Provisioning.html" title="Provisioning" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Provisioning
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
         
       </nav>
     </div>
