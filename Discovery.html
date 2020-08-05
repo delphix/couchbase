@@ -92,7 +92,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#purpose" tabindex="1" class="md-skip">
+      <a href="#discovery" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -258,8 +258,8 @@
 
 
   <li class="md-nav__item">
-    <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-nav__link">
-      PluginDevelopment
+    <a href="PluginDevelopment.html" title="Plugin Development" class="md-nav__link">
+      Plugin Development
     </a>
   </li>
 
@@ -339,9 +339,10 @@
                   <a href="https://github.com/delphix/couchbase-plugin/edit/master/docs/Discovery.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <p><a href="#refresh-environment">Refresh Environment</a></p>
-<p><a href="#create-sourceconfig">Create sourceconfig for XDCR setup</a></p>
-<p><a href="#create-dsource">Create sourceconfig for cbbackupmgr setup</a></p>
+                <h1 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h1>
+<p><a href="#refresh-environment">Refresh Environment</a></p>
+<p><a href="#xdcr-setup">Create sourceconfig for XDCR setup</a></p>
+<p><a href="#cbbkpmgr-setup">Create sourceconfig for cbbkpmgr setup</a></p>
 <h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
 <p>Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
@@ -368,10 +369,9 @@
 <li>In the Refresh confirmation dialog select Refresh.</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image9.png" /></p>
-<h1 id="create-sourceconfig">Create Sourceconfig<a class="headerlink" href="#create-sourceconfig" title="Permanent link">&para;</a></h1>
+<h1 id="xdcr-setup">XDCR Setup<a class="headerlink" href="#xdcr-setup" title="Permanent link">&para;</a></h1>
 <p>Environments exist to contain <code>repositories</code>, and each environment may have any number of repositories associated with it.
 <code>Repository</code> contains database instances and in each repository any number of <code>SourceConfig</code> objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add <code>SourceConfig</code> objects through which can create a dSource. </p>
-<p><strong>XDCR setup:</strong></p>
 <ol>
 <li>Login to the Delphix Management application.</li>
 <li>Click Manage.</li>
@@ -388,7 +388,7 @@
 <li><code>DB data path</code>: Provide couchbase datapath available on your staging host</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image11.png" /></p>
-<p><strong>CBBKPMGR setup:</strong></p>
+<h1 id="cbbkpmgr-setup">CBBKPMGR setup<a class="headerlink" href="#cbbkpmgr-setup" title="Permanent link">&para;</a></h1>
 <p>The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
 We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.</p>
 <ol>
@@ -431,7 +431,7 @@ We can enter any random or dummy value in this field of source host name when we
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="PluginDevelopment.html" title="Plugin Development" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -440,7 +440,7 @@ We can enter any random or dummy value in this field of source host name when we
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                PluginDevelopment
+                Plugin Development
               </span>
             </div>
           </a>

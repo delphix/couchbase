@@ -36,7 +36,7 @@
     
     
       
-        <title>PluginDevelopment - Couchbase Plugin</title>
+        <title>Plugin Development - Couchbase Plugin</title>
       
     
     
@@ -118,7 +118,7 @@
                 Couchbase Plugin
               </span>
               <span class="md-header-nav__topic">
-                PluginDevelopment
+                Plugin Development
               </span>
             
           
@@ -265,11 +265,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        PluginDevelopment
+        Plugin Development
       </label>
     
-    <a href="PluginDevelopment.html" title="PluginDevelopment" class="md-nav__link md-nav__link--active">
-      PluginDevelopment
+    <a href="PluginDevelopment.html" title="Plugin Development" class="md-nav__link md-nav__link--active">
+      Plugin Development
     </a>
     
       
@@ -299,25 +299,19 @@
     Unit Test of Plugin code
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#summaryreport" title="SummaryReport:" class="md-nav__link">
-    SummaryReport:
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-report" title="Summary Report" class="md-nav__link">
+    Summary Report
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#module-wise-coverage-report" title="Module wise coverage report:" class="md-nav__link">
-    Module wise coverage report:
+      
+        <li class="md-nav__item">
+  <a href="#module-wise-coverage-report" title="Module wise coverage report" class="md-nav__link">
+    Module wise coverage report
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -412,25 +406,19 @@
     Unit Test of Plugin code
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#summaryreport" title="SummaryReport:" class="md-nav__link">
-    SummaryReport:
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-report" title="Summary Report" class="md-nav__link">
+    Summary Report
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#module-wise-coverage-report" title="Module wise coverage report:" class="md-nav__link">
-    Module wise coverage report:
+      
+        <li class="md-nav__item">
+  <a href="#module-wise-coverage-report" title="Module wise coverage report" class="md-nav__link">
+    Module wise coverage report
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -460,42 +448,47 @@
                   <a href="https://github.com/delphix/couchbase-plugin/edit/master/docs/PluginDevelopment.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                  <h1>PluginDevelopment</h1>
+                  <h1>Plugin Development</h1>
                 
                 <h2 id="build-plugin">Build plugin<a class="headerlink" href="#build-plugin" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Create a virtual environment and install required libraries(dvp, pytest, pytest-html &amp; pytest-cov) using script <code>virtualEnvSetup.sh</code>.</li>
+<li>
+<p>Create a virtual environment and install required libraries (dvp
+  , pytest, pytest-html &amp; pytest-cov) using script <code>virtualEnvSetup.sh</code>.</p>
+<p><code>-&gt; cd &lt;complete path of project directory till couchbase-plugin
+ directory&gt;</code></p>
+<p><code>-&gt; ./test/virtualEnvSetup.sh &lt;virtual enviornment name&gt;</code></p>
+</li>
 </ol>
-<p><code>``bash
-    cd &lt;complete path of project directory till</code>couchbase-plugin` directory&gt;
-    ./test/virtualEnvSetup.sh <virtual enviornment name>
-For example:
-    cd /Users/<your-user-name>/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
-    ./test/virtualEnvSetup.sh "MyLocalEnv"</p>
-<div class="codehilite"><pre><span></span><code>  2.  Run this command to activate the virtual environment created in step 1.
-   ```bash
-    . test/MyLocalEnv/bin/activate
-   ```
-
-  3.  Build the source code. It generates the build with name `artifacts.json`:
-```bash
-    dvp build
+<p>For example:</p>
+<div class="codehilite"><pre><span></span><code>-&gt; cd /Users/&lt;your-user-name&gt;/Desktop/Plugins/OpenSourceCouchbase
+/couchbase-plugin
+-&gt; ./test/virtualEnvSetup.sh &quot;MyLocalEnv&quot;
 </code></pre></div>
 
 
+<ol>
+<li>
+<p>Run this command to activate the virtual environment created in step 1.</p>
+<p><code>. test/MyLocalEnv/bin/activate</code></p>
+</li>
+<li>
+<p>Build the source code. It generates the build with name <code>artifact.json</code>:</p>
+<p><code>dvp build</code></p>
+</li>
+</ol>
 <h2 id="upload-plugin">Upload plugin<a class="headerlink" href="#upload-plugin" title="Permanent link">&para;</a></h2>
-<p>Upload the <code>artifacts.json</code> ( generated in step 3 ) on Delphix Engine:</p>
+<p>Upload the <code>artifact.json</code> (generated in step 3) on Delphix Engine:</p>
 <div class="codehilite"><pre><span></span><code>    dvp upload -e &lt;Delphix_Engine_Name&gt; -u &lt;username&gt; --password &lt;password&gt;
 </code></pre></div>
 
 
 <h2 id="unit-test-of-plugin-code">Unit Test of Plugin code<a class="headerlink" href="#unit-test-of-plugin-code" title="Permanent link">&para;</a></h2>
-<p>Unit test run: Make sure to build the source code( using <code>dvp build</code> ) before running unit tests
-  <code>bash
-     pytest test/</code></p>
-<h5 id="summaryreport">SummaryReport:<a class="headerlink" href="#summaryreport" title="Permanent link">&para;</a></h5>
+<p>Unit test run: Make sure to build the source code (using <code>dvp build</code>) before running unit tests
+     <code>pytest test/</code></p>
+<h2 id="summary-report">Summary Report<a class="headerlink" href="#summary-report" title="Permanent link">&para;</a></h2>
 <p>A report with name <code>Report.html</code> gets generated in <code>test</code> directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.</p>
-<h5 id="module-wise-coverage-report">Module wise coverage report:<a class="headerlink" href="#module-wise-coverage-report" title="Permanent link">&para;</a></h5>
+<h2 id="module-wise-coverage-report">Module wise coverage report<a class="headerlink" href="#module-wise-coverage-report" title="Permanent link">&para;</a></h2>
 <p>There is a report folder <code>CodeCoverage</code>(can change the folder name in config file <code>pytest.ini</code>) generated in <code>test</code> directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.</p>
 <h2 id="debug-plugin-logs">Debug plugin logs<a class="headerlink" href="#debug-plugin-logs" title="Permanent link">&para;</a></h2>
 <p>Download the plugin logs using below command:</p>
