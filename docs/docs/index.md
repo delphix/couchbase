@@ -14,10 +14,12 @@ Ingest Couchbase
 
 ### <a id="requirements-plugin"></a>Prerequisites
 **Source Requirements:** Couchbase database user with following privileges
-*   XDCR_ADMIN
-*   DATA_MONITOR
+
+*  XDCR_ADMIN
+*  DATA_MONITOR
 
 **Staging Requirements**: O/S user with following privileges
+
 1. Regular o/s user.
 2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]
 3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]
@@ -45,14 +47,15 @@ Ingest Couchbase
   
 
 **Target Requirements**: O/S user with following privileges
+
 1. Regular o/s user.
 2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]
 3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]
 4. Empty folder on host to mount nfs filesystem. This is just and empty folder with no space requirements and act as base folder for nfs mounts.
 5. sudo privileges for mount, umount. See sample below assuming `delphix_os` is used as delphix user.
-    ```shell
-    Defaults:delphixos !requiretty
-    delphixos ALL=NOPASSWD: \ 
-    /bin/mount, /bin/umount
-    ```
+
+    `Defaults:delphixos !requiretty`
+
+    `delphixos ALL=NOPASSWD: /bin/mount, /bin/umount`
+    
 

@@ -1,8 +1,4 @@
-
-[Prerequisites](#prerequisites)
-
-[How To install plugin](#provision-vdb)
-
+# Plugin Installation
  
  
 Prerequisites

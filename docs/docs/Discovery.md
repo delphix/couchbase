@@ -1,10 +1,10 @@
-
+# Discovery
 
 [Refresh Environment](#refresh-environment)
 
-[Create sourceconfig for XDCR setup](#create-sourceconfig)
+[Create sourceconfig for XDCR setup](#xdcr-setup)
 
-[Create sourceconfig for cbbackupmgr setup](#create-dsource)
+[Create sourceconfig for cbbkpmgr setup](#cbbkpmgr-setup)
 
 
  
@@ -43,13 +43,11 @@ Steps:
 
 
 
-Create Sourceconfig
+XDCR Setup
 ===================
 Environments exist to contain `repositories`, and each environment may have any number of repositories associated with it.
 `Repository` contains database instances and in each repository any number of `SourceConfig` objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add `SourceConfig` objects through which can create a dSource. 
 
-
-**XDCR setup:**
 
 1. Login to the Delphix Management application.
 2. Click Manage.
@@ -72,8 +70,9 @@ Environments exist to contain `repositories`, and each environment may have any 
 
 
 
+CBBKPMGR setup
+======================================
 
-**CBBKPMGR setup:**
 
 The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
 We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.

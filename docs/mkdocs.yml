@@ -23,7 +23,7 @@ use_directory_urls: false
 pages:
   - Overview: 'index.md'
   - Installation: 'Installation.md'
-  - PluginDevelopment : 'PluginDevelopment.md'
+  - Plugin Development : 'PluginDevelopment.md'
   - Discovery: 'Discovery.md'
   - Linking: 'Linking.md'
   - Provisioning: 'Provisioning.md'
