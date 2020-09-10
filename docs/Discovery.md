@@ -1,14 +1,5 @@
 # Discovery operation
 
-
-[Refresh Environment](#refresh-environment)
-
-[Create sourceconfig for XDCR setup](#create-sourceconfig)
-
-[Create sourceconfig for cbbackupmgr setup](#create-dsource)
-
-
- 
 Purpose
 =======
 
