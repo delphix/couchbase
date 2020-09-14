@@ -412,17 +412,21 @@
 <code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
 </li>
 </ul>
-<p><strong>Procedure</strong>:
-1. Login to <strong>Delphix Management</strong> application.
-2. Click <strong>Manage</strong> &gt;  <strong>Datasets</strong>.
-3. Select <strong>Add dSource</strong>.
-4. In the <strong>Add dSource wizard</strong>, select the Couchbase source configuration you created on the staging host.
-5. Enter the Couchbase-specific parameters for your dSource configuration.
-6. Select the dSource type from the drop-down available on dSource wizard.
-7. When we select CBBACKUPMGR as dSource Type, the following fields on dSource wizard are mandatory.
-    - Enter the details for <strong>Backup Location</strong> where the backup files generated through CBBACKUPMGR are present on the staging host.
-    - Enter the details for <strong>Backup Repository</strong> that contains a backup configuration of staging host. 
-8. The remaining steps for CBBACKUPMGR ingestion are similar to XDCR. Use steps from the second point mentioned in XDCR method. </p>
+<p><strong>Procedure</strong>:</p>
+<ol>
+<li>Login to <strong>Delphix Management</strong> application.</li>
+<li>Click <strong>Manage</strong> &gt;  <strong>Datasets</strong>.</li>
+<li>Select <strong>Add dSource</strong>.</li>
+<li>In the <strong>Add dSource wizard</strong>, select the Couchbase source configuration you created on the staging host.</li>
+<li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
+<li>Select the dSource type from the drop-down available on dSource wizard.</li>
+<li>When we select CBBACKUPMGR as dSource Type, the following fields on dSource wizard are mandatory.<ul>
+<li>Enter the details for <strong>Backup Location</strong> where the backup files generated through CBBACKUPMGR are present on the staging host.</li>
+<li>Enter the details for <strong>Backup Repository</strong> that contains a backup configuration of staging host. </li>
+</ul>
+</li>
+<li>The remaining steps for CBBACKUPMGR ingestion are similar to XDCR. Use steps from the second point mentioned in XDCR method. </li>
+</ol>
 <p>Note: When we select dSource type as Couchbase Backup Manager, we do not require any details for the <code>Staging Couchbase Host</code> field.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image22.png" /></p>
                 

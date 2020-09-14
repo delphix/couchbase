@@ -441,17 +441,19 @@
 <li>
 <p>Customers who intend to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.</p>
 <ul>
-<li>Provide all source server buckets related information (using the command below) in a file and place where <code>&lt;Toolkit-Directory-Path&gt;/couchbase_src_bucket_info.cfg</code>:</li>
+<li>
+<p>Provide all source server buckets related information (using the command below) in a file and place where <code>&lt;Toolkit-Directory-Path&gt;/couchbase_src_bucket_info.cfg</code>:   <br />
+<code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091  --username $username --password $password</code></p>
+</li>
+<li>
+<p>Create config file using the following command. This file will be required at the time of dSource creation using CBBACKUPMGR. <br />
+<code>/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix</code></p>
+</li>
+<li>
+<p>Get data from source host in backup directory of staging host <br />
+<code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
+</li>
 </ul>
-<p><code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091  --username $username --password $password</code></p>
-<ul>
-<li>Create config file using the following command. This file will be required at the time of dSource creation using CBBACKUPMGR.</li>
-</ul>
-<p><code>/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix</code></p>
-<ul>
-<li>Get data from source host in backup directory of staging host</li>
-</ul>
-<p><code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
 </li>
 </ol>
 <p><strong>Target Requirements</strong>: O/S user with the following privileges:</p>
@@ -460,11 +462,9 @@
 <li>Execute access on couchbase binaries <code>[ chmod -R 775 /opt/couchbase ]</code>.</li>
 <li>Empty folder on host to hold Delphix toolkit  <code>[ approximate 2GB free space ]</code>.</li>
 <li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as a base folder for NFS mounts.</li>
-<li>
-<p>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.</p>
-<p><code>Defaults:delphixos !requiretty</code></p>
-<p><code>delphixos ALL=NOPASSWD: /bin/mount, /bin/umount</code></p>
-</li>
+<li>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user. <br />
+<code>Defaults:delphixos !requiretty</code><br />
+<code>delphixos ALL=NOPASSWD: /bin/mount, /bin/umount</code></li>
 </ol>
                 
                   
