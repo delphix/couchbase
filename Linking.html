@@ -361,7 +361,7 @@
 <li>Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended</li>
 <li>Enter the details for <strong>Staging Port Number</strong> available on the staging host. The default port for couchbase is 8091.</li>
 <li>Enter the details for <strong>Mount Path</strong> available on the staging host. This empty folder acts as a base for NFS mounts.</li>
-<li>Enter the details for <strong>Staging Cluster Name</strong> you would like Delphix to setup on your staging host.</li>
+<li>Enter the details for <strong>Staging Cluster Name</strong> to setup new cluster on the staging host.</li>
 <li>
 <p>Enter the configuration details for your staging cluster as per resource availability on the staging host.</p>
 <ul>
@@ -374,22 +374,30 @@
 </ul>
 </li>
 <li>
-<p>Click on <strong>+</strong> plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.</p>
+<p>Click on <strong>+</strong> plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.<br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image14.png" /></p>
 </li>
+<li>
+<p>Enter the details of <strong>Bucket Name</strong> to be part of XDCR. Then click on <strong>Next</strong> button<br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image15.png" /></p>
+</li>
+<li>
+<p>Provide the details for <strong>dSource Name</strong> and <strong>Target group</strong> on the dSource configuration page.<br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image16.png" /></p>
+</li>
+<li>
+<p>On the <strong>Data management</strong> page, select the following:</p>
+<ul>
+<li>Staging Environment: This will be your staging host where source config was created.</li>
+<li>User: Database OS user with required privileges for linking the dataset.</li>
+</ul>
+</li>
+<li>On the next section, review the configuration and click on <strong>Next</strong> button to view the summary.</li>
+<li>Click the <strong>Submit</strong> button which will initiate the linking process.
+<img alt="Screenshot" src="/couchbase-plugin/image/image17.png" /></li>
+<li>Once dSource is created successfully, you can review the datasets on <strong>Manage</strong> &gt; <strong>Datasets</strong> &gt; <strong>dSource Name</strong>.<br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image19.png" /></li>
 </ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image14.png" /></p>
-<p>7 . Enter the details of <strong>Bucket Name</strong> to be part of XDCR. Then click on <strong>Next</strong> button</p>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image15.png" /></p>
-<p>8 . Provide the details for <strong>dSource Name</strong> and <strong>Target group</strong> on the dSource configuration page.</p>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image16.png" /></p>
-<p>9  On the <strong>Data management</strong> page, select the following:
-- Staging Environment: This will be your staging host where source config was created.
-- User: Database OS user with required privileges for linking the dataset.</p>
-<p>10: On the next section, review the configuration and click on <strong>Next</strong> button to view the summary.</p>
-<p>11: Click the <strong>Submit</strong> button which will initiate the linking process.</p>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image17.png" /></p>
-<p>12: Once dSource is created successfully, you can review the datasets on <strong>Manage</strong> &gt; <strong>Datasets</strong> &gt; <strong>dSource Name</strong>.</p>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image19.png" /></p>
 <h2 id="method2-couchbase-backup-manager-method">Method2: Couchbase Backup Manager Method<a class="headerlink" href="#method2-couchbase-backup-manager-method" title="Permanent link">&para;</a></h2>
 <p>Follow the instructions below before creating dSource to avoid source/production server dependency.</p>
 <ul>
@@ -408,17 +416,18 @@
 <li>Login to <strong>Delphix Management</strong> application.</li>
 <li>Click <strong>Manage</strong> &gt;  <strong>Datasets</strong></li>
 <li>Select <strong>Add dSource</strong>.</li>
-<li>In the Add dSource wizard, select the Couchbase source configuration you created on the staging host.</li>
+<li>In the <strong>Add dSource wizard</strong>, select the Couchbase source configuration you created on the staging host.</li>
 <li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
 <li>Select the dSource type from the drop-down available on dSource wizard.</li>
-<li>When we select CBbackupmgr as dSource Type, the following fields on dSource wizard are mandatory.</li>
-<li>Enter the details for "Backup Location" where the backup files generated through cbbackupmgr are present on the staging host.</li>
-<li>Enter the details for "Backup Repository" that contains a backup configuration of staging host. Details on how how to setup backup repository are listed here.</li>
+<li>When we select CBBACKUPMGR as dSource Type, the following fields on dSource wizard are mandatory.<ul>
+<li>Enter the details for <strong>Backup Location</strong> where the backup files generated through CBBACKUPMGR are present on the staging host.</li>
+<li>Enter the details for <strong>Backup Repository</strong> that contains a backup configuration of staging host. </li>
+</ul>
+</li>
+<li>The remaining steps for CBBACKUPMGR ingestion are similar to XDCR. Use steps from the second point mentioned in XDCR method. </li>
 </ol>
-<p>Note: When we select dSource Type as Couchbase Backup Manager, we do not require any details for <code>Staging Couchbase Host</code> field.
-10. Remaining steps for cbbackupmgr ingestion are similar to XDCR.</p>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image22.png" />
-<img alt="Screenshot" src="/couchbase-plugin/image/image23.png" /></p>
+<p>Note: When we select dSource type as Couchbase Backup Manager, we do not require any details for the <code>Staging Couchbase Host</code> field.</p>
+<p><img alt="Screenshot" src="/couchbase-plugin/image/image22.png" /></p>
                 
                   
                 

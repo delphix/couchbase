@@ -340,10 +340,6 @@
                 
                 
                 <h1 id="provisioning">Provisioning<a class="headerlink" href="#provisioning" title="Permanent link">&para;</a></h1>
-<p><a href="#purpose">Purpose</a></p>
-<p><a href="#prerequisites">Prerequisites</a></p>
-<p><a href="#provision-vdb">Provision VDB</a></p>
-<h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
 <p>Virtual databases are a virtualized copies of dSource. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
@@ -351,53 +347,53 @@
 <p>Required a linked dSource from a source host</p>
 </li>
 <li>
-<p>Added compatible target environment on Delphix enging</p>
+<p>Added compatible target environment on Delphix Engine</p>
 </li>
 </ul>
-<h1 id="provision-vdb">Provision VDB<a class="headerlink" href="#provision-vdb" title="Permanent link">&para;</a></h1>
-<ol>
-<li>Click on the icon</li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image24.png" /></p>
+<h1 id="provisioning-a-vdb">Provisioning a VDB<a class="headerlink" href="#provisioning-a-vdb" title="Permanent link">&para;</a></h1>
 <ol>
 <li>
-<p>Select the target host from dropdown and 
+<p>Click on the icon highlighted in red color. <br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image24.png" /></p>
+</li>
+<li>
+<p>Select the target host from the dropdown on which VDB needs to be created.<br />
 <img alt="Screenshot" src="/couchbase-plugin/image/image25.png" /></p>
 </li>
 <li>
-<p>Enter the values as below in target configuration</p>
-</li>
-<li><code>Target Port Number</code>: Port number to start services</li>
-<li><code>Mount Path</code>: NFS mount path where dSource snapshot will be mounted by engine</li>
-<li><code>Target Cluster name</code>: Cluster name you would like Delphix to setup on your target host.</li>
+<p>Enter the following values for the target configuration:</p>
+<ul>
+<li><code>Target Port Number</code>: Port number on which Couchbase services will be started.</li>
+<li><code>Mount Path</code>: NFS mount path where dSource snapshot will be mounted by Engine.</li>
+<li><code>Target Cluster name</code>: Cluster name which is required to be set up on the target host.</li>
 <li><code>Cluster Ram Size</code></li>
 <li><code>Cluster Index Ram Size</code></li>
 <li><code>Cluster FTS Ram Size</code></li>
 <li><code>Cluster Eventing Ram Size</code></li>
 <li><code>Cluster Analytics Ram Size</code></li>
 <li><code>Target couchbase Admin User</code></li>
-<li><code>Target couchbase Admin password</code></li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image26.png" /></p>
-<ol>
+<li><code>Target couchbase Admin password</code><br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image26.png" /></li>
+</ul>
+</li>
 <li>
-<p>Provision vFiles: Add vdb name and target group
+<p>Provision vFiles: Add VDB name and target group.<br />
 <img alt="Screenshot" src="/couchbase-plugin/image/image27.png" /></p>
 </li>
 <li>
-<p>No need to add Policies, just press Next button</p>
+<p>No need to add Policies, select <strong>Next</strong>.</p>
 </li>
 <li>
-<p>No need to add Masking, just press Next button</p>
+<p>No need to add Masking, <strong>Next</strong>.</p>
 </li>
 <li>
-<p>No need to add Hooks, just press Next button</p>
+<p>No need to add Hooks, <strong>Next</strong>.</p>
 </li>
 <li>
-<p>Preview the summary and submit </p>
+<p>Preview the summary and <strong>Submit</strong>. </p>
 </li>
 <li>
-<p>Once VDB is created successfully, you can review the datasets on Manage &gt; Datasets &gt; vdb Name.</p>
+<p>Once the VDB is created successfully, you can review the datasets on <strong>Manage</strong> &gt; <strong>Datasets</strong> &gt; <strong>vdb Name</strong>.</p>
 </li>
 </ol>
                 
