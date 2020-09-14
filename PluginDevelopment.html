@@ -92,7 +92,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#build-plugin" tabindex="1" class="md-skip">
+      <a href="#building-a-plugin" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -281,22 +281,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#build-plugin" title="Build plugin" class="md-nav__link">
-    Build plugin
+  <a href="#building-a-plugin" title="Building a Plugin" class="md-nav__link">
+    Building a Plugin
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#upload-plugin" title="Upload plugin" class="md-nav__link">
-    Upload plugin
+  <a href="#uploading-a-plugin" title="Uploading a Plugin" class="md-nav__link">
+    Uploading a Plugin
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#unit-test-of-plugin-code" title="Unit Test of Plugin code" class="md-nav__link">
-    Unit Test of Plugin code
+  <a href="#unit-test" title="Unit Test" class="md-nav__link">
+    Unit Test
   </a>
   
 </li>
@@ -316,8 +316,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#debug-plugin-logs" title="Debug plugin logs" class="md-nav__link">
-    Debug plugin logs
+  <a href="#debugging-plugin-logs" title="Debugging Plugin Logs" class="md-nav__link">
+    Debugging Plugin Logs
   </a>
   
 </li>
@@ -388,22 +388,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#build-plugin" title="Build plugin" class="md-nav__link">
-    Build plugin
+  <a href="#building-a-plugin" title="Building a Plugin" class="md-nav__link">
+    Building a Plugin
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#upload-plugin" title="Upload plugin" class="md-nav__link">
-    Upload plugin
+  <a href="#uploading-a-plugin" title="Uploading a Plugin" class="md-nav__link">
+    Uploading a Plugin
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#unit-test-of-plugin-code" title="Unit Test of Plugin code" class="md-nav__link">
-    Unit Test of Plugin code
+  <a href="#unit-test" title="Unit Test" class="md-nav__link">
+    Unit Test
   </a>
   
 </li>
@@ -423,8 +423,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#debug-plugin-logs" title="Debug plugin logs" class="md-nav__link">
-    Debug plugin logs
+  <a href="#debugging-plugin-logs" title="Debugging Plugin Logs" class="md-nav__link">
+    Debugging Plugin Logs
   </a>
   
 </li>
@@ -450,48 +450,43 @@
                 
                   <h1>Plugin Development</h1>
                 
-                <h2 id="build-plugin">Build plugin<a class="headerlink" href="#build-plugin" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p>Create a virtual environment and install required libraries (dvp
-  , pytest, pytest-html &amp; pytest-cov) using script <code>virtualEnvSetup.sh</code>.</p>
-<p><code>-&gt; cd &lt;complete path of project directory till couchbase-plugin
- directory&gt;</code></p>
-<p><code>-&gt; ./test/virtualEnvSetup.sh &lt;virtual enviornment name&gt;</code></p>
-</li>
-</ol>
-<p>For example:</p>
-<div class="codehilite"><pre><span></span><code>-&gt; cd /Users/&lt;your-user-name&gt;/Desktop/Plugins/OpenSourceCouchbase
-/couchbase-plugin
--&gt; ./test/virtualEnvSetup.sh &quot;MyLocalEnv&quot;
+                <h2 id="building-a-plugin">Building a Plugin<a class="headerlink" href="#building-a-plugin" title="Permanent link">&para;</a></h2>
+<p>1: Create a virtual environment and use the following script to install the required libraries (pytest, pytest-html, and pytest-cov):</p>
+<div class="codehilite"><pre><span></span><code> 1: cd &lt;complete path of project directory till couchbase-plugin-directory&gt;
+ 2: ./test/virtualEnvSetup.sh &lt;virtual environment name&gt;
+
+ For example:
+ 1: cd /Users/&lt;your-user-name&gt;/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
+ 2: ./test/virtualEnvSetup.sh &quot;MyLocalEnv&quot;
 </code></pre></div>
 
 
-<ol>
-<li>
-<p>Run this command to activate the virtual environment created in step 1.</p>
-<p><code>. test/MyLocalEnv/bin/activate</code></p>
-</li>
-<li>
-<p>Build the source code. It generates the build with name <code>artifact.json</code>:</p>
-<p><code>dvp build</code></p>
-</li>
-</ol>
-<h2 id="upload-plugin">Upload plugin<a class="headerlink" href="#upload-plugin" title="Permanent link">&para;</a></h2>
+<p>2:  Run this command to activate the virtual environment created in step 1.</p>
+<div class="codehilite"><pre><span></span><code>. test/MyLocalEnv/bin/activate
+</code></pre></div>
+
+
+<p>3:  Build the source code. It generates the build with name <code>artifact.json</code>:</p>
+<div class="codehilite"><pre><span></span><code>dvp build
+</code></pre></div>
+
+
+<h2 id="uploading-a-plugin">Uploading a Plugin<a class="headerlink" href="#uploading-a-plugin" title="Permanent link">&para;</a></h2>
 <p>Upload the <code>artifact.json</code> (generated in step 3) on Delphix Engine:</p>
 <div class="codehilite"><pre><span></span><code>    dvp upload -e &lt;Delphix_Engine_Name&gt; -u &lt;username&gt; --password &lt;password&gt;
 </code></pre></div>
 
 
-<h2 id="unit-test-of-plugin-code">Unit Test of Plugin code<a class="headerlink" href="#unit-test-of-plugin-code" title="Permanent link">&para;</a></h2>
+<h2 id="unit-test">Unit Test<a class="headerlink" href="#unit-test" title="Permanent link">&para;</a></h2>
 <p>Unit test run: Make sure to build the source code (using <code>dvp build</code>) before running unit tests
-     <code>pytest test/</code></p>
+     <code>pytest test/</code>.</p>
 <h2 id="summary-report">Summary Report<a class="headerlink" href="#summary-report" title="Permanent link">&para;</a></h2>
-<p>A report with name <code>Report.html</code> gets generated in <code>test</code> directory which contains the summary of test passed vs failed. If any test case fails then complete stack trace can be seen in that test case section.</p>
+<p>A report with the name <code>Report.html</code> gets generated in the <code>test</code> directory which contains the summary of test passed vs failed. If any test case fails then a complete stack trace can be seen in that
+ test case section.</p>
 <h2 id="module-wise-coverage-report">Module wise coverage report<a class="headerlink" href="#module-wise-coverage-report" title="Permanent link">&para;</a></h2>
 <p>There is a report folder <code>CodeCoverage</code>(can change the folder name in config file <code>pytest.ini</code>) generated in <code>test</code> directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.</p>
-<h2 id="debug-plugin-logs">Debug plugin logs<a class="headerlink" href="#debug-plugin-logs" title="Permanent link">&para;</a></h2>
-<p>Download the plugin logs using below command:</p>
+<h2 id="debugging-plugin-logs">Debugging Plugin Logs<a class="headerlink" href="#debugging-plugin-logs" title="Permanent link">&para;</a></h2>
+<p>Download the Plugin logs using the following command:</p>
 <p><code>dvp download-logs -c plugin_config.yml -e &lt;Delphix_Engine_Name&gt; -u admin --password &lt;password&gt;</code></p>
                 
                   

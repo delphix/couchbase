@@ -340,28 +340,25 @@
                 
                 
                 <h1 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h1>
-<p><a href="#refresh-environment">Refresh Environment</a></p>
-<p><a href="#xdcr-setup">Create sourceconfig for XDCR setup</a></p>
-<p><a href="#cbbkpmgr-setup">Create sourceconfig for cbbkpmgr setup</a></p>
-<h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
-<p>Environment discovery is a process that enables the couchbase Plugin to determine couchbase installation details on a host. Database discovery is initiated during the environment set up process.  Whenver there is any changes (installing a new database home) to an already set up environment in the Delphix application, we need to perform environment refresh. </p>
+<p>Environment discovery is a process that enables the Couchbase Plugin to determine Couchbase installation details on a host. Database discovery is initiated during the environment set up process
+.  Whenever there is any change (installing a new database home) to an already set up environment in the Delphix application, we need to perform an environment refresh. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
 <li>
 <p>A source environment must be added to the Delphix Engine</p>
 </li>
 <li>
-<p>Installation of the couchbase Plugin is required before the discovery </p>
+<p>Installation of the Couchbase Plugin is required before the discovery </p>
 </li>
 <li>
-<p>Environment variable <code>$COUCHBASE_PATH</code> should set on staging/target host, which contains binary path of couchbase</p>
+<p>Environment variable <code>$COUCHBASE_PATH</code> should set on staging/target host, which contains the binary path of couchbase</p>
 </li>
 </ul>
-<h1 id="refresh-environment">Refresh Environment<a class="headerlink" href="#refresh-environment" title="Permanent link">&para;</a></h1>
-<p>Environment refresh will update the metadata associated with that environment and sends a new plugin to the host.</p>
+<h1 id="refreshing-an-environment">Refreshing an Environment<a class="headerlink" href="#refreshing-an-environment" title="Permanent link">&para;</a></h1>
+<p>Environment refresh will update the metadata associated with that environment and send a new Plugin to the host.</p>
 <p>Steps: </p>
 <ol>
-<li>Login to the Delphix Management application.</li>
+<li>Login to the <strong>Delphix Management</strong> application.</li>
 <li>Click Manage.</li>
 <li>Select Environments.</li>
 <li>In the Environments panel, click the name of the environment you want to refresh.</li>

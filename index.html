@@ -261,8 +261,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ingest-couchbase" title="Ingest Couchbase" class="md-nav__link">
-    Ingest Couchbase
+  <a href="#ingesting-couchbase" title="Ingesting Couchbase" class="md-nav__link">
+    Ingesting Couchbase
   </a>
   
     <nav class="md-nav">
@@ -372,8 +372,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ingest-couchbase" title="Ingest Couchbase" class="md-nav__link">
-    Ingest Couchbase
+  <a href="#ingesting-couchbase" title="Ingesting Couchbase" class="md-nav__link">
+    Ingesting Couchbase
   </a>
   
     <nav class="md-nav">
@@ -411,41 +411,41 @@
                 
                 
                 <h1 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h1>
-<p>Couchbase plugin is developed to virtualize couchbase data source leveraging the following built-in couchbase technologies:</p>
+<p>Couchbase plugin is developed to virtualize Couchbase data source leveraging the following built-in couchbase technologies:</p>
 <ul>
 <li>Cross Data Center Replication (XDCR) allows data to be replicated across clusters that are potentially located in different data centers.</li>
 <li>Cbbackupmgr allows data to be restored on staging host of Couchbase Server.</li>
 </ul>
-<h2 id="ingest-couchbase">Ingest Couchbase<a class="headerlink" href="#ingest-couchbase" title="Permanent link">&para;</a></h2>
+<h2 id="ingesting-couchbase">Ingesting Couchbase<a class="headerlink" href="#ingesting-couchbase" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Couchbase cluster/single instance using (XDCR ingestion mechanism) </li>
-<li>Couchbase backup peice using (CBBACKUPMGR ingestion mechanism) - Zero Touch Production.</li>
+<li>Couchbase backup piece using (CBBACKUPMGR ingestion mechanism) - Zero Touch Production.</li>
 </ol>
 <h3 id="prerequisites"><a id="requirements-plugin"></a>Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<p><strong>Source Requirements:</strong> Couchbase database user with following privileges</p>
+<p><strong>Source Requirements:</strong> Couchbase database user with the following privileges</p>
 <ul>
 <li>XDCR_ADMIN</li>
 <li>DATA_MONITOR</li>
 </ul>
-<p><strong>Staging Requirements</strong>: O/S user with following privileges</p>
+<p><strong>Staging Requirements</strong>: O/S user with the following privileges</p>
 <ol>
 <li>Regular o/s user.</li>
-<li>Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]</li>
-<li>Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]</li>
-<li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as base folder for nfs mounts.</li>
-<li>sudo privileges for mount, umount. See sample below assuming <code>delphix_os</code> is used as delphix user.
+<li>Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ].</li>
+<li>Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ].</li>
+<li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and acts as a base folder for NFS mounts.</li>
+<li>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.
     <code>shell
     Defaults:delphixos !requiretty
     delphixos ALL=NOPASSWD: \ 
     /bin/mount, /bin/umount</code></li>
 <li>
-<p>Customers who intends to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.</p>
+<p>Customers who intend to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.</p>
 <ul>
-<li>Provide all source server buckets related information( using below command ) in a file and place at <code>&lt;Toolkit-Directory-Path&gt;/couchbase_src_bucket_info.cfg</code>:</li>
+<li>Provide all source server buckets related information (using the command below) in a file and place where <code>&lt;Toolkit-Directory-Path&gt;/couchbase_src_bucket_info.cfg</code>:</li>
 </ul>
 <p><code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091  --username $username --password $password</code></p>
 <ul>
-<li>Create config file using below command. This file will be required at the time of dSource creation using CBBACKUPMGR.</li>
+<li>Create config file using the following command. This file will be required at the time of dSource creation using CBBACKUPMGR.</li>
 </ul>
 <p><code>/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix</code></p>
 <ul>
@@ -454,14 +454,14 @@
 <p><code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
 </li>
 </ol>
-<p><strong>Target Requirements</strong>: O/S user with following privileges</p>
+<p><strong>Target Requirements</strong>: O/S user with the following privileges</p>
 <ol>
 <li>Regular o/s user.</li>
-<li>Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ]</li>
-<li>Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ]</li>
-<li>Empty folder on host to mount nfs filesystem. This is just and empty folder with no space requirements and act as base folder for nfs mounts.</li>
+<li>Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ].</li>
+<li>Empty folder on host to hold Delphix toolkit  [ approximate 2GB free space ].</li>
+<li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as a base folder for NFS mounts.</li>
 <li>
-<p>sudo privileges for mount, umount. See sample below assuming <code>delphix_os</code> is used as delphix user.</p>
+<p>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.</p>
 <p><code>Defaults:delphixos !requiretty</code></p>
 <p><code>delphixos ALL=NOPASSWD: /bin/mount, /bin/umount</code></p>
 </li>
