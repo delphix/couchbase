@@ -1,61 +1,45 @@
 # Provisioning
 
-[Purpose](#purpose)
-
-[Prerequisites](#prerequisites)
-
-[Provision VDB](#provision-vdb)
-
- 
-Purpose
-=======
-
 Virtual databases are a virtualized copies of dSource. 
 
 Prerequisites
 =============
 
--   Required a linked dSource from a source host
+-   Required a linked dSource from a source host.
+-   Added compatible target environment on Delphix Engine.
 
--   Added compatible target environment on Delphix enging
 
+Provisioning a VDB
+==================
 
-Provision VDB
-=============
-
-1. Click on the icon
-
+1. Click on the icon highlighted in red color.   
 ![Screenshot](/couchbase-plugin/image/image24.png)
 
-2. Select the target host from dropdown and 
+2. Select the target host from the dropdown on which VDB needs to be created.  
 ![Screenshot](/couchbase-plugin/image/image25.png)
 
-
-3. Enter the values as below in target configuration
-- `Target Port Number`: Port number to start services
-- `Mount Path`: NFS mount path where dSource snapshot will be mounted by engine
-- `Target Cluster name`: Cluster name you would like Delphix to setup on your target host.
-- `Cluster Ram Size`
-- `Cluster Index Ram Size`
-- `Cluster FTS Ram Size`
-- `Cluster Eventing Ram Size`
-- `Cluster Analytics Ram Size`
-- `Target couchbase Admin User`
-- `Target couchbase Admin password`
-
-
+3. Enter the following values for the target configuration:
+    - `Target Port Number`: Port number on which Couchbase services will be started.
+    - `Mount Path`: NFS mount path where dSource snapshot will be mounted by Engine.
+    - `Target Cluster name`: Cluster name which is required to be set up on the target host.
+    - `Cluster Ram Size`
+    - `Cluster Index Ram Size`
+    - `Cluster FTS Ram Size`
+    - `Cluster Eventing Ram Size`
+    - `Cluster Analytics Ram Size`
+    - `Target couchbase Admin User`
+    - `Target couchbase Admin password`  
 ![Screenshot](/couchbase-plugin/image/image26.png)
 
-4. Provision vFiles: Add vdb name and target group
+4. Provision vFiles: Add VDB name and target group.  
 ![Screenshot](/couchbase-plugin/image/image27.png)
 
+5. No need to add Policies, select **Next**.
 
-5. No need to add Policies, just press Next button
+6. No need to add Masking, select **Next**.
 
-6. No need to add Masking, just press Next button
+7. No need to add Hooks, select **Next**.
 
-7. No need to add Hooks, just press Next button
+8. Preview the summary and select **Submit**. 
 
-8. Preview the summary and submit 
-
-9. Once VDB is created successfully, you can review the datasets on Manage > Datasets > vdb Name.
+9. Once the VDB is created successfully, you can review the datasets on **Manage** > **Datasets** > **vdb Name**.
