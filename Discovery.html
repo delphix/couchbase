@@ -341,7 +341,7 @@
                 
                 <h1 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h1>
 <p>Environment discovery is a process that enables the Couchbase Plugin to determine Couchbase installation details on a host. Database discovery is initiated during the environment set up process
-.  Whenever there is any change (installing a new database home) to an already set up environment in the Delphix application, we need to perform an environment refresh. </p>
+. Whenever there is any change (installing a new database home) to an already set up environment in the Delphix application, we need to perform an environment refresh. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
 <li>
@@ -356,7 +356,6 @@
 </ul>
 <h1 id="refreshing-an-environment">Refreshing an Environment<a class="headerlink" href="#refreshing-an-environment" title="Permanent link">&para;</a></h1>
 <p>Environment refresh will update the metadata associated with that environment and send a new Plugin to the host.</p>
-<p>Steps: </p>
 <ol>
 <li>Login to the <strong>Delphix Management</strong> application.</li>
 <li>Click <strong>Manage</strong>.</li>
@@ -374,16 +373,16 @@
 <li>Login to the <strong>Delphix Management</strong> application.</li>
 <li>Click <strong>Manage</strong>.</li>
 <li>Select <strong>Environments</strong>.</li>
-<li>Select the repository</li>
-<li>Click on <strong>+</strong> icon ( Shown in next image )</li>
+<li>Select the repository.</li>
+<li>Click on <strong>+</strong> icon (Shown in next image).</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
 <ol>
 <li>Add required details in the <code>Add database</code> section.</li>
 <li>Enter port number in <strong>Source Couchbase port</strong> section.</li>
 <li>Enter source host address in section <strong>Source Host</strong>.</li>
-<li>Enter unique name for the staging database in <strong>identify field</strong> section</li>
-<li>Enter Couchbase data path of staging host in <strong>DB data path</strong> section</li>
+<li>Enter unique name for the staging database in <strong>identify field</strong> section.</li>
+<li>Enter Couchbase data path of staging host in <strong>DB data path</strong> section.</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image11.png" /></p>
 <h1 id="cbbackupmgr-setup">CBBACKUPMGR Setup<a class="headerlink" href="#cbbackupmgr-setup" title="Permanent link">&para;</a></h1>
@@ -394,15 +393,17 @@ We can enter any random or dummy value in this field of source host name when we
 <li>Click <strong>Manage</strong>.</li>
 <li>Select <strong>Environments</strong>.</li>
 <li>Select the repository.</li>
-<li>Click on <strong>+</strong> icon ( Shown in next image ).</li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
-<ol>
-<li>Add required details in <strong>Add database</strong> section.</li>
-<li><code>Source Couchbase port</code>: Port number</li>
-<li><code>Source Host</code>: Put dummy value for now</li>
-<li><code>identity field</code>: Proivide unique name for staging database</li>
-<li><code>DB data path</code>: Put dummy value for now</li>
+<li>
+<p>Click on <strong>+</strong> icon (Shown in next image).<br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
+</li>
+<li>
+<p>In the <strong>Add Database</strong> section enter the following information:</p>
+</li>
+<li><code>Source Couchbase port</code>: This is the port number to be used by Couchbase services.</li>
+<li><code>Source Host</code>: Leave this field as blank.</li>
+<li><code>identity field</code>: Provide unique name for staging database.</li>
+<li><code>DB data path</code>: Leave this field as blank.</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image11.png" /></p>
                 
