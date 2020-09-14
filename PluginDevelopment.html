@@ -451,26 +451,21 @@
                   <h1>Plugin Development</h1>
                 
                 <h2 id="building-a-plugin">Building a Plugin<a class="headerlink" href="#building-a-plugin" title="Permanent link">&para;</a></h2>
-<p>1: Create a virtual environment and use the following script to install the required libraries (pytest, pytest-html, and pytest-cov):</p>
-<div class="codehilite"><pre><span></span><code> i) cd &lt;complete path of project directory till couchbase-plugin-directory&gt;
- ii) ./test/virtualEnvSetup.sh &lt;virtual environment name&gt;
-
- For example:
- i) cd /Users/&lt;your-user-name&gt;/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin
- ii) ./test/virtualEnvSetup.sh &quot;MyLocalEnv&quot;
-</code></pre></div>
-
-
-<p>2:  Run this command to activate the virtual environment created in step 1.</p>
-<div class="codehilite"><pre><span></span><code>. test/MyLocalEnv/bin/activate
-</code></pre></div>
-
-
-<p>3:  Build the source code. It generates the build with name <code>artifact.json</code>:</p>
-<div class="codehilite"><pre><span></span><code>dvp build
-</code></pre></div>
-
-
+<ol>
+<li>
+<p>Create a virtual environment and use the following script to install the required libraries (pytest, pytest-html, and pytest-cov):<br />
+     i) <code>cd /Users/&lt;your-user-name&gt;/Desktop/Plugins/OpenSourceCouchbase/couchbase-plugin</code></p>
+<p>ii) <code>./test/virtualEnvSetup.sh "MyLocalEnv"</code></p>
+</li>
+<li>
+<p>Run this command to activate the virtual environment created in step 1.<br />
+<code>. test/MyLocalEnv/bin/activate</code></p>
+</li>
+<li>
+<p>Build the source code. It generates the build with name <code>artifact.json</code>:<br />
+<code>dvp build</code></p>
+</li>
+</ol>
 <h2 id="uploading-a-plugin">Uploading a Plugin<a class="headerlink" href="#uploading-a-plugin" title="Permanent link">&para;</a></h2>
 <p>Upload the <code>artifact.json</code> (generated in step 3) on Delphix Engine:</p>
 <div class="codehilite"><pre><span></span><code>    dvp upload -e &lt;Delphix_Engine_Name&gt; -u &lt;username&gt; --password &lt;password&gt;
@@ -478,16 +473,16 @@
 
 
 <h2 id="unit-test">Unit Test<a class="headerlink" href="#unit-test" title="Permanent link">&para;</a></h2>
-<p>Unit test run: Make sure to build the source code (using <code>dvp build</code>) before running unit tests
-     <code>pytest test/</code>.</p>
+<p>Unit test run: Make sure to build the source code (using <code>dvp build</code>) before running unit tests. Execute below command to run unit tests: <br />
+<code>pytest test/</code>.</p>
 <h2 id="summary-report">Summary Report<a class="headerlink" href="#summary-report" title="Permanent link">&para;</a></h2>
 <p>A report with the name <code>Report.html</code> gets generated in the <code>test</code> directory which contains the summary of test passed vs failed. If any test case fails then a complete stack trace can be seen in that
  test case section.</p>
 <h2 id="module-wise-coverage-report">Module wise coverage report<a class="headerlink" href="#module-wise-coverage-report" title="Permanent link">&para;</a></h2>
 <p>There is a report folder <code>CodeCoverage</code>(can change the folder name in config file <code>pytest.ini</code>) generated in <code>test</code> directory, which contains html files. These files help in source code coverage visualization, in which we can see statements processed and missed in each module of source code.</p>
 <h2 id="debugging-plugin-logs">Debugging Plugin Logs<a class="headerlink" href="#debugging-plugin-logs" title="Permanent link">&para;</a></h2>
-<p>Download the Plugin logs using the following command:</p>
-<p><code>dvp download-logs -c plugin_config.yml -e &lt;Delphix_Engine_Name&gt; -u admin --password &lt;password&gt;</code></p>
+<p>Download the Plugin logs using the following command:<br />
+<code>dvp download-logs -c plugin_config.yml -e &lt;Delphix_Engine_Name&gt; -u admin --password &lt;password&gt;</code></p>
                 
                   
                 

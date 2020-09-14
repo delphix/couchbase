@@ -418,16 +418,16 @@
 </ul>
 <h2 id="ingesting-couchbase">Ingesting Couchbase<a class="headerlink" href="#ingesting-couchbase" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Couchbase cluster/single instance using (XDCR ingestion mechanism) </li>
+<li>Couchbase cluster/single instance using (XDCR ingestion mechanism).</li>
 <li>Couchbase backup piece using (CBBACKUPMGR ingestion mechanism) - Zero Touch Production.</li>
 </ol>
 <h3 id="prerequisites"><a id="requirements-plugin"></a>Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<p><strong>Source Requirements:</strong> Couchbase database user with the following privileges</p>
+<p><strong>Source Requirements:</strong> Couchbase database user with the following privileges:</p>
 <ul>
 <li>XDCR_ADMIN</li>
 <li>DATA_MONITOR</li>
 </ul>
-<p><strong>Staging Requirements</strong>: O/S user with the following privileges</p>
+<p><strong>Staging Requirements</strong>: O/S user with the following privileges:</p>
 <ol>
 <li>Regular o/s user.</li>
 <li>Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ].</li>
@@ -454,11 +454,11 @@
 <p><code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
 </li>
 </ol>
-<p><strong>Target Requirements</strong>: O/S user with the following privileges</p>
+<p><strong>Target Requirements</strong>: O/S user with the following privileges:</p>
 <ol>
 <li>Regular o/s user.</li>
-<li>Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ].</li>
-<li>Empty folder on host to hold Delphix toolkit  [ approximate 2GB free space ].</li>
+<li>Execute access on couchbase binaries <code>[ chmod -R 775 /opt/couchbase ]</code>.</li>
+<li>Empty folder on host to hold Delphix toolkit  <code>[ approximate 2GB free space ]</code>.</li>
 <li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as a base folder for NFS mounts.</li>
 <li>
 <p>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.</p>

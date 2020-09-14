@@ -342,9 +342,7 @@
                 <h1 id="linking">Linking<a class="headerlink" href="#linking" title="Permanent link">&para;</a></h1>
 <p>Linking a data source will create a dSource object on the engine and allow Delphix to ingest data from this source. The dSource is an object that the Delphix Virtualization Engine uses to create and update virtual copies of your database. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
-<ul>
-<li>Discovery and source config object should be created on the staging host before proceeding to link Couchbase dataset </li>
-</ul>
+<p>Discovery and source config object should be created on the staging host before proceeding to link Couchbase dataset. </p>
 <h1 id="creating-dsource">Creating dSource<a class="headerlink" href="#creating-dsource" title="Permanent link">&para;</a></h1>
 <ol>
 <li>Login to <strong>Delphix Management</strong> application.</li>
@@ -358,7 +356,7 @@
 <h2 id="method1-xdcr">Method1: XDCR<a class="headerlink" href="#method1-xdcr" title="Permanent link">&para;</a></h2>
 <p>Cross datacenter replication allows data to be replicated across clusters that are potentially located in different data centers.</p>
 <ol>
-<li>Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended</li>
+<li>Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended.</li>
 <li>Enter the details for <strong>Staging Port Number</strong> available on the staging host. The default port for couchbase is 8091.</li>
 <li>Enter the details for <strong>Mount Path</strong> available on the staging host. This empty folder acts as a base for NFS mounts.</li>
 <li>Enter the details for <strong>Staging Cluster Name</strong> to setup new cluster on the staging host.</li>
@@ -399,34 +397,32 @@
 <img alt="Screenshot" src="/couchbase-plugin/image/image19.png" /></li>
 </ol>
 <h2 id="method2-couchbase-backup-manager">Method2: Couchbase Backup Manager<a class="headerlink" href="#method2-couchbase-backup-manager" title="Permanent link">&para;</a></h2>
-<p><strong>Note</strong>:</p>
-<p>Follow the instructions below before creating dSource to avoid source/production server dependency.</p>
+<p><strong>Note</strong>: Follow the instructions below before creating dSource to avoid source/production server dependency.</p>
 <ul>
-<li>Provide source server buckets related information in a file: <code>/tmp/couchbase_src_bucket_info.cfg</code></li>
-</ul>
-<p><code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091 --username $username --password $password</code></p>
-<ul>
-<li>Backup Repository: This file will be required at the time of dSource creation using CBBACKUPMGR.</li>
-</ul>
-<p><code>/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix</code></p>
-<ul>
-<li>Backup Location: Get data from source host in backup directory of staging host</li>
-</ul>
-<p><code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
-<ol>
-<li>Login to <strong>Delphix Management</strong> application.</li>
-<li>Click <strong>Manage</strong> &gt;  <strong>Datasets</strong></li>
-<li>Select <strong>Add dSource</strong>.</li>
-<li>In the <strong>Add dSource wizard</strong>, select the Couchbase source configuration you created on the staging host.</li>
-<li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
-<li>Select the dSource type from the drop-down available on dSource wizard.</li>
-<li>When we select CBBACKUPMGR as dSource Type, the following fields on dSource wizard are mandatory.<ul>
-<li>Enter the details for <strong>Backup Location</strong> where the backup files generated through CBBACKUPMGR are present on the staging host.</li>
-<li>Enter the details for <strong>Backup Repository</strong> that contains a backup configuration of staging host. </li>
-</ul>
+<li>
+<p>Provide source server buckets related information in a file: <em>/tmp/couchbase_src_bucket_info.cfg</em>.
+  <code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091 --username $username --password $password</code></p>
 </li>
-<li>The remaining steps for CBBACKUPMGR ingestion are similar to XDCR. Use steps from the second point mentioned in XDCR method. </li>
-</ol>
+<li>
+<p><strong>Backup Repository</strong>: This file will be required at the time of dSource creation using CBBACKUPMGR.
+  <code>/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix</code></p>
+</li>
+<li>
+<p><strong>Backup Location</strong>: Get data from source host in backup directory of staging host.
+<code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
+</li>
+</ul>
+<p><strong>Procedure</strong>:
+1. Login to <strong>Delphix Management</strong> application.
+2. Click <strong>Manage</strong> &gt;  <strong>Datasets</strong>.
+3. Select <strong>Add dSource</strong>.
+4. In the <strong>Add dSource wizard</strong>, select the Couchbase source configuration you created on the staging host.
+5. Enter the Couchbase-specific parameters for your dSource configuration.
+6. Select the dSource type from the drop-down available on dSource wizard.
+7. When we select CBBACKUPMGR as dSource Type, the following fields on dSource wizard are mandatory.
+    - Enter the details for <strong>Backup Location</strong> where the backup files generated through CBBACKUPMGR are present on the staging host.
+    - Enter the details for <strong>Backup Repository</strong> that contains a backup configuration of staging host. 
+8. The remaining steps for CBBACKUPMGR ingestion are similar to XDCR. Use steps from the second point mentioned in XDCR method. </p>
 <p>Note: When we select dSource type as Couchbase Backup Manager, we do not require any details for the <code>Staging Couchbase Host</code> field.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image22.png" /></p>
                 
