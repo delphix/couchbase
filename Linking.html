@@ -357,24 +357,32 @@
 </ol>
 <h2 id="method1-xdcr">Method1: XDCR<a class="headerlink" href="#method1-xdcr" title="Permanent link">&para;</a></h2>
 <p>Cross datacenter replication allows data to be replicated across clusters that are potentially located in different data centers.</p>
-<p>1: Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended
-2: Enter the details for <strong>Staging Port Number</strong> available on the staging host. The default port for couchbase is 8091.
-3: Enter the details for <strong>Mount Path</strong> available on the staging host. This empty folder acts as a base for NFS mounts.
-4: Enter the details for <strong>Staging Cluster Name</strong> you would like Delphix to setup on your staging host.
-5: Enter the configuration details for your staging cluster as per resource availability on the staging host.
-- Cluster RAM Size
-- Cluster Index RAM Size
-- Cluster FTS RAM Size
-- Cluster Eventing RAM Size
-- Cluster Analysis RAM Size</p>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image12.png" /></p>
-<p>6:  Click on <strong>+</strong> plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.</p>
+<ol>
+<li>Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended</li>
+<li>Enter the details for <strong>Staging Port Number</strong> available on the staging host. The default port for couchbase is 8091.</li>
+<li>Enter the details for <strong>Mount Path</strong> available on the staging host. This empty folder acts as a base for NFS mounts.</li>
+<li>Enter the details for <strong>Staging Cluster Name</strong> you would like Delphix to setup on your staging host.</li>
+<li>
+<p>Enter the configuration details for your staging cluster as per resource availability on the staging host.</p>
+<ul>
+<li>Cluster RAM Size</li>
+<li>Cluster Index RAM Size</li>
+<li>Cluster FTS RAM Size</li>
+<li>Cluster Eventing RAM Size</li>
+<li>Cluster Analysis RAM Size            <br />
+<img alt="Screenshot" src="/couchbase-plugin/image/image12.png" /></li>
+</ul>
+</li>
+<li>
+<p>Click on <strong>+</strong> plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.</p>
+</li>
+</ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image14.png" /></p>
-<p>7: Enter the details of <strong>Bucket Name</strong> to be part of XDCR. Then click on <strong>Next</strong> button</p>
+<p>7 . Enter the details of <strong>Bucket Name</strong> to be part of XDCR. Then click on <strong>Next</strong> button</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image15.png" /></p>
-<p>8: Provide the details for <strong>dSource Name</strong> and <strong>Target group</strong> on the dSource configuration page.</p>
+<p>8 . Provide the details for <strong>dSource Name</strong> and <strong>Target group</strong> on the dSource configuration page.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image16.png" /></p>
-<p>9: On the <strong>Data management</strong> page, select the following:
+<p>9  On the <strong>Data management</strong> page, select the following:
 - Staging Environment: This will be your staging host where source config was created.
 - User: Database OS user with required privileges for linking the dataset.</p>
 <p>10: On the next section, review the configuration and click on <strong>Next</strong> button to view the summary.</p>
@@ -396,15 +404,13 @@
 <li>Backup Location: Get data from source host in backup directory of staging host</li>
 </ul>
 <p><code>/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://&lt;hostname&gt; -u user -p password</code></p>
-<p>Steps:</p>
 <ol>
-<li>Login to Delphix Management application.</li>
-<li>Click Manage &gt;  Datasets</li>
-<li>Select Add dSource.</li>
-<li>In the Add dSource wizard, select the couchbase source config you just created on the staging host.</li>
+<li>Login to <strong>Delphix Management</strong> application.</li>
+<li>Click <strong>Manage</strong> &gt;  <strong>Datasets</strong></li>
+<li>Select <strong>Add dSource</strong>.</li>
+<li>In the Add dSource wizard, select the Couchbase source configuration you created on the staging host.</li>
 <li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
 <li>Select the dSource type from the drop-down available on dSource wizard.</li>
-<li>Couchbase Backup Manager: Cbbackupmgr allows data to be restored on staging host of Couchbase Server.</li>
 <li>When we select CBbackupmgr as dSource Type, the following fields on dSource wizard are mandatory.</li>
 <li>Enter the details for "Backup Location" where the backup files generated through cbbackupmgr are present on the staging host.</li>
 <li>Enter the details for "Backup Repository" that contains a backup configuration of staging host. Details on how how to setup backup repository are listed here.</li>
