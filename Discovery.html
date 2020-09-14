@@ -359,49 +359,46 @@
 <p>Steps: </p>
 <ol>
 <li>Login to the <strong>Delphix Management</strong> application.</li>
-<li>Click Manage.</li>
-<li>Select Environments.</li>
+<li>Click <strong>Manage</strong>.</li>
+<li>Select <strong>Environments</strong>.</li>
 <li>In the Environments panel, click the name of the environment you want to refresh.</li>
-<li>Select the Refresh icon.</li>
-<li>In the Refresh confirmation dialog select Refresh.</li>
+<li>Select the <strong>Refresh</strong> icon.</li>
+<li>In the Refresh confirmation dialog select <strong>Refresh</strong>.</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image9.png" /></p>
 <h1 id="xdcr-setup">XDCR Setup<a class="headerlink" href="#xdcr-setup" title="Permanent link">&para;</a></h1>
 <p>Environments exist to contain <code>repositories</code>, and each environment may have any number of repositories associated with it.
-<code>Repository</code> contains database instances and in each repository any number of <code>SourceConfig</code> objects, which represent known database instances. There is no source config generated automatically in couchbase-plugin. Therefore, we need to add <code>SourceConfig</code> objects through which can create a dSource. </p>
+<code>Repository</code> contains database instances and in each repository any number of <code>SourceConfig</code> objects, which represent known database instances. Source config is not generated automatically in
+ Couchbase plugin. Therefore, we need to add <code>SourceConfig</code> object through which can create a dSource. </p>
 <ol>
-<li>Login to the Delphix Management application.</li>
-<li>Click Manage.</li>
-<li>Select Environments.</li>
+<li>Login to the <strong>Delphix Management</strong> application.</li>
+<li>Click <strong>Manage</strong>.</li>
+<li>Select <strong>Environments</strong>.</li>
 <li>Select the repository</li>
-<li>Click on <code>+</code> icon ( Shown in next image )</li>
+<li>Click on <strong>+</strong> icon ( Shown in next image )</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
 <ol>
-<li>Add required details in <code>Add database</code> section.</li>
-<li><code>Source Couchbase port</code>: Port number</li>
-<li><code>Source Host</code>: Source host address</li>
-<li><code>identity field</code>: Proivide unique name for staging database</li>
-<li><code>DB data path</code>: Provide couchbase datapath available on your staging host</li>
+<li>Add required details in the <code>Add database</code> section.</li>
+<li>Enter port number in <strong>Source Couchbase port</strong> section.</li>
+<li>Enter source host address in section <strong>Source Host</strong>.</li>
+<li>Enter unique name for the staging database in <strong>identify field</strong> section</li>
+<li>Enter Couchbase data path of staging host in <strong>DB data path</strong> section</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image11.png" /></p>
-<h1 id="cbbkpmgr-setup">CBBKPMGR setup<a class="headerlink" href="#cbbkpmgr-setup" title="Permanent link">&para;</a></h1>
-<p>The steps to add source config remain same as we saw in XDCR setup. In this approach, we do not require any connection to source environment (zero touch production) and Delphix does not require details for source host.
-We can enter any random or dummy value in this field of source host name when we choose Cbbackupmgr option for data ingestion.</p>
+<h1 id="cbbackupmgr-setup">CBBACKUPMGR Setup<a class="headerlink" href="#cbbackupmgr-setup" title="Permanent link">&para;</a></h1>
+<p>The steps to add source config remain the same as we saw in XDCR setup. In this approach, we don't connect to source environment as this is zero-touch production approach.
+We can enter any random or dummy value in this field of source host name when we choose CBBACKUPMGR option for data ingestion.</p>
 <ol>
-<li>Login to the Delphix Management application.</li>
-<li>Click Manage.</li>
-<li>Select Environments.</li>
+<li>Login to the <strong>Delphix Management</strong> application.</li>
+<li>Click <strong>Manage</strong>.</li>
+<li>Select <strong>Environments</strong>.</li>
 <li>Select the repository.</li>
-<li>Click on <code>+</code> icon ( Shown in next image ).</li>
+<li>Click on <strong>+</strong> icon ( Shown in next image ).</li>
 </ol>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image10.png" /></p>
 <ol>
-<li>
-<ol>
-<li>Add required details in <code>Add database</code> section.</li>
-</ol>
-</li>
+<li>Add required details in <strong>Add database</strong> section.</li>
 <li><code>Source Couchbase port</code>: Port number</li>
 <li><code>Source Host</code>: Put dummy value for now</li>
 <li><code>identity field</code>: Proivide unique name for staging database</li>

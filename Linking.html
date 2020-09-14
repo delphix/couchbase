@@ -340,80 +340,53 @@
                 
                 
                 <h1 id="linking">Linking<a class="headerlink" href="#linking" title="Permanent link">&para;</a></h1>
-<p><a href="#purpose">Purpose</a></p>
-<p><a href="#prerequisites">Prerequisites</a></p>
-<p><a href="#create-dsource">Create dSource</a></p>
-<p><a href="#xdcr-method">XDCR Method</a></p>
-<p><a href="#couchbase-backup-manager-method">Couchbase Backup Manager Method</a></p>
-<h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
 <p>Linking a data source will create a dSource object on the engine and allow Delphix to ingest data from this source. The dSource is an object that the Delphix Virtualization Engine uses to create and update virtual copies of your database. </p>
 <h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
 <ul>
-<li>Discovery and source config object should be created on staging host before proceeding to link couchbase dataset </li>
+<li>Discovery and source config object should be created on the staging host before proceeding to link Couchbase dataset </li>
 </ul>
-<h1 id="create-dsource">Create dSource<a class="headerlink" href="#create-dsource" title="Permanent link">&para;</a></h1>
-<p>Steps:</p>
+<h1 id="creating-dsource">Creating dSource<a class="headerlink" href="#creating-dsource" title="Permanent link">&para;</a></h1>
 <ol>
-<li>Login to Delphix Management application.</li>
-<li>Click Manage &gt;  Datasets</li>
-<li>Select Add dSource.</li>
-<li>In the Add dSource wizard, select the couchbase source config you just created on the staging host.</li>
+<li>Login to <strong>Delphix Management</strong> application.</li>
+<li>Click <strong>Manage</strong> &gt;  <strong>Datasets</strong>.</li>
+<li>Select <strong>Add dSource</strong>.</li>
+<li>In the Add dSource wizard, select the Couchbase source configuration which is created on the staging host.</li>
 <li>Enter the Couchbase-specific parameters for your dSource configuration.</li>
-<li>Select the dSource type from the drop-down available on dSource wizard.</li>
+<li>Select the dSource approach from the drop-down (XDCR and Couchbase Backup Manager) available on dSource wizard.</li>
+<li>Based on approach selection, follow the steps either for XDCR or Couchbase Backup Manager method. The Description of both methods is below.</li>
 </ol>
-<h2 id="xdcr-method">XDCR Method<a class="headerlink" href="#xdcr-method" title="Permanent link">&para;</a></h2>
-<p>Cross data center replication allows data to be replicated across clusters that are potentially located in different data centers.</p>
-<ol>
-<li>Enter the details for "Staging Couchbase host" - FQDN or IP address recommended</li>
-<li>Enter the details for "Staging Port Number" available on staging host. The default port for couchbase is 8091.</li>
-<li>Enter the details for "Mount Path" available on staging host. This empty folder acts as a base for NFS mounts.</li>
-<li>Enter the details for "Staging Cluster Name" you would like Delphix to setup on your staging host.</li>
-<li>Enter the configuration details for your staging cluster as per resource availability on the staging host.</li>
-<li>Cluster RAM Size</li>
-<li>Cluster Index RAM Size</li>
-<li>Cluster FTS RAM Size</li>
-<li>Cluster Eventing RAM Size</li>
-<li>Cluster Analysis RAM Size</li>
-</ol>
+<h2 id="method1-xdcr">Method1: XDCR<a class="headerlink" href="#method1-xdcr" title="Permanent link">&para;</a></h2>
+<p>Cross datacenter replication allows data to be replicated across clusters that are potentially located in different data centers.</p>
+<p>1: Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended
+2: Enter the details for <strong>Staging Port Number</strong> available on the staging host. The default port for couchbase is 8091.
+3: Enter the details for <strong>Mount Path</strong> available on the staging host. This empty folder acts as a base for NFS mounts.
+4: Enter the details for <strong>Staging Cluster Name</strong> you would like Delphix to setup on your staging host.
+5: Enter the configuration details for your staging cluster as per resource availability on the staging host.
+- Cluster RAM Size
+- Cluster Index RAM Size
+- Cluster FTS RAM Size
+- Cluster Eventing RAM Size
+- Cluster Analysis RAM Size</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image12.png" /></p>
-<p><img alt="Screenshot" src="/couchbase-plugin/couchbase-plugin/image/image13.png" /></p>
-<ol>
-<li>Click on (+) plus symbol to modify configuration settings. This option allows to include bucket lists which should be part of couchbase cross data center replication (XDCR).</li>
-</ol>
+<p>6:  Click on <strong>+</strong> plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image14.png" /></p>
-<ol>
-<li>Enter the details of Bucket Name to be part of XDCR.</li>
-</ol>
+<p>7: Enter the details of <strong>Bucket Name</strong> to be part of XDCR. Then click on <strong>Next</strong> button</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image15.png" /></p>
-<ol>
-<li>Provide the details for "dSource Name" and "Target group" on the dSource configuration page.</li>
-</ol>
+<p>8: Provide the details for <strong>dSource Name</strong> and <strong>Target group</strong> on the dSource configuration page.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image16.png" /></p>
-<ol>
-<li>On the data management page, select the following:</li>
-<li>Staging Environment: This will be your staging host where source config was created.</li>
-<li>
-<p>User: Database OS user with required privileges for linking the dataset.</p>
-</li>
-<li>
-<p>On the next section, review the configuration and click on next button to review the final summary.</p>
-</li>
-<li>
-<p>Click the submit button which will initiate the linking process.</p>
-</li>
-</ol>
+<p>9: On the <strong>Data management</strong> page, select the following:
+- Staging Environment: This will be your staging host where source config was created.
+- User: Database OS user with required privileges for linking the dataset.</p>
+<p>10: On the next section, review the configuration and click on <strong>Next</strong> button to view the summary.</p>
+<p>11: Click the <strong>Submit</strong> button which will initiate the linking process.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image17.png" /></p>
-<ol>
-<li>Once dSource is created successfully, you can review the datasets on Manage &gt; Datasets &gt; dSource Name.</li>
-</ol>
+<p>12: Once dSource is created successfully, you can review the datasets on <strong>Manage</strong> &gt; <strong>Datasets</strong> &gt; <strong>dSource Name</strong>.</p>
 <p><img alt="Screenshot" src="/couchbase-plugin/image/image19.png" /></p>
-<ol>
-<li>Review the datasets on Manage &gt; Environment &gt; Database section.</li>
-</ol>
-<p><img alt="Screenshot" src="/couchbase-plugin/image/image18.png" /></p>
-<h2 id="couchbase-backup-manager-method">Couchbase Backup Manager Method<a class="headerlink" href="#couchbase-backup-manager-method" title="Permanent link">&para;</a></h2>
-<p>Follow below instructions before going to create dsource to avoid source/production server dependency.
-- Provide source server buckets related information in a file and place at <code>/tmp/couchbase_src_bucket_info.cfg</code></p>
+<h2 id="method2-couchbase-backup-manager-method">Method2: Couchbase Backup Manager Method<a class="headerlink" href="#method2-couchbase-backup-manager-method" title="Permanent link">&para;</a></h2>
+<p>Follow the instructions below before creating dSource to avoid source/production server dependency.</p>
+<ul>
+<li>Provide source server buckets related information in a file: <code>/tmp/couchbase_src_bucket_info.cfg</code></li>
+</ul>
 <p><code>/opt/couchbase/bin/couchbase-cli bucket-list --cluster &lt;sourcehost&gt;:8091 --username $username --password $password</code></p>
 <ul>
 <li>Backup Repository: This file will be required at the time of dSource creation using CBBACKUPMGR.</li>
