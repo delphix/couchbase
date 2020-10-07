@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #this script creates a virtual environment and install the below packages:
-#dvp==1.0.0
+#dvp==2.1.0
 #pytest==4.6.10
 #pytest-cov
 #pytest-html
