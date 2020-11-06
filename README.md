@@ -1,7 +1,5 @@
 ![](images/image1.png) 
 
-
-
 ## 
 ## What Does a Delphix Plugin Do?
 Delphix is a data management platform that provides the ability to securely copy and share datasets. Using virtualization, you will ingest your data sources and create virtual data copies, which are full read-write capable database instances that use a small fraction of the resources a normal database copy would require. The Delphix engine has built-in support for interfacing with certain types of datasets, such as Oracle, SQL Server and ASE.
