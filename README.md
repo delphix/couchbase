@@ -18,7 +18,6 @@ Couchbase plugin is developed to virtualize couchbase data source leveraging the
 ### <a id="tested-versions"></a>User Documentation:
 Documentation to install, build, upload and use the plugin is available at: https://delphix.github.io/couchbase-plugin.
 
-
 ### <a id="tested-versions"></a>Tested Versions:
 - Delphix Engine: 5.3.x and 6.0.x
 - Couchbase Version: 5.5 and 6.0
