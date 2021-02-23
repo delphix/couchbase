@@ -33,9 +33,10 @@ def find_repos(source_connection):
                 install_path = helper_lib.find_install_path(source_connection, binary_path)
                 shell_path = helper_lib.find_shell_path(source_connection, binary_path)
                 version = helper_lib.find_version(source_connection, install_path)
+                (uid, gid) = helper_lib.find_ids(source_connection, install_path)
                 pretty_name = "Couchbase ({})".format(version)
                 repository_definition = RepositoryDefinition(cb_install_path=install_path, cb_shell_path=shell_path,
-                                                             version=version, pretty_name=pretty_name)
+                                                             version=version, pretty_name=pretty_name, uid=uid, gid=gid)
                 repositories.append(repository_definition)
 
         return repositories

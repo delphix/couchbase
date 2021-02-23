@@ -91,6 +91,43 @@ def find_version(source_connection, install_path):
     return version
 
 
+def find_ids(source_connection, install_path):
+    """ return the couchbase uid and gid"""
+    std_out, std_err, exit_code = utilities.execute_bash(source_connection,
+                                                             CommandFactory.get_ids(install_path))
+    ids = re.search(r".{11}\s\d\s([\d]+)\s([\d]+).*", std_out)
+    if ids:
+        uid = int(ids.group(1))
+        gid = int(ids.group(2))
+    else:
+        uid = -1
+        gid = -1
+    logger.debug("Couchbase user uid {} gid {}".format(uid, gid))
+    return (uid, gid)
+
+def find_whoami(source_connection):
+    """ return the user env id"""
+    std_out, std_err, exit_code = utilities.execute_bash(source_connection,
+                                                             CommandFactory.whoami())
+    ids = re.search(r"uid=([\d]+).*gid=([\d]+)", std_out)
+    if ids:
+        uid = int(ids.group(1))
+        gid = int(ids.group(2))
+    else:
+        uid = -1
+        gid = -1
+    logger.debug("Delphix user uid {} gid {}".format(uid, gid))
+    return (uid, gid)
+
+
+def need_sudo(source_connection, couchbase_uid, couchbase_gid):
+    (uid, gid) = find_whoami(source_connection)
+    if uid != couchbase_uid or gid != couchbase_gid:
+        return True
+    else:
+        return False
+
+
 def is_instance_present_of_gosecrets(source_connection):
     """ check couchbase server is running or not"""
     instance, stderr, exit_code = utilities.execute_bash(source_connection, CommandFactory.get_process())
