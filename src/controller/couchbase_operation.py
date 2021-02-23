@@ -54,7 +54,10 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
     def start_couchbase(self):
         """ start the couchbase service"""
         logger.debug("Starting couchbase services")
-        command = CommandFactory.start_couchbase(self.repository.cb_install_path)
+        # check if we need sudo
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        command = CommandFactory.start_couchbase(self.repository.cb_install_path, need_sudo, self.repository.uid)
+        logger.debug(command)
         utilities.execute_bash(self.connection, command)
         server_status = Status.INACTIVE
 
@@ -75,7 +78,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         """ stop the couchbase service"""
         try:
             logger.debug("Stopping couchbase services")
-            command = CommandFactory.stop_couchbase(self.repository.cb_install_path)
+            need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+            command = CommandFactory.stop_couchbase(self.repository.cb_install_path, need_sudo, self.repository.uid)
             utilities.execute_bash(self.connection, command)
             end_time = time.time() + 60
             server_status = Status.ACTIVE
@@ -122,10 +126,11 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         """
         logger.debug("Creating Directory {} ".format(directory_path))
         env = {'directory_path': directory_path}
-        command = CommandFactory.make_directory(directory_path)
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        command = CommandFactory.make_directory(directory_path, need_sudo, self.repository.uid)
         utilities.execute_bash(self.connection, command)
         logger.debug("Changing permission of directory path {}".format(directory_path))
-        command = CommandFactory.change_permission(directory_path)
+        command = CommandFactory.change_permission(directory_path, need_sudo, self.repository.uid)
         utilities.execute_bash(self.connection, command)
         logger.debug("Changed the permission of directory")
 

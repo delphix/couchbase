@@ -28,6 +28,16 @@
         "type": "string",
         "prettyName": "Identity Name",
         "description": "Pretty name of this repository"
+      },
+      "uid": {
+        "type": "integer",
+        "prettyName": "Couchbase User ID",
+        "description": "Couchbase User Identifier"
+      },
+      "gid": {
+        "type": "integer",
+        "prettyName": "Couchbase Group ID",
+        "description": "Couchbase Group ID"
       }
     },
     "nameField": "prettyName",
@@ -436,6 +446,10 @@
       },
       "bucketList": {
         "type": "string"
+      },
+      "snapshotPassword": {
+        "type": "string",
+        "format": "password"
       }
     }
   }

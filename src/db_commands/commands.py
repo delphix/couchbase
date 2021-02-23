@@ -35,12 +35,18 @@ class OSCommand(object):
         return "ps -ef"
 
     @staticmethod
-    def make_directory(directory_path):
-        return "mkdir -p {directory_path}".format(directory_path=directory_path)
+    def make_directory(directory_path,sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} mkdir -p {directory_path}".format(uid=uid, directory_path=directory_path)
+        else:
+            return "mkdir -p {directory_path}".format(directory_path=directory_path)
 
     @staticmethod
-    def change_permission(directory_path):
-        return "chmod -R 775 {directory_path}".format(directory_path=directory_path)
+    def change_permission(directory_path,sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} chmod -R 775 {directory_path}".format(uid=uid, directory_path=directory_path)
+        else:
+            return "chmod -R 775 {directory_path}".format(directory_path=directory_path)
 
     @staticmethod
     def get_config_directory(mount_path):
@@ -78,18 +84,31 @@ class OSCommand(object):
     def unmount_file_system(mount_path):
         return "sudo /bin/umount {mount_path}".format(mount_path=mount_path)
 
+    @staticmethod
+    def whoami():
+        # uid=1003(delphix) gid=1003(delphix) groups=1003(delphix) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+        return "id"
 
 class DatabaseCommand(object):
     def __init__(self):
         pass
 
     @staticmethod
-    def start_couchbase(install_path):
-        return "{install_path} \-- -noinput -detached .".format(install_path=install_path)
+    def start_couchbase(install_path, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{} {install_path} \-- -noinput -detached .".format(uid, install_path=install_path)
+        else:
+            return "{install_path} \-- -noinput -detached .".format(install_path=install_path)
 
     @staticmethod
     def get_version(install_path):
         return "{install_path} --version".format(install_path=install_path)
+
+    @staticmethod
+    def get_ids(install_path):
+        #-rwxr-xr-x. 1 996 993 514 Jan 30  2020 /opt/couchbase/bin/couchbase-cli
+        return "ls -n {install_path}".format(install_path=install_path)
+
 
     @staticmethod
     def get_data_directory(couchbase_base_dir):
@@ -97,8 +116,11 @@ class DatabaseCommand(object):
             couchbase_base_dir=couchbase_base_dir)
 
     @staticmethod
-    def stop_couchbase(install_path):
-        return "{install_path} -k".format(install_path=install_path)
+    def stop_couchbase(install_path, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{} {install_path} -k".format(uid, install_path=install_path)
+        else:
+            return "{install_path} -k".format(install_path=install_path)
 
     @staticmethod
     def cluster_init(shell_path,

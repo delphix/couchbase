@@ -4,13 +4,17 @@
 #
 
 from dlpx.virtualization.platform import Mount, MountSpecification, Plugin, Status
+from dlpx.virtualization.platform import OwnershipSpecification
 from operations import discovery, linked, virtual
 from utils import setup_logger
 from db_commands.constants import EVICTION_POLICY
+import logging
 
 
 plugin = Plugin()
 setup_logger._setup_logger()
+
+logger = logging.getLogger(__name__)
 
 #
 # Below is an example of the repository discovery operation.
@@ -48,8 +52,11 @@ def linked_mount_specification(staged_source, repository):
     mount_path = staged_source.parameters.mount_path
     environment = staged_source.staged_connection.environment
     linked.check_mount_path(staged_source, repository)
+    logger.debug("Mounting path {}".format(mount_path))
     mounts = [Mount(environment, mount_path)]
-    return MountSpecification(mounts)
+    logger.debug("Setting ownership to uid {} and gid {}".format(repository.uid, repository.gid))
+    ownership_spec = OwnershipSpecification(repository.uid, repository.gid)
+    return MountSpecification(mounts, ownership_spec)
 
 
 @plugin.linked.pre_snapshot()
@@ -107,7 +114,8 @@ def stop(virtual_source, repository, source_config):
 def virtual_mount_specification(virtual_source, repository):
     mount_path = virtual_source.parameters.mount_path
     mounts = [Mount(virtual_source.connection.environment, mount_path)]
-    return MountSpecification(mounts)
+    ownership_spec = OwnershipSpecification(996, 993)
+    return MountSpecification(mounts, ownership_spec)
 
 
 @plugin.virtual.status()
