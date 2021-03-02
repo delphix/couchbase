@@ -63,7 +63,8 @@ def linked_mount_specification(staged_source, repository):
 def linked_pre_snapshot(staged_source, repository, source_config, snapshot_parameters):
     if int(snapshot_parameters.resync) == 1:
         linked.resync(staged_source, repository, source_config, staged_source.parameters)
-    linked.pre_snapshot(staged_source, repository, source_config, staged_source.parameters)
+    else:
+        linked.pre_snapshot(staged_source, repository, source_config, staged_source.parameters)
 
 
 @plugin.linked.status()
@@ -125,4 +126,5 @@ def virtual_status(virtual_source, repository, source_config):
 
 @plugin.virtual.unconfigure()
 def unconfigure(virtual_source, repository, source_config):
-    virtual.vdb_stop(virtual_source, repository, source_config)
+    logger.debug("UNCONFIGURE")
+    virtual.vdb_unconfigure(virtual_source, repository, source_config)

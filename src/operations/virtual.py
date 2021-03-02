@@ -37,7 +37,13 @@ def vdb_status(virtual_source, repository, source_config):
 
 def vdb_unconfigure(virtual_source, repository, source_config):
     # delete all buckets
+    provision_process = CouchbaseOperation(
+    Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
+        source_config).build())
+
     vdb_stop(virtual_source, repository, source_config)
+    provision_process.delete_config()
+
 
 
 def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
@@ -48,25 +54,54 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
 
 
 def vdb_configure(virtual_source, snapshot, repository):
-    try:
-        provision_process = CouchbaseOperation(
-            Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_snapshot(
-                snapshot).build())
+    # try:
+    provision_process = CouchbaseOperation(
+        Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_snapshot(
+            snapshot).build())
 
-        provision_process.restart_couchbase()
-        provision_process.node_init()
-        provision_process.cluster_init()
-        _do_provision(provision_process, snapshot)
-        _cleanup(provision_process, snapshot)
-        src_cfg_obj = _source_config(virtual_source, repository, None, snapshot)
 
-        return src_cfg_obj
-    except FailedToReadBucketDataFromSnapshot as err:
-        raise FailedToReadBucketDataFromSnapshot("Provision is failed. " + err.message).to_user_error(), None, \
-            sys.exc_info()[2]
-    except Exception as err:
-        logger.debug("Provision is failed {}".format(err.message))
-        raise
+
+    # TODO:
+    # fail if already has cluster ?
+
+    # to make sure there is no config 
+    provision_process.delete_config()
+
+
+    # if bucket doesn't existing in target cluster 
+    # couchbase will delete directory while starting 
+    # so we have to rename it before start
+
+    bucket_list_and_size = snapshot.bucket_list
+
+    if not bucket_list_and_size:
+        raise FailedToReadBucketDataFromSnapshot("Snapshot Data is empty.")
+    else:
+        logger.debug("snapshot bucket data is: {}".format(bucket_list_and_size))
+
+    for item in bucket_list_and_size.split(':'):
+        logger.debug("Checking bucket: {}".format(item))
+        bucket_name = item.split(',')[0]
+        # rename folder
+        provision_process.move_bucket(bucket_name, 'save')
+
+    provision_process.restart_couchbase()
+    provision_process.node_init()
+    provision_process.cluster_init()
+    _do_provision(provision_process, snapshot)
+    _cleanup(provision_process, snapshot)
+
+    _build_indexes(provision_process, snapshot)
+
+    src_cfg_obj = _source_config(virtual_source, repository, None, snapshot)
+
+    return src_cfg_obj
+    # except FailedToReadBucketDataFromSnapshot as err:
+    #     raise FailedToReadBucketDataFromSnapshot("Provision is failed. " + err.message).to_user_error(), None, \
+    #         sys.exc_info()[2]
+    # except Exception as err:
+    #     logger.debug("Provision is failed {}".format(err.message))
+    #     raise
 
 
 def _do_provision(provision_process, snapshot):
@@ -77,13 +112,43 @@ def _do_provision(provision_process, snapshot):
     else:
         logger.debug("snapshot bucket data is: {}".format(bucket_list_and_size))
 
+
+
+    try:
+        bucket_list = provision_process.bucket_list()
+        bucket_list = helper_lib.filter_bucket_name_from_output(bucket_list)
+        logger.debug(bucket_list)
+    except Exception as err:
+        logger.debug("Failed to get bucket list. Error is " + err.message)
+
+
+    bucket_list = []
+    renamed_folders = []
+
     for item in bucket_list_and_size.split(':'):
-        logger.debug("Creating bucket is: {}".format(item))
+        logger.debug("Checking bucket: {}".format(item))
         # try:
         bucket_name = item.split(',')[0]
         bkt_size_mb = int(item.split(',')[1].strip()) // 1024 // 1024
-        provision_process.bucket_create(bucket_name, bkt_size_mb)
-        helper_lib.sleepForSecond(2)
+        if bucket_name not in bucket_list:
+            # a new bucket needs to be created
+            logger.debug("Creating bucket: {}".format(bucket_name))
+            provision_process.bucket_create(bucket_name, bkt_size_mb)
+            helper_lib.sleepForSecond(2)
+        else:
+            logger.debug("Bucket {} exist - no need to rename directory".format(bucket_name))
+
+    
+    provision_process.stop_couchbase()
+
+    for item in bucket_list_and_size.split(':'):
+        logger.debug("Checking bucket: {}".format(item))
+        bucket_name = item.split(',')[0]
+        logger.debug("restoring folders")
+        provision_process.move_bucket(bucket_name, 'restore')
+    
+    
+    provision_process.start_couchbase()
 
     # getting config directory path
     directory = provision_process.get_config_directory()
@@ -240,3 +305,11 @@ def _find_bucket_size_byname(bucket_name, bucket_metadata):
     if data_found == 0:
         # raise exception. Ideally this condition should never occur
         raise Exception("Failed to find the bucket_name from bucket_metadata list")
+
+
+def _build_indexes(provision_process, snapshot):
+    logger.debug("index builder")
+
+    for i in snapshot.indexes:
+        logger.debug(i)
+        provision_process.build_index(i)

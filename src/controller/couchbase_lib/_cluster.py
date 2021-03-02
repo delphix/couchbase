@@ -11,6 +11,7 @@ This is child class of Resource and parent class of CouchbaseOperation
 import logging
 import re
 from utils import utilities
+from controller.helper_lib import sleepForSecond
 from db_commands.commands import CommandFactory
 from controller.couchbase_lib._mixin_interface import MixinInterface
 from db_commands.constants import ENV_VAR_KEY
@@ -69,6 +70,7 @@ class _ClusterMixin(Resource, MixinInterface):
         env = _ClusterMixin.generate_environment_map(self)
         env['additional_services'] = additional_service
         cmd = CommandFactory.cluster_init(cluster_name=cluster_name, **env)
+        logger.debug("Cluster init: {}".format(cmd))
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=lambda_expr,
                                                            **kwargs)
         if re.search(r"ERROR", str(stdout)):
@@ -80,6 +82,9 @@ class _ClusterMixin(Resource, MixinInterface):
                 raise Exception(stdout)
         else:
             logger.debug("Cluster init succeeded")
+
+        # here we should wait for indexer to start 
+        sleepForSecond(10)
         return [stdout, stderr, exit_code]
 
     def cluster_setting(self):

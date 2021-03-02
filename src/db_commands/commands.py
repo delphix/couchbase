@@ -42,11 +42,11 @@ class OSCommand(object):
             return "mkdir -p {directory_path}".format(directory_path=directory_path)
 
     @staticmethod
-    def change_permission(directory_path,sudo=False, uid=None):
+    def change_permission(path,sudo=False, uid=None):
         if sudo:
-            return "sudo -u \#{uid} chmod -R 775 {directory_path}".format(uid=uid, directory_path=directory_path)
+            return "sudo -u \#{uid} chmod -R 775 {path}".format(uid=uid, path=path)
         else:
-            return "chmod -R 775 {directory_path}".format(directory_path=directory_path)
+            return "chmod -R 775 {path}".format(path=path)
 
     @staticmethod
     def get_config_directory(mount_path):
@@ -77,6 +77,14 @@ class OSCommand(object):
         return "rm  -f  {filename}".format(filename=filename)
 
     @staticmethod
+    def delete_dir(dirname):
+        return "rm  -rf  {dirname}".format(dirname=dirname)
+
+    @staticmethod
+    def os_mv(srcname, trgname):
+        return "mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname)
+
+    @staticmethod
     def get_dlpx_bin():
         return "echo $DLPX_BIN_JQ"
 
@@ -88,6 +96,11 @@ class OSCommand(object):
     def whoami():
         # uid=1003(delphix) gid=1003(delphix) groups=1003(delphix) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
         return "id"
+
+
+    @staticmethod
+    def sed(filename, regex):
+        return 'sed -i -e "{}" {}'.format(regex, filename)
 
 class DatabaseCommand(object):
     def __init__(self):
@@ -316,15 +329,15 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def get_indexes_name(base_path, hostname, port, username, index):
-        return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=\"SELECT name FROM system:indexes where keyspace_id = {index} AND state = 'deferred'\"".format(
-            base_path=base_path, hostname=hostname, port=port, username=username, index=index
+    def get_indexes_name(hostname, port, username):
+        return "curl {username}:$password@{hostname}:{port}/indexStatus".format(
+            hostname=hostname, port=port, username=username
         )
 
     @staticmethod
-    def build_index(base_path, hostname, port, username, index_name):
-        return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=echo \"BUILD INDEX ON {index_name}\" {index_name}".format(
-            base_path=base_path, hostname=hostname, port=port, username=username, index_name=index_name
+    def build_index(base_path, hostname, port, username, index_def):
+        return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s='{index_def}'".format(
+            base_path=base_path, hostname=hostname, port=port, username=username, index_def=index_def
         )
 
     @staticmethod
