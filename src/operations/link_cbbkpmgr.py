@@ -111,8 +111,11 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
     filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
     csv_bucket_list = ",".join(filter_bucket_list)
     logger.debug("Started CB backup manager")
+    helper_lib.sleepForSecond(30)
     resync_process.cb_backup_full(csv_bucket_list)
-
+    helper_lib.sleepForSecond(30)
+    logger.info("Stopping Couchbase")
+    resync_process.stop_couchbase()
 
 def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parameters):
     pre_snapshot_process = CouchbaseOperation(
@@ -217,6 +220,13 @@ def post_snapshot_cbbkpmgr(staged_source, repository, source_config, dsource_typ
     else:
         bucket_list = helper_lib.get_stg_all_bucket_list_with_ramquota_size(bucket_details)
 
+
+    # extract index
+
+    ind = post_snapshot_process.get_indexes_definition()
+    logger.debug("indexes definition : {}".format(ind))
+
+    snapshot.indexes = ind
     snapshot.db_path = staged_source.parameters.mount_path
     snapshot.couchbase_port = source_config.couchbase_src_port
     snapshot.couchbase_host = source_config.couchbase_src_host

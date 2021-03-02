@@ -11,6 +11,7 @@
 import logging
 from utils import utilities
 import json
+from os.path import join
 from internal_exceptions.database_exceptions import BucketOperationError
 from controller import helper_lib
 from controller.couchbase_lib._mixin_interface import MixinInterface
@@ -39,6 +40,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_edit(bucket_name=bucket_name, flush_value=flush_value, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("edit bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_edit_ramquota(self, bucket_name, _ramsize):
@@ -53,6 +55,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_edit_ramquota(bucket_name=bucket_name, ramsize=_ramsize, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("edit ram bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_delete(self, bucket_name):
@@ -62,6 +65,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_delete(bucket_name=bucket_name, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("delete bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_flush(self, bucket_name):
@@ -71,6 +75,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_flush(bucket_name=bucket_name, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("flush bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_remove(self, bucket_name):
@@ -92,6 +97,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("create bucket {}".format(command))
         output, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
         helper_lib.sleepForSecond(2)
 
@@ -101,11 +107,35 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_list(**env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("list bucket {}".format(command))
         bucket_list, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
         if return_type == list:
             bucket_list = bucket_list.split("\n")
         logger.debug("Bucket details in staged environment: {}".format(bucket_list))
         return bucket_list
+
+
+    def move_bucket(self, bucket_name, direction):
+        logger.debug("Rename folder")
+        
+        if direction == 'save':
+            src = join(self.virtual_source.parameters.mount_path,'data',bucket_name)
+            dst = join(self.virtual_source.parameters.mount_path,'data',".{}.delphix".format(bucket_name))
+            command = CommandFactory.os_mv(src, dst)
+            logger.debug("rename command: {}".format(command))         
+            stdout, error, exit_code = utilities.execute_bash(self.connection, command)
+        elif direction == 'restore':
+            dst = join(self.virtual_source.parameters.mount_path,'data',bucket_name)
+            src = join(self.virtual_source.parameters.mount_path,'data',".{}.delphix".format(bucket_name))
+            command = CommandFactory.delete_dir(dst)
+            logger.debug("delete command: {}".format(command))         
+            stdout, error, exit_code = utilities.execute_bash(self.connection, command)
+            command = CommandFactory.os_mv(src, dst)
+            logger.debug("rename command: {}".format(command))         
+            stdout, error, exit_code = utilities.execute_bash(self.connection, command)
+        
+
+
 
     def monitor_bucket(self, bucket_name, staging_UUID):
         # To monitor the replication

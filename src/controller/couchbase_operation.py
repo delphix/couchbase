@@ -16,6 +16,7 @@ import re
 import logging
 import os
 import sys
+import json
 
 from dlpx.virtualization.platform import Status
 
@@ -203,6 +204,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         command = CommandFactory.node_init(self.repository.cb_shell_path, self.parameters.couchbase_port,
                                            self.parameters.couchbase_admin, self.parameters.mount_path)
+        logger.debug("Node init: {}".format(command))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
         logger.debug("Command Output {} ".format(command_output))
 
@@ -223,6 +225,65 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         config_file_path = self.get_config_directory() + "/" + CONFIG_FILE_NAME
         logger.debug("Config filepath is: {}".format(config_file_path))
         return config_file_path
+
+
+    # Defined for future updates
+    def get_indexes_definition(self):
+        # by default take from staging but later take from source
+        logger.debug("Finding indexes....")
+        env = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        cmd = CommandFactory.get_indexes_name(self.parameters.couchbase_host, self.parameters.couchbase_port, self.parameters.couchbase_admin)
+        logger.debug("env detail is : ".format(env))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
+        logger.debug("Indexes are {}".format(command_output))
+        indexes_raw = json.loads(command_output)
+        indexes = []
+        for i in indexes_raw['indexes']:
+            indexes.append(i['definition'].replace('defer_build":true','defer_build":false'))
+        return indexes
+
+    # Defined for future updates
+    def build_index(self, index_def):
+        env = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        cmd = CommandFactory.build_index(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),self.connection.environment.host.name, self.parameters.couchbase_port, self.parameters.couchbase_admin, index_def)
+        logger.debug("building index cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
+        logger.debug("command_output is ".format(command_output))
+        return command_output
+
+
+    def delete_config(self):
+
+        # TODO:
+        # error handling
+
+        filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        
+        cmd = CommandFactory.check_file(filename)
+        logger.debug("check file cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=self.ignore_err) 
+
+        if exit_code == 0 and "Found" in command_output: 
+            cmd = CommandFactory.os_mv(filename, "{}.bak".format(filename))
+            logger.debug("rename config cmd: {}".format(cmd))
+            command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        cmd = CommandFactory.sed(filename, 's/view_index_dir.*//')
+        logger.debug("sed config cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        cmd = CommandFactory.sed(filename, 's/database_dir.*//')
+        logger.debug("sed config cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        cmd = CommandFactory.change_permission(filename)
+        logger.debug("chmod config cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+        
+
+    def ignore_err(self, input):
+        return True
 
 
 if __name__ == "__main__":
