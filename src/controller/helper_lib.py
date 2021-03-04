@@ -156,9 +156,29 @@ def get_base_directory_of_given_path(binary_path):
     return path
 
 
-def get_all_bucket_list_with_size(bucket_output, bucket=None):
-    """ Return bucket name with ramUsed( adjust ramused value ) from bucket_output"""
-    logger.debug("bucket_output: {}".format(bucket_output))
+def remap_bucket_json(bucket):
+    output = {}
+    if 'bucketType' in bucket:
+        output['bucketType'] = bucket['bucketType']
+    if 'name' in bucket:
+        output['name'] = bucket['name']
+    if 'quota' in bucket and 'ram' in bucket['quota']:
+        output['ram'] = bucket['quota']['ram']
+    else:
+        logger.debug('No memory in bucket - setting to default')
+        output['ram'] = 1024000
+    if 'compressionMode' in bucket:
+        output['compressionMode'] = bucket['compressionMode']
+    else:
+        output['compressionMode'] = None
+    return output
+
+def get_all_bucket_list_with_size(bucket_output):
+    """ 
+    Return bucket name with ramUsed( adjust ramused value ) 
+    from bucket_output
+    """
+
     additional_buffer = 10
     min_size = 104857600
     all_bucket_list = ""
@@ -197,6 +217,12 @@ def get_stg_all_bucket_list_with_ramquota_size(bucket_output):
     return all_bucket_list.split(":")
 
 
+def filter_bucket_name_from_json(bucket_output):
+    """ Filter bucket name from bucket_output. Return list of bucket names present in  bucket_output"""
+    output = [ x['name'] for x in bucket_output if x['ram'] > 0]
+    logger.debug("Bucket list: {}".format(output))
+    return output
+
 def filter_bucket_name_from_output(bucket_output):
     """ Filter bucket name from bucket_output. Return list of bucket names present in  bucket_output"""
     output = filter(lambda bucket: bucket.find(":") == -1, bucket_output)
@@ -205,7 +231,10 @@ def filter_bucket_name_from_output(bucket_output):
 
 
 def get_bucket_name_with_size(bucket_output, bucket):
-    """ Return `bucket_name:ramUsed` as output from bucket_output string for bucket(passed in argument) """
+    """ 
+    Return `bucket_name:ramUsed` 
+    as output from bucket_output string for bucket(passed in argument) 
+    """
     output = get_all_bucket_list_with_size(bucket_output, bucket)
     output = ":".join(output)
     bucket_info = re.search(r"{},\d+".format(bucket), output).group()

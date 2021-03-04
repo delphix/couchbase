@@ -31,6 +31,7 @@ from controller.couchbase_lib._xdcr import _XDCrMixin
 from controller.couchbase_lib._cb_backup import _CBBackupMixin
 from db_commands.commands import CommandFactory
 from db_commands.constants import ENV_VAR_KEY, StatusIsActive, DELPHIX_HIDDEN_FOLDER, CONFIG_FILE_NAME
+from controller.helper_lib import remap_bucket_json
 import time
 
 logger = logging.getLogger(__name__)
@@ -119,7 +120,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                 logger.debug("Couchbase service is not running")
             return Status.INACTIVE
 
-    def make_directory(self, directory_path):
+    def make_directory(self, directory_path, force_env_user=False):
         """
         Create a directory and set the permission level 775
         :param directory_path: The directory path
@@ -127,7 +128,10 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         """
         logger.debug("Creating Directory {} ".format(directory_path))
         env = {'directory_path': directory_path}
-        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        if force_env_user:
+            need_sudo = False
+        else:
+            need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
         command = CommandFactory.make_directory(directory_path, need_sudo, self.repository.uid)
         utilities.execute_bash(self.connection, command)
         logger.debug("Changing permission of directory path {}".format(directory_path))
@@ -139,6 +143,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         """create and return the hidden folder directory with name 'delphix'"""
         logger.debug("Finding toolkit Path...")
         command = CommandFactory.get_dlpx_bin()
+        logger.debug("get_dlpx_bin cmd : {}".format(command))
         bin_directory, std_err, exit_code = utilities.execute_bash(self.connection, command)
         if bin_directory is None or bin_directory == "":
             raise Exception("Failed to find the toolkit directory")
@@ -149,8 +154,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
             loop_var = loop_var - 1
         dir_name = bin_directory + "/" + DELPHIX_HIDDEN_FOLDER
         if not helper_lib.check_dir_present(self.connection, dir_name):
-            self.make_directory(dir_name)
+            self.make_directory(dir_name, force_env_user=True)
         return dir_name
+            
 
     def source_bucket_list(self):
         """
@@ -168,9 +174,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         bucket_list, error, exit_code = utilities.execute_bash(self.connection, command_name=command, **env)
         if bucket_list == "" or bucket_list is None:
             return []
-        bucket_list = bucket_list.split("\n")
-        logger.debug("Source Bucket Information {}".format(bucket_list))
-        return bucket_list
+        else:
+            bucket_list_dict = json.loads(bucket_list)
+            bucket_list_dict = map(helper_lib.remap_bucket_json, bucket_list_dict)
+
+        logger.debug("Source Bucket Information {}".format(bucket_list_dict))
+        return bucket_list_dict
 
     def source_bucket_list_offline(self, filename):
         """

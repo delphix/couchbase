@@ -88,18 +88,22 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
         for bucket in extra_bucket:
             resync_process.bucket_remove(bucket)
     else:
-        logger.debug("Finding buckets present at staged server with size")
-        all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
-        logger.debug("Filtering bucket name with size only from above output")
-        filter_source_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_source)
-        for items in all_bkt_list_with_size:
+        # logger.debug("Finding buckets present at staged server with size")
+        # all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
+        # logger.debug("Filtering bucket name with size only from above output")
+
+        filter_source_bucket = helper_lib.filter_bucket_name_from_json(bucket_details_source)
+        for items in bucket_details_source:
             if items:
                 logger.debug("Running bucket operations for {}".format(items))
-                bkt_name, bkt_size = items.split(',')
+                bkt_name = items['name']
+                bkt_size = items['ram']
+                bkt_type = items['bucketType']
+                bkt_compression = items['compressionMode']
 
                 bkt_size_mb = helper_lib.get_bucket_size_in_MB(bucket_size, bkt_size)
                 if bkt_name not in bucket_details_staged:
-                    resync_process.bucket_create(bkt_name, bkt_size_mb)
+                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
                 else:
                     logger.debug(
                         "Bucket {} already present in staged environment. Recreating bucket ".format(bkt_name))
@@ -121,6 +125,9 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
     for bkt in filter_bucket_list:
         resync_process.monitor_bucket(bkt, staging_uuid)
+
+    logger.info("Stopping Couchbase")
+    resync_process.stop_couchbase()
 
 
 def pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters):
