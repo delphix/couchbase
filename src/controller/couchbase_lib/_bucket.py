@@ -14,6 +14,7 @@ import json
 from os.path import join
 from internal_exceptions.database_exceptions import BucketOperationError
 from controller import helper_lib
+from controller.helper_lib import remap_bucket_json
 from controller.couchbase_lib._mixin_interface import MixinInterface
 from controller.resource_builder import Resource
 from db_commands.commands import CommandFactory
@@ -86,20 +87,33 @@ class _BucketMixin(Resource, MixinInterface):
         self.bucket_delete(bucket_name)
         helper_lib.sleepForSecond(2)
 
-    def bucket_create(self, bucket_name, ram_size=0):
+    def bucket_create(self, bucket_name, ram_size, bucket_type, bucket_compression):
         logger.debug("Creating bucket: {} ".format(bucket_name))
         # To create the bucket with given ram size
         self.__validate_bucket_name(bucket_name)
         if ram_size is None:
             logger.debug("Needed ramsize for bucket_create. Currently it is: {}".format(ram_size))
             return
+        
+
+        if bucket_type == 'membase':
+            # API return different type
+            bucket_type = 'couchbase'
+
+        if bucket_compression is not None:
+            bucket_compression = '--compression-mode {}'.format(bucket_compression)
+        else:
+            bucket_compression = ''
+
         policy = self.parameters.bucket_eviction_policy
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, **env)
+        command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, bucket_type=bucket_type, bucket_compression=bucket_compression, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         logger.debug("create bucket {}".format(command))
         output, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("create bucket output: {} {} {}".format(output, error, exit_code))
         helper_lib.sleepForSecond(2)
+
 
     def bucket_list(self, return_type=list):
         # See the all bucket. It will return also other information like ramused, ramsize etc

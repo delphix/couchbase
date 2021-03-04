@@ -270,7 +270,7 @@ class DatabaseCommand(object):
 
     @staticmethod
     def get_source_bucket_list(shell_path, source_hostname, source_port, source_username):
-        return "{shell_path} bucket-list --cluster {source_hostname}:{source_port} --username {source_username} --password $password".format(
+        return "{shell_path} bucket-list --cluster {source_hostname}:{source_port} --username {source_username} --password $password -o json".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
             source_port=source_port,
@@ -316,10 +316,11 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def bucket_create(shell_path, hostname, port, username, bucket_name, ramsize, evictionpolicy):
-        return "{shell_path} bucket-create --cluster 127.0.0.1:{port} --username {username} --password $password --bucket {bucket_name} --bucket-type couchbase --bucket-ramsize {ramsize} --bucket-replica 0 --bucket-eviction-policy {evictionpolicy} --compression-mode passive --conflict-resolution sequence --wait".format(
+    def bucket_create(shell_path, hostname, port, username, bucket_name, ramsize, evictionpolicy, bucket_type, bucket_compression):
+        return "{shell_path} bucket-create --cluster 127.0.0.1:{port} --username {username} --password $password --bucket {bucket_name} --bucket-type {bucket_type} --bucket-ramsize {ramsize} --bucket-replica 0 --bucket-eviction-policy {evictionpolicy} {bucket_compression} --conflict-resolution sequence --wait".format(
             shell_path=shell_path, port=port, username=username,
-            bucket_name=bucket_name, ramsize=ramsize, evictionpolicy=evictionpolicy
+            bucket_name=bucket_name, ramsize=ramsize, evictionpolicy=evictionpolicy,
+            bucket_type=bucket_type, bucket_compression=bucket_compression
         )
 
     @staticmethod
