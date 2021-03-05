@@ -108,7 +108,7 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
                     logger.debug(
                         "Bucket {} already present in staged environment. Recreating bucket ".format(bkt_name))
                     resync_process.bucket_remove(bkt_name)
-                    resync_process.bucket_create(bkt_name, bkt_size_mb)
+                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
                 resync_process.xdcr_replicate(bkt_name, bkt_name)
 
         bucket_details_staged = resync_process.bucket_list()

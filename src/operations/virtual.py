@@ -9,6 +9,7 @@
 #######################################################################################################################
 
 import re
+import json
 
 # Auto generated libs
 import sys
@@ -49,6 +50,14 @@ def vdb_unconfigure(virtual_source, repository, source_config):
 def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
     # delete all buckets
     # calll configure
+
+    logger.debug("In vdb_reconfigure...")
+    provision_process = CouchbaseOperation(
+        Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
+            source_config).build())
+
+    provision_process.restore_config()
+
     vdb_start(virtual_source, repository, source_config)
     return _source_config(virtual_source, repository, source_config, snapshot)
 
@@ -72,14 +81,16 @@ def vdb_configure(virtual_source, snapshot, repository):
     # couchbase will delete directory while starting 
     # so we have to rename it before start
 
-    bucket_list_and_size = snapshot.bucket_list
+    bucket_list_and_size = json.loads(snapshot.bucket_list)
 
     if not bucket_list_and_size:
         raise FailedToReadBucketDataFromSnapshot("Snapshot Data is empty.")
     else:
         logger.debug("snapshot bucket data is: {}".format(bucket_list_and_size))
 
-    for item in bucket_list_and_size.split(':'):
+
+
+    for item in helper_lib.filter_bucket_name_from_output(bucket_list_and_size):
         logger.debug("Checking bucket: {}".format(item))
         bucket_name = item.split(',')[0]
         # rename folder
@@ -89,7 +100,7 @@ def vdb_configure(virtual_source, snapshot, repository):
     provision_process.node_init()
     provision_process.cluster_init()
     _do_provision(provision_process, snapshot)
-    _cleanup(provision_process, snapshot)
+    #_cleanup(provision_process, snapshot)
 
     _build_indexes(provision_process, snapshot)
 
@@ -112,7 +123,7 @@ def _do_provision(provision_process, snapshot):
     else:
         logger.debug("snapshot bucket data is: {}".format(bucket_list_and_size))
 
-
+    bucket_list_and_size = json.loads(bucket_list_and_size)
 
     try:
         bucket_list = provision_process.bucket_list()
@@ -122,18 +133,20 @@ def _do_provision(provision_process, snapshot):
         logger.debug("Failed to get bucket list. Error is " + err.message)
 
 
-    bucket_list = []
     renamed_folders = []
 
-    for item in bucket_list_and_size.split(':'):
+    for item in bucket_list_and_size:
         logger.debug("Checking bucket: {}".format(item))
         # try:
-        bucket_name = item.split(',')[0]
-        bkt_size_mb = int(item.split(',')[1].strip()) // 1024 // 1024
+        bucket_name = item['name']
+        bkt_size = item['ram']
+        bkt_type = item['bucketType']
+        bkt_compression = item['compressionMode']
+        bkt_size_mb = helper_lib.get_bucket_size_in_MB(0, bkt_size)
         if bucket_name not in bucket_list:
             # a new bucket needs to be created
             logger.debug("Creating bucket: {}".format(bucket_name))
-            provision_process.bucket_create(bucket_name, bkt_size_mb)
+            provision_process.bucket_create(bucket_name, bkt_size_mb, bkt_type, bkt_compression)
             helper_lib.sleepForSecond(2)
         else:
             logger.debug("Bucket {} exist - no need to rename directory".format(bucket_name))
@@ -141,7 +154,7 @@ def _do_provision(provision_process, snapshot):
     
     provision_process.stop_couchbase()
 
-    for item in bucket_list_and_size.split(':'):
+    for item in helper_lib.filter_bucket_name_from_output(bucket_list_and_size):
         logger.debug("Checking bucket: {}".format(item))
         bucket_name = item.split(',')[0]
         logger.debug("restoring folders")
@@ -158,10 +171,10 @@ def _do_provision(provision_process, snapshot):
     # This file path is being used to store the bucket information coming in snapshot
     config_file_path = provision_process.get_config_file_path()
 
-    content = "BUCKET_LIST=" + _find_bucket_name_from_snapshot(snapshot)
+    #content = "BUCKET_LIST=" + _find_bucket_name_from_snapshot(snapshot)
 
     # Adding bucket list in config file path .config file, inside .delphix folder
-    helper_lib.write_file(provision_process.connection, content, config_file_path)
+    #helper_lib.write_file(provision_process.connection, content, config_file_path)
 
 
 def _cleanup(provision_process, snapshot):
@@ -253,6 +266,11 @@ def vdb_stop(virtual_source, repository, source_config):
 
 def vdb_pre_snapshot(virtual_source, repository, source_config):
     logger.debug("In Pre snapshot...")
+    provision_process = CouchbaseOperation(
+        Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
+            source_config).build())
+
+    provision_process.save_config()
 
 
 def post_snapshot(virtual_source, repository, source_config):
@@ -261,18 +279,23 @@ def post_snapshot(virtual_source, repository, source_config):
         provision_process = CouchbaseOperation(
             Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
                 source_config).build())
-        config_file = provision_process.get_config_file_path()
+        # config_file = provision_process.get_config_file_path()
 
-        stdout, stderr, exit_code = helper_lib.read_file(virtual_source.connection, config_file)
-        bucket_list = re.sub('BUCKET_LIST=', '', stdout)
-        logger.debug("BUCKET_LIST={}".format(bucket_list))
+        # stdout, stderr, exit_code = helper_lib.read_file(virtual_source.connection, config_file)
+        # bucket_list = re.sub('BUCKET_LIST=', '', stdout)
+
+        ind = provision_process.get_indexes_definition()
+        logger.debug("indexes definition : {}".format(ind))
+
+        bucket_details = json.dumps(provision_process.bucket_list())
+        logger.debug("BUCKET_LIST={}".format(bucket_details))
         db_path = virtual_source.parameters.mount_path
         time_stamp = helper_lib.current_time()
         couchbase_port = virtual_source.parameters.couchbase_port
         couchbase_host = virtual_source.connection.environment.host.name
         snapshot_id = str(helper_lib.get_snapshot_id())
         snapshot = SnapshotDefinition(db_path=db_path, couchbase_port=couchbase_port, couchbase_host=couchbase_host,
-                                      bucket_list=bucket_list, time_stamp=time_stamp, snapshot_id=snapshot_id)
+                                      bucket_list=bucket_details, time_stamp=time_stamp, snapshot_id=snapshot_id, indexes = ind)
         logger.info("snapshot schema: {}".format(snapshot))
         return snapshot
     except Exception as err:
@@ -282,15 +305,16 @@ def post_snapshot(virtual_source, repository, source_config):
 
 # This function returns the bucket name from snapshot.
 def _find_bucket_name_from_snapshot(snapshot):
-    bucket_list_and_size = snapshot.bucket_list
+    bucket_list_and_size = json.loads(snapshot.bucket_list)
     logger.debug("SnapShot bucket data is: {}".format(bucket_list_and_size))
-    # bucket_list_and_size contains the ramsize e.g. "Bucket1,122:Bucket2,3432"
-    # Filtering the size from above information.
-    bucket_list_and_size += ':'
-    # Parsing logic because there could be bucket name having some digit
-    # bucket details in snapshot : Bucket_name1,RamSize1:Bucket_name2,RamSize2:
-    bucket_name = re.sub(',[0-9]*:', ':', bucket_list_and_size)
-    bucket_name = bucket_name.strip(':')
+    # # bucket_list_and_size contains the ramsize e.g. "Bucket1,122:Bucket2,3432"
+    # # Filtering the size from above information.
+    # bucket_list_and_size += ':'
+    # # Parsing logic because there could be bucket name having some digit
+    # # bucket details in snapshot : Bucket_name1,RamSize1:Bucket_name2,RamSize2:
+    # bucket_name = re.sub(',[0-9]*:', ':', bucket_list_and_size)
+    # bucket_name = bucket_name.strip(':')
+    bucket_name = helper_lib.filter_bucket_name_from_output(bucket_list_and_size)
     return bucket_name
 
 

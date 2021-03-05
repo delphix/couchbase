@@ -164,6 +164,9 @@ def remap_bucket_json(bucket):
         output['name'] = bucket['name']
     if 'quota' in bucket and 'ram' in bucket['quota']:
         output['ram'] = bucket['quota']['ram']
+    elif 'ramQuota' in bucket:
+        # this is in MB
+        output['ram'] = int(bucket['ramQuota']) * 1024 * 1024
     else:
         logger.debug('No memory in bucket - setting to default')
         output['ram'] = 1024000
@@ -224,10 +227,30 @@ def filter_bucket_name_from_json(bucket_output):
     return output
 
 def filter_bucket_name_from_output(bucket_output):
-    """ Filter bucket name from bucket_output. Return list of bucket names present in  bucket_output"""
-    output = filter(lambda bucket: bucket.find(":") == -1, bucket_output)
+    """ 
+    Filter bucket name from bucket_output. 
+    Return list of bucket names present in  bucket_output
+    """
+    output = []
+    logger.debug("filter input: {}".format(bucket_output))
+    logger.debug("filter input: {}".format(len(bucket_output)))
+    if bucket_output != []:
+        output = map(lambda x: x["name"], bucket_output)
     logger.debug("Bucket list: {}".format(output))
     return output
+
+def get_bucket_object(bucket_output, bucket):
+    """ 
+    Return bucket dict
+    from bucket_output string for bucket(passed in argument) 
+    """
+    output = filter(lambda x: x['name'] == bucket, bucket_output)
+    if len(output) != 1:
+        ret = None
+    else:
+        ret = output[-1]
+    logger.debug("For Bucket {} detail is : {}".format(bucket, ret))
+    return ret
 
 
 def get_bucket_name_with_size(bucket_output, bucket):

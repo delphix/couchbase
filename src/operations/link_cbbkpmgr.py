@@ -7,6 +7,7 @@
 
 import logging
 import os
+import json
 
 from dlpx.virtualization.platform import Status
 
@@ -51,7 +52,7 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
     resync_process.cluster_init()
     logger.debug("Finding source and staging bucket list")
     bucket_details_source = resync_process.source_bucket_list_offline(filename=src_bucket_info_filename)
-    bucket_details_staged = resync_process.bucket_list()
+    bucket_details_staged = helper_lib.filter_bucket_name_from_output(resync_process.bucket_list())
 
     config_setting = staged_source.parameters.config_settings_prov
     logger.debug("Bucket names passed for configuration: {}".format(config_setting))
@@ -62,16 +63,20 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
         for config_bucket in config_setting:
             bucket_configured_staged.append(config_bucket["bucketName"])
             logger.debug("Filtering bucket name with size only from above output")
-            bkt_name_size = helper_lib.get_bucket_name_with_size(bucket_details_source, config_bucket["bucketName"])
-            bkt_size_mb = get_bucket_size_in_MB(bucket_size, bkt_name_size.split(",")[1])
+            bucket_dict = helper_lib.get_bucket_object(bucket_details_source, config_bucket["bucketName"])
+            bkt_name = bucket_dict['name']
+            bkt_size = bucket_dict['ram']
+            bkt_type = bucket_dict['bucketType']
+            bkt_compression = bucket_dict['compressionMode']
+            bkt_size_mb = get_bucket_size_in_MB(bucket_size, bkt_size)
 
             if config_bucket["bucketName"] not in bucket_details_staged:
-                resync_process.bucket_create(config_bucket["bucketName"], bkt_size_mb)
+                resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
             else:
                 logger.debug("Bucket {} already present in staged environment. Recreating bucket ".format(
                     config_bucket["bucketName"]))
                 resync_process.bucket_remove(config_bucket["bucketName"])
-                resync_process.bucket_create(config_bucket["bucketName"], bkt_size_mb)
+                resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
 
         logger.debug("Finding buckets present at staged server")
         bucket_details_staged = resync_process.bucket_list()
@@ -82,23 +87,23 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
         for bucket in extra_bucket:
             resync_process.bucket_remove(bucket)
     else:
-        logger.debug("Finding buckets present at staged server with size")
-        all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
-        logger.debug("Filtering bucket name with size only from above output")
-        filter_source_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_source)
-        for items in all_bkt_list_with_size:
+        filter_source_bucket = helper_lib.filter_bucket_name_from_json(bucket_details_source)
+        logger.info("Creating the buckets")
+        for items in bucket_details_source:
             if items:
                 logger.debug("Running bucket operations for {}".format(items))
-                bkt_name, bkt_size = items.split(',')
-
+                bkt_name = items['name']
+                bkt_size = items['ram']
+                bkt_type = items['bucketType']
+                bkt_compression = items['compressionMode']
                 bkt_size_mb = get_bucket_size_in_MB(bucket_size, bkt_size)
                 if bkt_name not in bucket_details_staged:
-                    resync_process.bucket_create(bkt_name, bkt_size_mb)
+                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
                 else:
                     logger.debug(
                         "Bucket {} already present in staged environment. Recreating bucket ".format(bkt_name))
                     resync_process.bucket_remove(bkt_name)
-                    resync_process.bucket_create(bkt_name, bkt_size_mb)
+                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
 
         bucket_details_staged = resync_process.bucket_list()
         filter_staged_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
@@ -143,7 +148,7 @@ def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parame
         pre_snapshot_process.cluster_init()
         bucket_details_source = pre_snapshot_process.source_bucket_list_offline(
             filename=src_bucket_info_filename)
-        bucket_details_staged = pre_snapshot_process.bucket_list()
+        bucket_details_staged = helper_lib.filter_bucket_name_from_json(pre_snapshot_process.bucket_list())
         config_setting = staged_source.parameters.config_settings_prov
         logger.debug("Buckets name passed for configuration: {}".format(config_setting))
         bucket_configured_staged = []
@@ -161,7 +166,7 @@ def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parame
                 else:
                     pre_snapshot_process.bucket_remove(config_bucket["bucketName"])
                     pre_snapshot_process.bucket_create(config_bucket["bucketName"], bkt_size_mb)
-            bucket_details_staged = pre_snapshot_process.bucket_list()
+            bucket_details_staged = helper_lib.filter_bucket_name_from_output(pre_snapshot_process.bucket_list())
             filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
             extra_bucket = list(set(filter_bucket_list) - set(bucket_configured_staged))
             logger.debug("Extra bucket found :{}".format(extra_bucket))
@@ -169,21 +174,24 @@ def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parame
                 logger.debug("Deleting bucket {}".format(bucket))
                 pre_snapshot_process.bucket_remove(bucket)
         else:
-            all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
-            filter_source_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_source)
+            filter_source_bucket = helper_lib.filter_bucket_name_from_json(bucket_details_source)
             logger.info("Creating the buckets")
-            for items in all_bkt_list_with_size:
+            for items in bucket_details_source:
                 if items:
-                    bkt_name, bkt_size = items.split(',')
+                    logger.debug("Running bucket operations for {}".format(items))
+                    bkt_name = items['name']
+                    bkt_size = items['ram']
+                    bkt_type = items['bucketType']
+                    bkt_compression = items['compressionMode']
                     bkt_size_mb = get_bucket_size_in_MB(bucket_size, bkt_size)
                     if bkt_name not in bucket_details_staged:
-                        pre_snapshot_process.bucket_create(bkt_name, bkt_size_mb)
+                        pre_snapshot_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
                     else:
                         logger.info(
                             "Bucket {} already present in staged environment. Recreating bucket ".format(
                                 bkt_name))
                         pre_snapshot_process.bucket_remove(bkt_name)
-                        pre_snapshot_process.bucket_create(bkt_name, bkt_size_mb)
+                        pre_snapshot_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
 
             bucket_details_staged = pre_snapshot_process.bucket_list()
             filter_staged_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
@@ -213,12 +221,12 @@ def post_snapshot_cbbkpmgr(staged_source, repository, source_config, dsource_typ
     bucket_list = []
     bucket_details = post_snapshot_process.bucket_list()
 
-    if len(staged_source.parameters.config_settings_prov) != 0:
-        bucket_list = []
-        for config_setting in staged_source.parameters.config_settings_prov:
-            bucket_list.append(helper_lib.get_bucket_name_with_size(bucket_details, config_setting["bucketName"]))
-    else:
-        bucket_list = helper_lib.get_stg_all_bucket_list_with_ramquota_size(bucket_details)
+    # if len(staged_source.parameters.config_settings_prov) != 0:
+    #     bucket_list = []
+    #     for config_setting in staged_source.parameters.config_settings_prov:
+    #         bucket_list.append(helper_lib.get_bucket_name_with_size(bucket_details, config_setting["bucketName"]))
+    # else:
+    #     bucket_list = helper_lib.get_stg_all_bucket_list_with_ramquota_size(bucket_details)
 
 
     # extract index
@@ -230,7 +238,7 @@ def post_snapshot_cbbkpmgr(staged_source, repository, source_config, dsource_typ
     snapshot.db_path = staged_source.parameters.mount_path
     snapshot.couchbase_port = source_config.couchbase_src_port
     snapshot.couchbase_host = source_config.couchbase_src_host
-    snapshot.bucket_list = ":".join(bucket_list)
+    snapshot.bucket_list = json.dumps(bucket_details)
     snapshot.time_stamp = helper_lib.current_time()
     snapshot.snapshot_id = str(helper_lib.get_snapshot_id())
     logger.debug("snapshot schema: {}".format(snapshot))
