@@ -116,17 +116,32 @@ class _BucketMixin(Resource, MixinInterface):
 
 
     def bucket_list(self, return_type=list):
-        # See the all bucket. It will return also other information like ramused, ramsize etc
+        # See the all bucket. 
+        # It will return also other information like ramused, ramsize etc
         logger.debug("Finding staged bucket list")
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_list(**env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         logger.debug("list bucket {}".format(command))
         bucket_list, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("list bucket output{}".format(bucket_list))
         if return_type == list:
-            bucket_list = bucket_list.split("\n")
+            #bucket_list = bucket_list.split("\n")
+            if bucket_list == "[]" or bucket_list is None:
+                logger.debug("empty list")
+                return []
+            else:
+                logger.debug("clean up json")
+                bucket_list = bucket_list.replace("u'","'")
+                bucket_list = bucket_list.replace("'", "\"")
+                bucket_list = bucket_list.replace("True", "\"True\"")
+                bucket_list = bucket_list.replace("False", "\"False\"")
+                logger.debug("parse json")
+                bucket_list_dict = json.loads(bucket_list)
+                logger.debug("remap json")
+                bucket_list_dict = map(helper_lib.remap_bucket_json, bucket_list_dict)
         logger.debug("Bucket details in staged environment: {}".format(bucket_list))
-        return bucket_list
+        return bucket_list_dict
 
 
     def move_bucket(self, bucket_name, direction):

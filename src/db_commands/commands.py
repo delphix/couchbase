@@ -85,6 +85,13 @@ class OSCommand(object):
         return "mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname)
 
     @staticmethod
+    def os_cp(srcname, trgname, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} cp {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
+        else:
+            return "cp {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
+
+    @staticmethod
     def get_dlpx_bin():
         return "echo $DLPX_BIN_JQ"
 
@@ -101,6 +108,18 @@ class OSCommand(object):
     @staticmethod
     def sed(filename, regex):
         return 'sed -i -e "{}" {}'.format(regex, filename)
+
+
+    @staticmethod
+    def cat(path, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} cat {path}".format(
+                path=path, uid=uid
+            )
+        else:
+            return "cat {path}".format(
+                path=path
+            )
 
 class DatabaseCommand(object):
     def __init__(self):
@@ -325,7 +344,7 @@ class DatabaseCommand(object):
 
     @staticmethod
     def bucket_list(shell_path, hostname, port, username):
-        return "{shell_path} bucket-list --cluster {hostname}:{port} --username {username} --password $password".format(
+        return "{shell_path} bucket-list --cluster {hostname}:{port} --username {username} --password $password -o json".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username,
         )
 
@@ -334,6 +353,21 @@ class DatabaseCommand(object):
         return "curl {username}:$password@{hostname}:{port}/indexStatus".format(
             hostname=hostname, port=port, username=username
         )
+
+    @staticmethod
+    def get_backup_bucket_list(path, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} find {path} -name bucket-config.json".format(
+                path=path, uid=uid
+            )
+        else:
+            return "find {path} -name bucket-config.json".format(
+                path=path
+            )
+
+
+
+
 
     @staticmethod
     def build_index(base_path, hostname, port, username, index_def):
@@ -348,16 +382,28 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list):
-        return "{base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password --force-updates --no-progress-bar --include-buckets {csv_bucket_list}".format(
-            base_path=base_path,
-            backup_location=backup_location,
-            backup_repo=backup_repo,
-            hostname=hostname,
-            port=port,
-            username=username,
-            csv_bucket_list=csv_bucket_list
-        )
+    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, need_sudo=False, uid=None):
+        if need_sudo:
+            return "sudo -u \#{uid} {base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password --force-updates --no-progress-bar --include-buckets {csv_bucket_list}".format(
+                base_path=base_path,
+                backup_location=backup_location,
+                backup_repo=backup_repo,
+                hostname=hostname,
+                port=port,
+                username=username,
+                csv_bucket_list=csv_bucket_list,
+                uid=uid
+            )
+        else:
+            return "{base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password --force-updates --no-progress-bar --include-buckets {csv_bucket_list}".format(
+                base_path=base_path,
+                backup_location=backup_location,
+                backup_repo=backup_repo,
+                hostname=hostname,
+                port=port,
+                username=username,
+                csv_bucket_list=csv_bucket_list
+            )
 
     @staticmethod
     def monitor_replication(source_username, source_hostname, source_port, bucket_name, uuid):

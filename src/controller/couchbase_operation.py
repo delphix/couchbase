@@ -63,6 +63,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         utilities.execute_bash(self.connection, command)
         server_status = Status.INACTIVE
 
+        helper_lib.sleepForSecond(10)
+
         #Waiting for one minute to start the server
         end_time = time.time() + 60
 
@@ -143,7 +145,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         """create and return the hidden folder directory with name 'delphix'"""
         logger.debug("Finding toolkit Path...")
         command = CommandFactory.get_dlpx_bin()
-        logger.debug("get_dlpx_bin cmd : {}".format(command))
         bin_directory, std_err, exit_code = utilities.execute_bash(self.connection, command)
         if bin_directory is None or bin_directory == "":
             raise Exception("Failed to find the toolkit directory")
@@ -172,9 +173,15 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                                                         self.source_config.couchbase_src_port,
                                                         self.staged_source.parameters.xdcr_admin)
         bucket_list, error, exit_code = utilities.execute_bash(self.connection, command_name=command, **env)
-        if bucket_list == "" or bucket_list is None:
+        if bucket_list == "[]" or bucket_list is None:
             return []
         else:
+            logger.debug("clean up json")
+            bucket_list = bucket_list.replace("u'","'")
+            bucket_list = bucket_list.replace("'", "\"")
+            bucket_list = bucket_list.replace("True", "\"True\"")
+            bucket_list = bucket_list.replace("False", "\"False\"")
+            logger.debug("parse json")
             bucket_list_dict = json.loads(bucket_list)
             bucket_list_dict = map(helper_lib.remap_bucket_json, bucket_list_dict)
 
@@ -195,14 +202,54 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         :param filename: filename(couchbase_src_bucket_info.cfg) where bucket information is kept.
         :return: bucket list information
         """
+
+        def get_date(x):
+            w = x.replace('/opt/couchbase/backup/PROD','')
+            g = re.match(r'/(.+?)/.*',w)
+            if g:
+                return g.group(1)
+            else:
+                return ''
+
         logger.debug(
             "Reading bucket list information of source server from {} ".format(filename))
-        command = CommandFactory.read_file(filename)
-        bucket_list, error, exit_code = utilities.execute_bash(self.connection, command)
-        if bucket_list == "" or bucket_list is None:
-            return []
-        bucket_list = bucket_list.split("\n")
-        return bucket_list
+
+        logger.debug(self.parameters.couchbase_bak_loc)
+        logger.debug(self.parameters.couchbase_bak_repo)
+
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+
+        command = CommandFactory.get_backup_bucket_list(os.path.join(self.parameters.couchbase_bak_loc, self.parameters.couchbase_bak_repo), need_sudo, self.repository.uid)
+        logger.debug("Bucket search command: {}".format(command))
+        bucket_list, error, exit_code = utilities.execute_bash(self.connection, command_name=command, callback_func=self.ignore_err)
+
+        backup_list = bucket_list.split('\n')
+        logger.debug("Bucket search output: {}".format(backup_list))
+        date_list = map(get_date, backup_list) 
+        date_list.sort()
+        logger.debug("date list: {}".format(date_list))
+        files_to_process = [ x for x in backup_list if date_list[-1] in x ]
+
+        logger.debug(files_to_process)
+
+        bucket_list_dict = []
+
+        for f in files_to_process:
+            command = CommandFactory.cat(f, need_sudo, self.repository.uid)
+            logger.debug("cat command: {}".format(command))
+            bucket_file_content, error, exit_code = utilities.execute_bash(self.connection, command_name=command)
+            logger.debug(bucket_file_content)
+            bucket_json = json.loads(bucket_file_content)
+            bucket_list_dict.append(remap_bucket_json(bucket_json))
+
+
+        # command = CommandFactory.read_file(filename)
+        # bucket_list, error, exit_code = utilities.execute_bash(self.connection, command)
+        # if bucket_list == "" or bucket_list is None:
+        #     return []
+        # bucket_list = bucket_list.split("\n")
+        logger.debug("Bucket search output: {}".format(bucket_list_dict))
+        return bucket_list_dict
 
     def node_init(self):
         """
@@ -241,7 +288,13 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         # by default take from staging but later take from source
         logger.debug("Finding indexes....")
         env = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        cmd = CommandFactory.get_indexes_name(self.parameters.couchbase_host, self.parameters.couchbase_port, self.parameters.couchbase_admin)
+
+        if self.dSource:
+            hostname = self.parameters.couchbase_host
+        else:
+            hostname = self.connection.environment.host.name
+
+        cmd = CommandFactory.get_indexes_name(hostname, self.parameters.couchbase_port, self.parameters.couchbase_admin)
         logger.debug("env detail is : ".format(env))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
         logger.debug("Indexes are {}".format(command_output))
@@ -259,6 +312,47 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
         logger.debug("command_output is ".format(command_output))
         return command_output
+
+
+    def save_config(self):
+
+        # TODO
+        # Error handling
+
+        targetdir = self.get_config_directory()
+        filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+
+        cmd = CommandFactory.os_cp(filename, targetdir, need_sudo, self.repository.uid)
+        logger.debug("save config cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        cmd = CommandFactory.os_cp(filename, targetdir, need_sudo, self.repository.uid)
+        logger.debug("save init cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+
+    def restore_config(self):
+
+        # TODO
+        # Error handling
+
+        sourcefile = os.path.join(self.get_config_directory(),"config.dat")
+        targetfile = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+
+        cmd = CommandFactory.os_cp(sourcefile, targetfile, need_sudo, self.repository.uid)
+        logger.debug("restore config cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        sourcefile = os.path.join(self.get_config_directory(),"local.ini")
+        targetfile = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        cmd = CommandFactory.os_cp(sourcefile, targetfile, need_sudo, self.repository.uid)
+        logger.debug("restore init cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
 
     def delete_config(self):
