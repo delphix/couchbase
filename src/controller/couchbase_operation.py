@@ -33,6 +33,7 @@ from db_commands.commands import CommandFactory
 from db_commands.constants import ENV_VAR_KEY, StatusIsActive, DELPHIX_HIDDEN_FOLDER, CONFIG_FILE_NAME
 from controller.helper_lib import remap_bucket_json
 import time
+from db_commands import constants
 
 logger = logging.getLogger(__name__)
 
@@ -288,13 +289,20 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         # by default take from staging but later take from source
         logger.debug("Finding indexes....")
         env = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-
+        user = self.parameters.couchbase_admin
+        port = self.parameters.couchbase_port
         if self.dSource:
-            hostname = self.parameters.couchbase_host
+            if self.parameters.d_source_type == constants.CBBKPMGR:
+                hostname = self.parameters.couchbase_host
+            else:
+                port = self.source_config.couchbase_src_port
+                user = self.staged_source.parameters.xdcr_admin
+                env = {ENV_VAR_KEY: {'password': self.staged_source.parameters.xdcr_admin_password}}
+                hostname = self.source_config.couchbase_src_host
         else:
             hostname = self.connection.environment.host.name
 
-        cmd = CommandFactory.get_indexes_name(hostname, self.parameters.couchbase_port, self.parameters.couchbase_admin)
+        cmd = CommandFactory.get_indexes_name(hostname, port, user)
         logger.debug("env detail is : ".format(env))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
         logger.debug("Indexes are {}".format(command_output))

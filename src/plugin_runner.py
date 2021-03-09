@@ -115,7 +115,9 @@ def stop(virtual_source, repository, source_config):
 def virtual_mount_specification(virtual_source, repository):
     mount_path = virtual_source.parameters.mount_path
     mounts = [Mount(virtual_source.connection.environment, mount_path)]
-    ownership_spec = OwnershipSpecification(996, 993)
+    logger.debug("Mounting path {}".format(mount_path))
+    logger.debug("Setting ownership to uid {} and gid {}".format(repository.uid, repository.gid))
+    ownership_spec = OwnershipSpecification(repository.uid, repository.gid)
     return MountSpecification(mounts, ownership_spec)
 
 

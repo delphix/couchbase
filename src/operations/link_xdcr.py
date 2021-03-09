@@ -7,6 +7,7 @@
 
 import logging
 import os
+import json
 
 from generated.definitions import SnapshotDefinition
 import db_commands.constants
@@ -159,17 +160,24 @@ def post_snapshot_xdcr(staged_source, repository, source_config, dsource_type):
     snapshot = SnapshotDefinition(validate=False)
     bucket_details = post_snapshot_process.bucket_list()
 
-    if len(staged_source.parameters.config_settings_prov) != 0:
-        bucket_list = []
-        for config_setting in staged_source.parameters.config_settings_prov:
-            bucket_list.append(helper_lib.get_bucket_name_with_size(bucket_details, config_setting["bucketName"]))
-    else:
-        bucket_list = helper_lib.get_stg_all_bucket_list_with_ramquota_size(bucket_details)
+    # if len(staged_source.parameters.config_settings_prov) != 0:
+    #     bucket_list = []
+    #     for config_setting in staged_source.parameters.config_settings_prov:
+    #         bucket_list.append(helper_lib.get_bucket_name_with_size(bucket_details, config_setting["bucketName"]))
+    # else:
+    #     bucket_list = helper_lib.get_stg_all_bucket_list_with_ramquota_size(bucket_details)
+
+    ind = post_snapshot_process.get_indexes_definition()
+    logger.debug("indexes definition : {}".format(ind))
+
+    snapshot.indexes = ind
+
+    bucket_details = post_snapshot_process.bucket_list()
 
     snapshot.db_path = staged_source.parameters.mount_path
     snapshot.couchbase_port = source_config.couchbase_src_port
     snapshot.couchbase_host = source_config.couchbase_src_host
-    snapshot.bucket_list = ":".join(bucket_list)
+    snapshot.bucket_list = json.dumps(bucket_details)
     snapshot.time_stamp = helper_lib.current_time()
     snapshot.snapshot_id = str(helper_lib.get_snapshot_id())
     logger.debug("snapshot schema: {}".format(snapshot))
@@ -206,9 +214,7 @@ def start_staging_xdcr(staged_source, repository, source_config):
             start_staging.xdcr_replicate(config_bucket["bucketName"], config_bucket["bucketName"])
     else:
         bucket_details_source = start_staging.source_bucket_list()
-        all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
-        for items in all_bkt_list_with_size:
-            bkt_name, bkt_size = items.split(',')
+        for bkt_name in helper_lib.filter_bucket_name_from_json(bucket_details_source):
             logger.debug("Creating replication for {}".format(bkt_name))
             start_staging.xdcr_replicate(bkt_name, bkt_name)
 
