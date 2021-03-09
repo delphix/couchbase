@@ -95,7 +95,8 @@ def find_ids(source_connection, install_path):
     """ return the couchbase uid and gid"""
     std_out, std_err, exit_code = utilities.execute_bash(source_connection,
                                                              CommandFactory.get_ids(install_path))
-    ids = re.search(r".{11}\s\d\s([\d]+)\s([\d]+).*", std_out)
+    logger.debug("find ids output: {}".format(std_out))
+    ids = re.search(r"[-rwx.]+\s\d\s([\d]+)\s([\d]+).*", std_out)
     if ids:
         uid = int(ids.group(1))
         gid = int(ids.group(2))
@@ -109,6 +110,7 @@ def find_whoami(source_connection):
     """ return the user env id"""
     std_out, std_err, exit_code = utilities.execute_bash(source_connection,
                                                              CommandFactory.whoami())
+    logger.debug("find whoami output: {}".format(std_out))
     ids = re.search(r"uid=([\d]+).*gid=([\d]+)", std_out)
     if ids:
         uid = int(ids.group(1))
