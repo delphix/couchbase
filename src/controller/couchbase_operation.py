@@ -303,7 +303,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
             hostname = self.connection.environment.host.name
 
         cmd = CommandFactory.get_indexes_name(hostname, port, user)
-        logger.debug("env detail is : ".format(env))
+        logger.debug("command for indexes is : {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
         logger.debug("Indexes are {}".format(command_output))
         indexes_raw = json.loads(command_output)

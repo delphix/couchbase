@@ -16,7 +16,7 @@ from controller.resource_builder import Resource
 from controller.helper_lib import delete_file
 from db_commands import constants
 from internal_exceptions.base_exceptions import PluginException, DatabaseException, GenericUserError
-from internal_exceptions.plugin_exceptions import MountPathError
+from internal_exceptions.plugin_exceptions import MountPathError, MultipleSnapSyncError
 from operations import link_cbbkpmgr, link_xdcr
 
 logger = logging.getLogger(__name__)
@@ -115,9 +115,9 @@ def check_mount_path(staged_source, repository):
     snapsync_filename = mount_path_check.create_config_dir() + "/" + db_commands.constants.LOCK_SNAPSYNC_OPERATION
     sync_filename = mount_path_check.create_config_dir() + "/" + db_commands.constants.LOCK_SYNC_OPERATION
     if helper_lib.check_file_present(staged_source.staged_connection, snapsync_filename) :
-        raise MountPathError("Another Snap-Sync process is in progress ").to_user_error(), None, sys.exc_info()[2]
+        raise MultipleSnapSyncError("Another Snap-Sync process is in progress ", snapsync_filename).to_user_error()
     if helper_lib.check_file_present(staged_source.staged_connection, sync_filename):
-        raise MountPathError("Another Sync process is in progress ").to_user_error(), None, sys.exc_info()[2]
+        raise MultipleSnapSyncError("Another Sync process is in progress ", sync_filename).to_user_error()
     return True
 
 

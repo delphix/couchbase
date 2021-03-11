@@ -34,6 +34,10 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     config.SYNC_FILE_NAME = config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type, dsource_name)
 
 
+    # TODO:
+    # add a check if cluster is already configured and if staging is configured - raise an expection
+
+
     if not verify_sync_lock_file_for_this_job(rx_connection, config.SYNC_FILE_NAME):
         config.SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED = False
         logger.debug("Sync file is already created by other dSource")
