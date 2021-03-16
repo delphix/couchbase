@@ -147,6 +147,7 @@ class _ReplicationMixin(Resource, MixinInterface):
         env = _ReplicationMixin.generate_environment_map(self)
         cmd = CommandFactory.get_replication_uuid(**env)
         try:
+            logger.debug("check duplicate replication cmd: {}".format(cmd))
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
             all_clusters = re.findall(r'cluster name:.*', stdout)
             stream_id, cluster = self.get_stream_id()

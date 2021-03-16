@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def resync_xdcr(staged_source, repository, source_config, input_parameters):
+    logger.debug("START resync_xdcr")
     dsource_type = input_parameters.d_source_type
     dsource_name = source_config.pretty_name
     bucket_size = staged_source.parameters.bucket_size
@@ -34,9 +35,11 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     config.SYNC_FILE_NAME = config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type, dsource_name)
 
 
-    # TODO:
-    # add a check if cluster is already configured and if staging is configured - raise an expection
-
+    delphix_config_dir = resync_process.get_config_directory()
+    logger.debug("Check if we have config dir in Delphix storage")
+    if not helper_lib.check_dir_present(rx_connection, delphix_config_dir):
+        logger.debug("make a Delphix storage dir {}".format(delphix_config_dir))
+        resync_process.make_directory(delphix_config_dir)
 
     if not verify_sync_lock_file_for_this_job(rx_connection, config.SYNC_FILE_NAME):
         config.SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED = False
@@ -48,9 +51,37 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
                                                                                             input_parameters.couchbase_host)
         helper_lib.write_file(rx_connection, msg, config.SYNC_FILE_NAME)
 
-    resync_process.restart_couchbase()
-    resync_process.node_init()
-    resync_process.cluster_init()
+    # TODO:
+    # add a check if cluster is already configured and if staging is configured - raise an expection
+
+    logger.debug("Checking cluster config")
+    if resync_process.check_config():
+        logger.debug("cluster config found - restoring")
+        resync_process.stop_couchbase()
+        resync_process.restore_config()
+        resync_process.start_couchbase()
+    else:
+        logger.debug("cluster config not found - preparing node")
+        # no config in delphix directory
+        # initial cluster setup
+        resync_process.restart_couchbase()
+        # check if cluster not configured and raise an issue
+        if resync_process.check_cluster_notconfigured():
+            logger.debug("Node not configured - creating a new cluster")
+            resync_process.node_init()
+            resync_process.cluster_init()
+        else:
+            logger.debug("Node configured but no configuration in Delphix - ???????")
+            if resync_process.check_cluster_configured():
+                logger.debug("Configured with staging user/password and alive so not a problem - continue")
+            else:
+                logger.debug("Cluster configured but not with user/password given in Delphix potentially another snapshot")
+                #TODO
+                #add nice user exception
+                raise Exception
+
+    
+
     already_set_up_done, name_conflict = resync_process.check_duplicate_replication(
         resync_process.parameters.stg_cluster_name)
     if already_set_up_done:
@@ -160,6 +191,8 @@ def post_snapshot_xdcr(staged_source, repository, source_config, dsource_type):
         Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
             source_config).build())
 
+
+    post_snapshot_process.save_config()
     post_snapshot_process.start_couchbase()
     snapshot = SnapshotDefinition(validate=False)
     bucket_details = post_snapshot_process.bucket_list()
@@ -198,6 +231,10 @@ def start_staging_xdcr(staged_source, repository, source_config):
     logger.debug("Enabling the D_SOURCE:{}".format(source_config.pretty_name))
     dsource_type = staged_source.parameters.d_source_type
     rx_connection = staged_source.staged_connection
+
+    start_staging.delete_config()
+    # TODO error handling
+    start_staging.restore_config()
     start_staging.start_couchbase()
 
     already_set_up_done, name_conflict = start_staging.check_duplicate_replication(
@@ -248,6 +285,8 @@ def stop_staging_xdcr(staged_source, repository, source_config):
                            config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type,
                                                                                  source_config.pretty_name))
     stop_staging.stop_couchbase()
+    stop_staging.save_config()
+    stop_staging.delete_config()
     logger.debug("D_SOURCE:{} disabled".format(source_config.pretty_name))
 
 

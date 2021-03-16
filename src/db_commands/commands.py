@@ -198,6 +198,15 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def cluster_check(shell_path, hostname, port, username):
+        return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
+            shell_path=shell_path,
+            hostname=hostname,
+            port=port,
+            username=username
+        )
+
+    @staticmethod
     def xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name):
         return "{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --create --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-password $password --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,

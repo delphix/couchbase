@@ -123,6 +123,9 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
     resync_process.stop_couchbase()
 
 def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parameters):
+
+    #logger.info("Do nothing version  Couchbase")
+
     pre_snapshot_process = CouchbaseOperation(
         Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
             source_config).build())
@@ -245,9 +248,10 @@ def post_snapshot_cbbkpmgr(staged_source, repository, source_config, dsource_typ
     logger.debug("Deleting the lock files")
     helper_lib.delete_file(rx_connection, config.SNAP_SYNC_FILE_NAME)
     helper_lib.delete_file(rx_connection, config.SYNC_FILE_NAME)
-    post_snapshot_process.stop_couchbase()
-    helper_lib.unmount_file_system(rx_connection, staged_source.parameters.mount_path)
-    logger.debug("Un mounting completed")
+    # for Prox investigation
+    #post_snapshot_process.stop_couchbase()
+    #helper_lib.unmount_file_system(rx_connection, staged_source.parameters.mount_path)
+    #logger.debug("Un mounting completed")
     return snapshot
 
 

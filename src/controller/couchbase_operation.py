@@ -67,7 +67,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         helper_lib.sleepForSecond(10)
 
         #Waiting for one minute to start the server
-        end_time = time.time() + 60
+        # for prox to investigate
+        end_time = time.time() + 3660
 
         #break the loop either end_time is exceeding from 1 minute or server is successfully started
         while time.time() < end_time and server_status == Status.INACTIVE:
@@ -341,6 +342,54 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         logger.debug("save init cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
+
+    def check_cluster_notconfigured(self):
+
+        logger.debug("check_cluster")
+        port = self.parameters.couchbase_port
+        hostname = self.connection.environment.host.name
+        cb_shell = self.repository.cb_shell_path
+        env = {ENV_VAR_KEY: {'password': 'notuse'}}
+        cmd = CommandFactory.cluster_check(cb_shell, hostname, port, 'notuse')
+        logger.debug("check cluster cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=self.ignore_err, **env)
+
+        if "unknown pool" in command_output:
+            return True
+        else:
+            return False
+
+
+    def check_cluster_configured(self):
+
+        logger.debug("check_cluster configured")
+        port = self.parameters.couchbase_port
+        hostname = self.connection.environment.host.name
+        cb_shell = self.repository.cb_shell_path
+        user = self.parameters.couchbase_admin
+        env = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        cmd = CommandFactory.cluster_check(cb_shell, hostname, port, user)
+        logger.debug("check cluster cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=self.ignore_err, **env)
+
+        if "healthy active" in command_output:
+            return True
+        else:
+            return False
+
+
+
+    def check_config(self):
+
+        filename = os.path.join(self.get_config_directory(),"config.dat")
+        cmd = CommandFactory.check_file(filename)
+        logger.debug("check file cmd: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=self.ignore_err) 
+
+        if exit_code == 0 and "Found" in command_output: 
+            return True
+        else:
+            return False  
 
     def restore_config(self):
 
