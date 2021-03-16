@@ -57,8 +57,11 @@ class OSCommand(object):
         return "cat {filename}".format(filename=filename)
 
     @staticmethod
-    def check_file(file_path):
-        return "[ -f {file_path} ] && echo 'Found'".format(file_path=file_path)
+    def check_file(file_path, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} [ -f {file_path} ] && echo 'Found'".format(file_path=file_path, uid=uid)
+        else:
+            return "[ -f {file_path} ] && echo 'Found'".format(file_path=file_path)
 
     @staticmethod
     def write_file(filename, data):
@@ -69,20 +72,29 @@ class OSCommand(object):
         return "hostname -i"
 
     @staticmethod
-    def check_directory(dir_path):
-        return "[ -d {dir_path} ] && echo 'Found'".format(dir_path=dir_path)
+    def check_directory(dir_path, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} [ -d {dir_path} ] && echo 'Found'".format(dir_path=dir_path, uid=uid)
+        else:
+            return "[ -d {dir_path} ] && echo 'Found'".format(dir_path=dir_path)
 
     @staticmethod
     def delete_file(filename):
         return "rm  -f  {filename}".format(filename=filename)
 
     @staticmethod
-    def delete_dir(dirname):
-        return "rm  -rf  {dirname}".format(dirname=dirname)
+    def delete_dir(dirname, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} rm  -rf  {dirname}".format(dirname=dirname, uid=uid)
+        else:
+            return "rm  -rf  {dirname}".format(dirname=dirname)
 
     @staticmethod
-    def os_mv(srcname, trgname):
-        return "mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname)
+    def os_mv(srcname, trgname, sudo=False, uid=None):
+        if sudo:
+            return "sudo -u \#{uid} mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
+        else:
+            return "mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname)
 
     @staticmethod
     def os_cp(srcname, trgname, sudo=False, uid=None):
@@ -106,8 +118,11 @@ class OSCommand(object):
 
 
     @staticmethod
-    def sed(filename, regex):
-        return 'sed -i -e "{}" {}'.format(regex, filename)
+    def sed(filename, regex, sudo=False, uid=None):
+        if sudo:
+            return 'sudo -u \#{uid} sed -i -e "{regex}" {filename}'.format(regex=regex, filename=filename, uid=uid)
+        else:
+            return 'sed -i -e "{}" {}'.format(regex, filename)
 
 
     @staticmethod

@@ -418,26 +418,28 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         # error handling
 
         filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
         
-        cmd = CommandFactory.check_file(filename)
+        cmd = CommandFactory.check_file(filename, need_sudo, self.repository.uid)
         logger.debug("check file cmd: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=self.ignore_err) 
 
         if exit_code == 0 and "Found" in command_output: 
-            cmd = CommandFactory.os_mv(filename, "{}.bak".format(filename))
+            cmd = CommandFactory.os_mv(filename, "{}.bak".format(filename), need_sudo, self.repository.uid)
             logger.debug("rename config cmd: {}".format(cmd))
             command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
         filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        cmd = CommandFactory.sed(filename, 's/view_index_dir.*//')
+        cmd = CommandFactory.sed(filename, 's/view_index_dir.*//', need_sudo, self.repository.uid)
         logger.debug("sed config cmd: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
-        cmd = CommandFactory.sed(filename, 's/database_dir.*//')
+        cmd = CommandFactory.sed(filename, 's/database_dir.*//', need_sudo, self.repository.uid)
         logger.debug("sed config cmd: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
-        cmd = CommandFactory.change_permission(filename)
+        cmd = CommandFactory.change_permission(filename, need_sudo, self.repository.uid)
         logger.debug("chmod config cmd: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
         
