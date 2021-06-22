@@ -190,7 +190,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         logger.debug("Source Bucket Information {}".format(bucket_list_dict))
         return bucket_list_dict
 
-    def source_bucket_list_offline(self, filename):
+    def source_bucket_list_offline(self):
         """
         This function will be used in CB backup manager. It will return the same output as by
         source_bucket_list method. To avoid source/production server dependency this function will be used.
@@ -213,8 +213,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
             else:
                 return ''
 
-        logger.debug(
-            "Reading bucket list information of source server from {} ".format(filename))
 
         logger.debug(self.parameters.couchbase_bak_loc)
         logger.debug(self.parameters.couchbase_bak_repo)

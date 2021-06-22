@@ -77,6 +77,8 @@ def vdb_configure(virtual_source, snapshot, repository):
     provision_process.delete_config()
 
 
+    provision_process.restore_config()
+
     # if bucket doesn't existing in target cluster 
     # couchbase will delete directory while starting 
     # so we have to rename it before start
@@ -90,19 +92,19 @@ def vdb_configure(virtual_source, snapshot, repository):
 
 
 
-    for item in helper_lib.filter_bucket_name_from_output(bucket_list_and_size):
-        logger.debug("Checking bucket: {}".format(item))
-        bucket_name = item.split(',')[0]
-        # rename folder
-        provision_process.move_bucket(bucket_name, 'save')
+    # for item in helper_lib.filter_bucket_name_from_output(bucket_list_and_size):
+    #     logger.debug("Checking bucket: {}".format(item))
+    #     bucket_name = item.split(',')[0]
+    #     # rename folder
+    #     provision_process.move_bucket(bucket_name, 'save')
 
     provision_process.restart_couchbase()
-    provision_process.node_init()
-    provision_process.cluster_init()
+    #provision_process.node_init()
+    #provision_process.cluster_init()
     _do_provision(provision_process, snapshot)
     #_cleanup(provision_process, snapshot)
 
-    _build_indexes(provision_process, snapshot)
+    #_build_indexes(provision_process, snapshot)
 
     src_cfg_obj = _source_config(virtual_source, repository, None, snapshot)
 

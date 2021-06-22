@@ -19,102 +19,35 @@ from controller.resource_builder import Resource
 from generated.definitions import SnapshotDefinition
 from internal_exceptions.plugin_exceptions import MultipleSyncError, MultipleSnapSyncError
 from operations import config
+from operations import linking
 
 logger = logging.getLogger(__name__)
 
 
 def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
     dsource_type = input_parameters.d_source_type
+    dsource_name = source_config.pretty_name
+    couchbase_host = input_parameters.couchbase_host
     bucket_size = staged_source.parameters.bucket_size
     rx_connection = staged_source.staged_connection
     resync_process = CouchbaseOperation(
         Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
             source_config).build())
 
-    config_dir = resync_process.create_config_dir()
-    config.SYNC_FILE_NAME = config_dir + "/" + get_sync_lock_file_name(dsource_type, source_config.pretty_name)
-    src_bucket_info_filename = db_commands.constants.SRC_BUCKET_INFO_FILENAME
-    src_bucket_info_filename = os.path.dirname(config_dir) + "/" + src_bucket_info_filename
-    logger.debug("src_bucket_info_filename = {}".format(src_bucket_info_filename))
 
-    if helper_lib.check_file_present(rx_connection, config.SYNC_FILE_NAME):
-        logger.debug("Sync file is already created by other process")
-        config.SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED = False
-        raise MultipleSyncError("Sync file is already created by other process")
-    else:
-        # creating sync  file
-        msg = db_commands.constants.RESYNCE_OR_SNAPSYNC_FOR_OTHER_OBJECT_IN_PROGRESS.format(source_config.pretty_name,
-                                                                                            input_parameters.couchbase_host)
-        helper_lib.write_file(rx_connection, msg, config.SYNC_FILE_NAME)
+    linking.check_for_concurrent(resync_process, dsource_type, dsource_name, couchbase_host)
 
-    resync_process.restart_couchbase()
-    resync_process.node_init()
-    resync_process.cluster_init()
+    # validate if this works as well for backup
+    linking.configure_cluster(resync_process)
+
+
     logger.debug("Finding source and staging bucket list")
-    bucket_details_source = resync_process.source_bucket_list_offline(filename=src_bucket_info_filename)
+    bucket_details_source = resync_process.source_bucket_list_offline()
     bucket_details_staged = helper_lib.filter_bucket_name_from_output(resync_process.bucket_list())
 
-    config_setting = staged_source.parameters.config_settings_prov
-    logger.debug("Bucket names passed for configuration: {}".format(config_setting))
+    buckets_toprocess = linking.buckets_precreation(resync_process, bucket_details_source, bucket_details_staged)
 
-    bucket_configured_staged = []
-    if len(config_setting) > 0:
-        logger.debug("Getting bucket information from config")
-        for config_bucket in config_setting:
-            bucket_configured_staged.append(config_bucket["bucketName"])
-            logger.debug("Filtering bucket name with size only from above output")
-            bucket_dict = helper_lib.get_bucket_object(bucket_details_source, config_bucket["bucketName"])
-            bkt_name = bucket_dict['name']
-            bkt_size = bucket_dict['ram']
-            bkt_type = bucket_dict['bucketType']
-            bkt_compression = bucket_dict['compressionMode']
-            bkt_size_mb = get_bucket_size_in_MB(bucket_size, bkt_size)
-
-            if config_bucket["bucketName"] not in bucket_details_staged:
-                resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
-            else:
-                logger.debug("Bucket {} already present in staged environment. Recreating bucket ".format(
-                    config_bucket["bucketName"]))
-                resync_process.bucket_remove(config_bucket["bucketName"])
-                resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
-
-        logger.debug("Finding buckets present at staged server")
-        bucket_details_staged = resync_process.bucket_list()
-        filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
-        extra_bucket = list(set(filter_bucket_list) - set(bucket_configured_staged))
-
-        logger.debug("Extra bucket found to delete:{} ".format(extra_bucket))
-        for bucket in extra_bucket:
-            resync_process.bucket_remove(bucket)
-    else:
-        filter_source_bucket = helper_lib.filter_bucket_name_from_json(bucket_details_source)
-        logger.info("Creating the buckets")
-        for items in bucket_details_source:
-            if items:
-                logger.debug("Running bucket operations for {}".format(items))
-                bkt_name = items['name']
-                bkt_size = items['ram']
-                bkt_type = items['bucketType']
-                bkt_compression = items['compressionMode']
-                bkt_size_mb = get_bucket_size_in_MB(bucket_size, bkt_size)
-                if bkt_name not in bucket_details_staged:
-                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
-                else:
-                    logger.debug(
-                        "Bucket {} already present in staged environment. Recreating bucket ".format(bkt_name))
-                    resync_process.bucket_remove(bkt_name)
-                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
-
-        bucket_details_staged = resync_process.bucket_list()
-        filter_staged_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
-        extra_bucket = list(set(filter_staged_bucket) - set(filter_source_bucket))
-        logger.info("Extra bucket found to delete:{}".format(extra_bucket))
-        for bucket in extra_bucket:
-            resync_process.bucket_remove(bucket)
-
-    bucket_details_staged = resync_process.bucket_list()
-    filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
-    csv_bucket_list = ",".join(filter_bucket_list)
+    csv_bucket_list = ",".join(buckets_toprocess)
     logger.debug("Started CB backup manager")
     helper_lib.sleepForSecond(30)
     resync_process.cb_backup_full(csv_bucket_list)
@@ -124,6 +57,8 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
 
 def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parameters):
 
+
+    # this is for normal snapshot
     #logger.info("Do nothing version  Couchbase")
 
     pre_snapshot_process = CouchbaseOperation(

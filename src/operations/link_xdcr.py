@@ -18,6 +18,7 @@ from generated.definitions import SnapshotDefinition
 from internal_exceptions.database_exceptions import DuplicateClusterError
 from internal_exceptions.plugin_exceptions import MultipleSyncError, MultipleXDCRSyncError
 from operations import config
+from operations import linking
 
 logger = logging.getLogger(__name__)
 
@@ -31,54 +32,14 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     resync_process = CouchbaseOperation(
         Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
             source_config).build())
-    config_dir = resync_process.create_config_dir()
-    config.SYNC_FILE_NAME = config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type, dsource_name)
 
 
-    delphix_config_dir = resync_process.get_config_directory()
-    logger.debug("Check if we have config dir in Delphix storage")
-    if not helper_lib.check_dir_present(rx_connection, delphix_config_dir):
-        logger.debug("make a Delphix storage dir {}".format(delphix_config_dir))
-        resync_process.make_directory(delphix_config_dir)
+    couchbase_host = input_parameters.couchbase_host
 
-    if not verify_sync_lock_file_for_this_job(rx_connection, config.SYNC_FILE_NAME):
-        config.SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED = False
-        logger.debug("Sync file is already created by other dSource")
-        raise MultipleXDCRSyncError("Sync file is already created by other dSource")
-    else:
-        # creating sync  file
-        msg = db_commands.constants.RESYNCE_OR_SNAPSYNC_FOR_OTHER_OBJECT_IN_PROGRESS.format(dsource_name,
-                                                                                            input_parameters.couchbase_host)
-        helper_lib.write_file(rx_connection, msg, config.SYNC_FILE_NAME)
 
-    # TODO:
-    # add a check if cluster is already configured and if staging is configured - raise an expection
+    linking.check_for_concurrent(resync_process, dsource_type, dsource_name, couchbase_host)
 
-    logger.debug("Checking cluster config")
-    if resync_process.check_config():
-        logger.debug("cluster config found - restoring")
-        resync_process.stop_couchbase()
-        resync_process.restore_config()
-        resync_process.start_couchbase()
-    else:
-        logger.debug("cluster config not found - preparing node")
-        # no config in delphix directory
-        # initial cluster setup
-        resync_process.restart_couchbase()
-        # check if cluster not configured and raise an issue
-        if resync_process.check_cluster_notconfigured():
-            logger.debug("Node not configured - creating a new cluster")
-            resync_process.node_init()
-            resync_process.cluster_init()
-        else:
-            logger.debug("Node configured but no configuration in Delphix - ???????")
-            if resync_process.check_cluster_configured():
-                logger.debug("Configured with staging user/password and alive so not a problem - continue")
-            else:
-                logger.debug("Cluster configured but not with user/password given in Delphix potentially another snapshot")
-                #TODO
-                #add nice user exception
-                raise Exception
+    linking.configure_cluster(resync_process)
 
     
 
@@ -91,75 +52,24 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     else:
         logger.info("First time XDCR set up")
         resync_process.xdcr_setup()
+
+
     # common steps for both XDCR & CB back up
-    logger.debug("Finding source and staging bucket list")
+
     bucket_details_source = resync_process.source_bucket_list()
     bucket_details_staged = resync_process.bucket_list()
-    config_setting = staged_source.parameters.config_settings_prov
-    logger.debug("Bucket names passed for configuration: {}".format(config_setting))
-    bucket_configured_staged = []
-    if len(config_setting) > 0:
-        logger.debug("Getting bucket information from config")
-        for config_bucket in config_setting:
-            bucket_configured_staged.append(config_bucket["bucketName"])
-            logger.debug("Filtering bucket name with size only from above output")
-            bkt_name_size = helper_lib.get_bucket_name_with_size(bucket_details_source, config_bucket["bucketName"])
-            bkt_size_mb = helper_lib.get_bucket_size_in_MB(bucket_size, bkt_name_size.split(",")[1])
+    buckets_toprocess = linking.buckets_precreation(resync_process, bucket_details_source, bucket_details_staged)
 
-            if config_bucket["bucketName"] not in bucket_details_staged:
-                resync_process.bucket_create(config_bucket["bucketName"], bkt_size_mb)
-            else:
-                logger.debug("Bucket {} already present in staged environment. Recreating bucket ".format(
-                    config_bucket["bucketName"]))
-                resync_process.bucket_remove(config_bucket["bucketName"])
-                resync_process.bucket_create(config_bucket["bucketName"], bkt_size_mb)
-            resync_process.xdcr_replicate(config_bucket["bucketName"], config_bucket["bucketName"])
-
-        logger.debug("Finding buckets present at staged server")
-        bucket_details_staged = resync_process.bucket_list()
-        filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
-        extra_bucket = list(set(filter_bucket_list) - set(bucket_configured_staged))
-
-        logger.debug("Extra bucket found to delete:{} ".format(extra_bucket))
-        for bucket in extra_bucket:
-            resync_process.bucket_remove(bucket)
-    else:
-        # logger.debug("Finding buckets present at staged server with size")
-        # all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
-        # logger.debug("Filtering bucket name with size only from above output")
-
-        filter_source_bucket = helper_lib.filter_bucket_name_from_json(bucket_details_source)
-        for items in bucket_details_source:
-            if items:
-                logger.debug("Running bucket operations for {}".format(items))
-                bkt_name = items['name']
-                bkt_size = items['ram']
-                bkt_type = items['bucketType']
-                bkt_compression = items['compressionMode']
-
-                bkt_size_mb = helper_lib.get_bucket_size_in_MB(bucket_size, bkt_size)
-                if bkt_name not in bucket_details_staged:
-                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
-                else:
-                    logger.debug(
-                        "Bucket {} already present in staged environment. Recreating bucket ".format(bkt_name))
-                    resync_process.bucket_remove(bkt_name)
-                    resync_process.bucket_create(bkt_name, bkt_size_mb, bkt_type, bkt_compression)
-                resync_process.xdcr_replicate(bkt_name, bkt_name)
-
-        bucket_details_staged = resync_process.bucket_list()
-        filter_staged_bucket = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
-        extra_bucket = list(set(filter_staged_bucket) - set(filter_source_bucket))
-        logger.info("Extra bucket found to delete:{}".format(extra_bucket))
-        for bucket in extra_bucket:
-            resync_process.bucket_remove(bucket)
+    # run this for all buckets 
+    for bkt_name in buckets_toprocess:
+        resync_process.xdcr_replicate(bkt_name, bkt_name)        
 
     logger.debug("Finding staging_uuid & cluster_name on staging")
     staging_uuid, cluster_name_staging = resync_process.get_replication_uuid()
-    bucket_details_staged = resync_process.bucket_list()
-    logger.debug("Filtering bucket name from output")
-    filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
-    for bkt in filter_bucket_list:
+    # bucket_details_staged = resync_process.bucket_list()
+    # logger.debug("Filtering bucket name from output")
+    # filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
+    for bkt in buckets_toprocess:
         resync_process.monitor_bucket(bkt, staging_uuid)
 
     logger.info("Stopping Couchbase")
@@ -183,6 +93,7 @@ def pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters
         helper_lib.write_file(staged_source.staged_connection, msg,  config.SNAP_SYNC_FILE_NAME)
     logger.info("Stopping Couchbase")
     pre_snapshot_process.stop_couchbase()
+    pre_snapshot_process.save_config()
 
 
 def post_snapshot_xdcr(staged_source, repository, source_config, dsource_type):
@@ -192,7 +103,7 @@ def post_snapshot_xdcr(staged_source, repository, source_config, dsource_type):
             source_config).build())
 
 
-    post_snapshot_process.save_config()
+    # post_snapshot_process.save_config()
     post_snapshot_process.start_couchbase()
     snapshot = SnapshotDefinition(validate=False)
     bucket_details = post_snapshot_process.bucket_list()
@@ -298,15 +209,4 @@ def d_source_status_xdcr(staged_source, repository, source_config):
     return status_obj.status()
 
 
-def verify_sync_lock_file_for_this_job(rx_connection, sync_filename):
-    if helper_lib.check_file_present(rx_connection, sync_filename):
-        logger.debug("Sync File Present: {}".format(sync_filename))
-        return True
-    config_dir = os.path.dirname(sync_filename)
 
-    possible_sync_filename = "/*" + db_commands.constants.LOCK_SYNC_OPERATION
-    possible_sync_filename = config_dir + possible_sync_filename
-    logger.debug("Checking for {}".format(possible_sync_filename))
-    if helper_lib.check_file_present(rx_connection, possible_sync_filename):
-        return False
-    return True
