@@ -456,6 +456,16 @@
         "items": [
           {"type": "string"}
         ]
+      },
+      "couchbaseAdmin": {
+        "type": "string",
+        "prettyName": "Source Couchbase Admin User",
+        "description": ""
+      },
+      "couchbaseAdminPassword": {
+        "type": "string",
+        "format": "password",
+        "prettyName": "Source Couchbase Admin Password"
       }
     }
   }

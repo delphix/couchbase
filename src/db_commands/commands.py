@@ -445,6 +445,13 @@ class DatabaseCommand(object):
             shell_path=shell_path, hostname=hostname, port=port, username=username
         )
 
+    @staticmethod
+    def rename_cluster(shell_path, hostname, port, username, newuser, newname):
+        return "{shell_path} setting-cluster --cluster {hostname}:{port} --username {username} --password $password --cluster-username {newuser} --cluster-password $newpass --cluster-name {newname}".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username,
+            newuser=newuser, newname=newname
+        )
+
 
 class CommandFactory(DatabaseCommand, OSCommand):
     def __init__(self):

@@ -74,6 +74,7 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
 
     logger.info("Stopping Couchbase")
     resync_process.stop_couchbase()
+    resync_process.save_config('parent')
 
 
 def pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters):
@@ -93,7 +94,7 @@ def pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters
         helper_lib.write_file(staged_source.staged_connection, msg,  config.SNAP_SYNC_FILE_NAME)
     logger.info("Stopping Couchbase")
     pre_snapshot_process.stop_couchbase()
-    pre_snapshot_process.save_config()
+    pre_snapshot_process.save_config('parent')
 
 
 def post_snapshot_xdcr(staged_source, repository, source_config, dsource_type):
@@ -128,6 +129,8 @@ def post_snapshot_xdcr(staged_source, repository, source_config, dsource_type):
     snapshot.bucket_list = json.dumps(bucket_details)
     snapshot.time_stamp = helper_lib.current_time()
     snapshot.snapshot_id = str(helper_lib.get_snapshot_id())
+    snapshot.couchbase_admin = post_snapshot_process.parameters.couchbase_admin
+    snapshot.couchbase_admin_password = post_snapshot_process.parameters.couchbase_admin_password
     logger.debug("snapshot schema: {}".format(snapshot))
     logger.debug("Deleting the snap sync lock file {}".format(config.SNAP_SYNC_FILE_NAME))
     helper_lib.delete_file(staged_source.staged_connection, config.SNAP_SYNC_FILE_NAME)
@@ -145,7 +148,7 @@ def start_staging_xdcr(staged_source, repository, source_config):
 
     start_staging.delete_config()
     # TODO error handling
-    start_staging.restore_config()
+    start_staging.restore_config(what='current')
     start_staging.start_couchbase()
 
     already_set_up_done, name_conflict = start_staging.check_duplicate_replication(
@@ -196,7 +199,7 @@ def stop_staging_xdcr(staged_source, repository, source_config):
                            config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type,
                                                                                  source_config.pretty_name))
     stop_staging.stop_couchbase()
-    stop_staging.save_config()
+    stop_staging.save_config(what='current')
     stop_staging.delete_config()
     logger.debug("D_SOURCE:{} disabled".format(source_config.pretty_name))
 

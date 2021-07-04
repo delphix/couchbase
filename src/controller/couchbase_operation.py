@@ -49,12 +49,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         # Initializing the parent class constructor
         super(CouchbaseOperation, self).__init__(builder)
 
-    def restart_couchbase(self):
+    def restart_couchbase(self, provision=False):
         """stop the couchbase service and then start again"""
         self.stop_couchbase()
-        self.start_couchbase()
+        self.start_couchbase(provision)
 
-    def start_couchbase(self):
+    def start_couchbase(self, provision=False):
         """ start the couchbase service"""
         logger.debug("Starting couchbase services")
         # check if we need sudo
@@ -73,7 +73,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         #break the loop either end_time is exceeding from 1 minute or server is successfully started
         while time.time() < end_time and server_status == Status.INACTIVE:
             helper_lib.sleepForSecond(1) # waiting for 1 second
-            server_status = self.status() # fetching status
+            logger.debug("A KUKU")
+            server_status = self.status(provision) # fetching status
+            logger.debug("server status {}".format(server_status))
 
         # if the server is not running even in 60 seconds, then stop the further execution
         if server_status == Status.INACTIVE:
@@ -103,14 +105,28 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                 raise CouchbaseServicesError(err.message)
 
 
-    def status(self):
+    def status(self, provision=False):
         """Check the server status. Healthy or Warmup could be one status if the server is running"""
+        
+        logger.debug("checking status")
         try:
-            command = CommandFactory.server_info(self.repository.cb_shell_path, self.connection.environment.host.name,
-                                                 self.parameters.couchbase_port, self.parameters.couchbase_admin)
 
-            kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+            if provision==True:
+                username = self.snapshot.couchbase_admin
+                kwargs = {ENV_VAR_KEY: {'password': self.snapshot.couchbase_admin_password}}
+
+            else:
+                kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+                username = self.parameters.couchbase_admin
+
+            command = CommandFactory.server_info(self.repository.cb_shell_path, self.connection.environment.host.name,
+                                                 self.parameters.couchbase_port, username)
+
+            logger.debug("Status command {}".format(command))
+            
             server_info, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+
+            #logger.debug("Status output: {}".format(server_info))
 
             status = helper_lib.get_value_of_key_from_json(server_info, 'status')
             if status.strip() == StatusIsActive:
@@ -120,6 +136,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                 logger.debug("Server status is:  {}".format("INACTIVE"))
                 return Status.INACTIVE
         except Exception as error:
+            # TODO
+            # rewrite it 
+            logger.debug("Exception: {}".format(str(error)))
             if re.search("Unable to connect to host at", error.message):
                 logger.debug("Couchbase service is not running")
             return Status.INACTIVE
@@ -321,22 +340,41 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         return command_output
 
 
-    def save_config(self):
+    def save_config(self, what):
 
         # TODO
         # Error handling
 
         targetdir = self.get_config_directory()
+        if what == 'parent':
+            target_config_filename = os.path.join(targetdir,"config_parent.dat")
+            target_local_filename = os.path.join(targetdir,"local_parent.ini")
+            target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_parent")
+        else:
+            target_config_filename = os.path.join(targetdir,"config_current.dat")
+            target_local_filename = os.path.join(targetdir,"local_current.ini")
+            target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_current")
+
+
+
         filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
 
         need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
 
-        cmd = CommandFactory.os_cp(filename, targetdir, need_sudo, self.repository.uid)
+        cmd = CommandFactory.os_cp(filename, target_config_filename, need_sudo, self.repository.uid)
         logger.debug("save config cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
+        filename = "{}/../var/lib/couchbase/config/encrypted_data_keys".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        cmd = CommandFactory.os_cp(filename, target_encryption_filename, need_sudo, self.repository.uid)
+        logger.debug("save config cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+
+
         filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        cmd = CommandFactory.os_cp(filename, targetdir, need_sudo, self.repository.uid)
+        cmd = CommandFactory.os_cp(filename, target_local_filename, need_sudo, self.repository.uid)
         logger.debug("save init cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
@@ -389,25 +427,52 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         else:
             return False  
 
-    def restore_config(self):
+    def restore_config(self, what):
 
         # TODO
         # Error handling
 
-        sourcefile = os.path.join(self.get_config_directory(),"config.dat")
-        targetfile = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        sourcedir = self.get_config_directory()
+        if what == 'parent':
+            source_config_file = os.path.join(sourcedir,"config_parent.dat")
+            source_local_filename = os.path.join(sourcedir,"local_parent.ini")
+            source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_parent")
+        else:
+            source_config_file = os.path.join(sourcedir,"config_current.dat")
+            source_local_filename = os.path.join(sourcedir,"local_current.ini")
+            source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_current")
 
+
+        targetfile = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
         need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
 
-        cmd = CommandFactory.os_cp(sourcefile, targetfile, need_sudo, self.repository.uid)
+        cmd = CommandFactory.os_cp(source_config_file, targetfile, need_sudo, self.repository.uid)
         logger.debug("restore config cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
-        sourcefile = os.path.join(self.get_config_directory(),"local.ini")
+        targetfile = "{}/../var/lib/couchbase/config/encrypted_data_keys".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        cmd = CommandFactory.os_cp(source_encryption_keys, targetfile, need_sudo, self.repository.uid)
+        logger.debug("restore config cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+
         targetfile = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        cmd = CommandFactory.os_cp(sourcefile, targetfile, need_sudo, self.repository.uid)
+        cmd = CommandFactory.os_cp(source_local_filename, targetfile, need_sudo, self.repository.uid)
         logger.debug("restore init cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        if what == 'parent':
+            #local.ini needs to have a proper entry 
+            filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+            newpath = "{}/data".format(self.parameters.mount_path)
+            cmd = CommandFactory.sed(filename, 's|view_index_dir.*|view_index_dir={}|'.format(newpath), need_sudo, self.repository.uid)
+            logger.debug("sed config cmd: {}".format(cmd))
+            command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+            cmd = CommandFactory.sed(filename, 's|database_dir.*|database_dir={}|'.format(newpath), need_sudo, self.repository.uid)
+            logger.debug("sed config cmd: {}".format(cmd))
+            command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+        
 
 
     def delete_config(self):
@@ -444,6 +509,30 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
     def ignore_err(self, input):
         return True
+
+
+    def rename_cluster(self):
+        """Rename cluster based on user entries"""
+        try:
+            command = CommandFactory.rename_cluster(self.repository.cb_shell_path, 
+                                                    self.connection.environment.host.name,
+                                                    self.parameters.couchbase_port, 
+                                                    self.snapshot.couchbase_admin,
+                                                    self.parameters.couchbase_admin,
+                                                    self.parameters.tgt_cluster_name)
+            logger.debug("Rename command is {}".format(command))
+            kwargs = {
+                ENV_VAR_KEY: {
+                    'password': self.snapshot.couchbase_admin_password,
+                    'newpass': self.parameters.couchbase_admin_password
+                }
+            }
+            server_info, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+            logger.debug(server_info)
+
+        except Exception as error:
+            # add error handling
+            raise
 
 
 if __name__ == "__main__":

@@ -56,7 +56,7 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
         Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
             source_config).build())
 
-    provision_process.restore_config()
+    provision_process.restore_config(what='current')
 
     vdb_start(virtual_source, repository, source_config)
     return _source_config(virtual_source, repository, source_config, snapshot)
@@ -64,9 +64,15 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
 
 def vdb_configure(virtual_source, snapshot, repository):
     # try:
+
+    logger.debug("VDB CONFIG START")
+    logger.debug(snapshot)
+
     provision_process = CouchbaseOperation(
         Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_snapshot(
             snapshot).build())
+
+
 
 
 
@@ -77,7 +83,7 @@ def vdb_configure(virtual_source, snapshot, repository):
     provision_process.delete_config()
 
 
-    provision_process.restore_config()
+    provision_process.restore_config(what='parent')
 
     # if bucket doesn't existing in target cluster 
     # couchbase will delete directory while starting 
@@ -98,10 +104,13 @@ def vdb_configure(virtual_source, snapshot, repository):
     #     # rename folder
     #     provision_process.move_bucket(bucket_name, 'save')
 
-    provision_process.restart_couchbase()
+    provision_process.restart_couchbase(provision=True)
+    provision_process.rename_cluster()
     #provision_process.node_init()
     #provision_process.cluster_init()
-    _do_provision(provision_process, snapshot)
+    
+    
+    #_do_provision(provision_process, snapshot)
     #_cleanup(provision_process, snapshot)
 
     #_build_indexes(provision_process, snapshot)
@@ -115,6 +124,7 @@ def vdb_configure(virtual_source, snapshot, repository):
     # except Exception as err:
     #     logger.debug("Provision is failed {}".format(err.message))
     #     raise
+
 
 
 def _do_provision(provision_process, snapshot):
@@ -272,7 +282,8 @@ def vdb_pre_snapshot(virtual_source, repository, source_config):
         Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
             source_config).build())
 
-    provision_process.save_config()
+    provision_process.save_config(what='parent')
+    provision_process.save_config(what='current')
 
 
 def post_snapshot(virtual_source, repository, source_config):
@@ -298,6 +309,10 @@ def post_snapshot(virtual_source, repository, source_config):
         snapshot_id = str(helper_lib.get_snapshot_id())
         snapshot = SnapshotDefinition(db_path=db_path, couchbase_port=couchbase_port, couchbase_host=couchbase_host,
                                       bucket_list=bucket_details, time_stamp=time_stamp, snapshot_id=snapshot_id, indexes = ind)
+
+        snapshot.couchbase_admin = provision_process.parameters.couchbase_admin
+        snapshot.couchbase_admin_password = provision_process.parameters.couchbase_admin_password
+                              
         logger.info("snapshot schema: {}".format(snapshot))
         return snapshot
     except Exception as err:
