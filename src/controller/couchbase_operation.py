@@ -326,8 +326,28 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         logger.debug("Indexes are {}".format(command_output))
         indexes_raw = json.loads(command_output)
         indexes = []
-        for i in indexes_raw['indexes']:
-            indexes.append(i['definition'].replace('defer_build":true','defer_build":false'))
+
+        logger.debug("dSource type for indexes: {}".format(self.parameters.d_source_type))
+
+        if self.parameters.d_source_type == constants.CBBKPMGR:
+            logger.debug("Only build for backup ingestion")
+
+            buckets = {}
+            for i in indexes_raw['indexes']:
+                if i['bucket'] in buckets:
+                    buckets[i['bucket']].append(i['indexName'])
+                else:
+                    buckets[i['bucket']] = [ i['indexName'] ]
+
+            for buc, ind in buckets.items():
+                ind_def = 'build index on `{}` (`{}`)'.format(buc, '`,`'.join(ind))
+                indexes.append(ind_def)
+
+        else:
+            # full definition for replication
+
+            for i in indexes_raw['indexes']:
+                indexes.append(i['definition'].replace('defer_build":true','defer_build":false'))
         return indexes
 
     # Defined for future updates
@@ -336,8 +356,35 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         cmd = CommandFactory.build_index(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),self.connection.environment.host.name, self.parameters.couchbase_port, self.parameters.couchbase_admin, index_def)
         logger.debug("building index cmd: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
-        logger.debug("command_output is ".format(command_output))
+        logger.debug("command_output is {}".format(command_output))
         return command_output
+
+
+    def check_index_build(self):
+        env = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        cmd = CommandFactory.check_index_build(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),self.connection.environment.host.name, self.parameters.couchbase_port, self.parameters.couchbase_admin)
+        logger.debug("check_index_build cmd: {}".format(cmd))
+
+        end_time = time.time() + 3660
+
+        tobuild = 1
+
+        #break the loop either end_time is exceeding from 1 minute or server is successfully started
+        while time.time() < end_time and tobuild <> 0:
+            command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, **env)
+            logger.debug("command_output is {}".format(command_output))
+            logger.debug("std_err is {}".format(std_err))
+            logger.debug("exit_code is {}".format(exit_code))
+            try:
+                command_output_dict = json.loads(command_output)
+                logger.debug("dict {}".format(command_output_dict))
+                tobuild = command_output_dict['results'][0]['unbuilt']
+                logger.debug("to_build is {}".format(tobuild))
+                helper_lib.sleepForSecond(30) # waiting for 1 second
+            except Exception as e:
+                logger.debug(str(e))
+
+
 
 
     def save_config(self, what):

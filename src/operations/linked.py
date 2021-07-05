@@ -30,6 +30,7 @@ def resync(staged_source, repository, source_config, input_parameters):
         elif input_parameters.d_source_type == constants.XDCR:
             link_xdcr.resync_xdcr(staged_source, repository, source_config, input_parameters)
     except Exception as ex_obj:
+        logger.debug(str(ex_obj))
         logger.debug("Caught exception {}".format(ex_obj.message))
         _cleanup_in_exception_case(staged_source.staged_connection, True, False)
         if input_parameters.d_source_type == constants.CBBKPMGR:

@@ -52,6 +52,8 @@ def resync_cbbkpmgr(staged_source, repository, source_config, input_parameters):
     helper_lib.sleepForSecond(30)
     resync_process.cb_backup_full(csv_bucket_list)
     helper_lib.sleepForSecond(30)
+
+    linking.build_indexes(resync_process)
     logger.info("Stopping Couchbase")
     resync_process.stop_couchbase()
     resync_process.save_config('parent')

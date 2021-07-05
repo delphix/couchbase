@@ -297,8 +297,13 @@ def post_snapshot(virtual_source, repository, source_config):
         # stdout, stderr, exit_code = helper_lib.read_file(virtual_source.connection, config_file)
         # bucket_list = re.sub('BUCKET_LIST=', '', stdout)
 
-        ind = provision_process.get_indexes_definition()
-        logger.debug("indexes definition : {}".format(ind))
+        ind = []
+
+        #ind = provision_process.get_indexes_definition()
+        #logger.debug("indexes definition : {}".format(ind))
+
+
+
 
         bucket_details = json.dumps(provision_process.bucket_list())
         logger.debug("BUCKET_LIST={}".format(bucket_details))

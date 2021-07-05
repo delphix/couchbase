@@ -151,3 +151,17 @@ def verify_sync_lock_file_for_this_job(rx_connection, sync_filename):
     if helper_lib.check_file_present(rx_connection, possible_sync_filename):
         return False
     return True
+
+
+def build_indexes(couchbase_obj):
+    logger.debug("index builder")
+
+    ind = couchbase_obj.get_indexes_definition()
+    logger.debug("indexes definition : {}".format(ind))
+
+
+    for i in ind:
+        logger.debug(i)
+        couchbase_obj.build_index(i)
+
+    couchbase_obj.check_index_build()

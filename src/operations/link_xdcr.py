@@ -72,6 +72,9 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     for bkt in buckets_toprocess:
         resync_process.monitor_bucket(bkt, staging_uuid)
 
+
+    linking.build_indexes(resync_process)
+
     logger.info("Stopping Couchbase")
     resync_process.stop_couchbase()
     resync_process.save_config('parent')

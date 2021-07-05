@@ -53,16 +53,16 @@ class _ClusterMixin(Resource, MixinInterface):
         # Cluster initialization
         logger.debug("Cluster Initialization started")
         fts_service = self.parameters.fts_service
-        analytics_service = self.parameters.analytics_service
+        #analytics_service = self.parameters.analytics_service
         eventing_service = self.parameters.eventing_service
         cluster_name = self._get_cluster_name()
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         additional_service = "query"
-        if fts_service:
+        if fts_service == True:
             additional_service = additional_service + ",fts"
-        if analytics_service:
-            additional_service = additional_service + ",analytics"
-        if eventing_service:
+        # if analytics_service:
+        #     additional_service = additional_service + ",analytics"
+        if eventing_service  == True:
             additional_service = additional_service + ",eventing"
 
         logger.debug("additional services : {}".format(additional_service))

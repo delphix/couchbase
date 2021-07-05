@@ -37,11 +37,26 @@ class _CBBackupMixin(Resource, MixinInterface):
     def cb_backup_full(self, csv_bucket):
         logger.debug("Starting Restore via Backup file...")
         logger.debug("csv_bucket_list: {}".format(csv_bucket))
+
+        skip = '--disable-analytics'
+
+        if self.parameters.fts_service != True:
+            skip = skip + ' {} {} '.format('--disable-ft-indexes','--disable-ft-alias')
+
+        if self.parameters.eventing_service != True:
+            skip = skip + ' {} '.format('--disable-eventing')
+
+
+        logger.debug("skip backup is set to: {}".format(skip))
+
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         env = _CBBackupMixin.generate_environment_map(self)
         need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
         cmd = CommandFactory.cb_backup_full(backup_location=self.parameters.couchbase_bak_loc,
                                             csv_bucket_list=csv_bucket,
-                                            backup_repo=self.parameters.couchbase_bak_repo, need_sudo=need_sudo, uid=self.repository.uid, **env)
+                                            backup_repo=self.parameters.couchbase_bak_repo, 
+                                            need_sudo=need_sudo, uid=self.repository.uid, 
+                                            skip=skip,
+                                            **env)
         logger.debug("Backup restore: {}".format(cmd))
         utilities.execute_bash(self.connection, cmd, **kwargs)
