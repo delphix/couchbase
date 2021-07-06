@@ -30,6 +30,7 @@ def resync(staged_source, repository, source_config, input_parameters):
         elif input_parameters.d_source_type == constants.XDCR:
             link_xdcr.resync_xdcr(staged_source, repository, source_config, input_parameters)
     except Exception as ex_obj:
+        logger.debug(str(ex_obj))
         logger.debug("Caught exception {}".format(ex_obj.message))
         _cleanup_in_exception_case(staged_source.staged_connection, True, False)
         if input_parameters.d_source_type == constants.CBBKPMGR:
@@ -42,20 +43,20 @@ def resync(staged_source, repository, source_config, input_parameters):
 
 def pre_snapshot(staged_source, repository, source_config, input_parameters):
     logger.info("In Pre snapshot...")
-    try:
-        if input_parameters.d_source_type == constants.CBBKPMGR:
-            link_cbbkpmgr.pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parameters)
-        elif input_parameters.d_source_type == constants.XDCR:
-            link_xdcr.pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters)
-    except Exception as ex_obj:
-        logger.debug("Caught exception: {}".format(ex_obj.message))
-        _cleanup_in_exception_case(staged_source.staged_connection, True, True)
-        if input_parameters.d_source_type == constants.CBBKPMGR:
-            link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
-        if isinstance(ex_obj, PluginException) or isinstance(ex_obj, DatabaseException) or isinstance(ex_obj, GenericUserError):
-            raise ex_obj.to_user_error(), None, sys.exc_info()[2]
-        raise
-    logger.debug("Completed Pre-snapshot")
+    # try:
+    if input_parameters.d_source_type == constants.CBBKPMGR:
+        link_cbbkpmgr.pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parameters)
+    elif input_parameters.d_source_type == constants.XDCR:
+        link_xdcr.pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters)
+    # except Exception as ex_obj:
+    #     logger.debug("Caught exception: {}".format(ex_obj.message))
+    #     _cleanup_in_exception_case(staged_source.staged_connection, True, True)
+    #     if input_parameters.d_source_type == constants.CBBKPMGR:
+    #         link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
+    #     if isinstance(ex_obj, PluginException) or isinstance(ex_obj, DatabaseException) or isinstance(ex_obj, GenericUserError):
+    #         raise ex_obj.to_user_error(), None, sys.exc_info()[2]
+    #     raise
+    # logger.debug("Completed Pre-snapshot")
 
 
 def post_snapshot(staged_source, repository, source_config, dsource_type):

@@ -279,8 +279,9 @@ def get_bucketlist_to_namesize_list(bucket_output, bucket_list):
 
 def sleepForSecond(sec):
     # Sleep/Pause the execution for given seconds
+    logger.debug("sleeping for {}".format(sec))
     time.sleep(sec)
-
+    logger.debug("sleeping is over")
 
 
 def current_time():

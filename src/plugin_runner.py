@@ -81,6 +81,7 @@ def start_staging(staged_source, repository, source_config):
     linked.start_staging(staged_source, repository, source_config)
 
 
+
 @plugin.virtual.configure()
 def configure(virtual_source, snapshot, repository):
     return virtual.vdb_configure(virtual_source, snapshot, repository)

@@ -400,15 +400,16 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def is_build_completed(base_path, hostname, port, username, index):
-        return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=\"SELECT COUNT(*) as unbuilt FROM system:indexes WHERE keyspace_id ={index} AND state <> 'online'".format(
-            base_path=base_path, hostname=hostname, port=port, username=username, index=index
+    def check_index_build(base_path, hostname, port, username):
+        return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=\"SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'\"".format(
+            base_path=base_path, hostname=hostname, port=port, username=username
         )
 
     @staticmethod
-    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, need_sudo=False, uid=None):
+    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, need_sudo=False, uid=None, skip=''):
         if need_sudo:
-            return "sudo -u \#{uid} {base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password --force-updates --no-progress-bar --include-buckets {csv_bucket_list}".format(
+            return "sudo -u \#{uid} {base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password \
+                    --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}".format(
                 base_path=base_path,
                 backup_location=backup_location,
                 backup_repo=backup_repo,
@@ -416,17 +417,20 @@ class DatabaseCommand(object):
                 port=port,
                 username=username,
                 csv_bucket_list=csv_bucket_list,
-                uid=uid
+                uid=uid,
+                skip=skip
             )
         else:
-            return "{base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password --force-updates --no-progress-bar --include-buckets {csv_bucket_list}".format(
+            return "{base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password \
+                    --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}".format(
                 base_path=base_path,
                 backup_location=backup_location,
                 backup_repo=backup_repo,
                 hostname=hostname,
                 port=port,
                 username=username,
-                csv_bucket_list=csv_bucket_list
+                csv_bucket_list=csv_bucket_list,
+                skip=skip
             )
 
     @staticmethod
@@ -443,6 +447,13 @@ class DatabaseCommand(object):
     def server_info(shell_path, hostname, port, username):
         return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username
+        )
+
+    @staticmethod
+    def rename_cluster(shell_path, hostname, port, username, newuser, newname):
+        return "{shell_path} setting-cluster --cluster {hostname}:{port} --username {username} --password $password --cluster-username {newuser} --cluster-password $newpass --cluster-name {newname}".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username,
+            newuser=newuser, newname=newname
         )
 
 
