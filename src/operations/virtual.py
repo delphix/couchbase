@@ -208,6 +208,9 @@ def vdb_configure(virtual_source, snapshot, repository):
 
     nodeno = 1
 
+
+    logger.debug("MAIN CONNECTION HOST: {}".format(provision_process.connection.environment.host.name))
+
     if provision_process.parameters.node_list is not None and len(provision_process.parameters.node_list) > 0:
         for node in provision_process.parameters.node_list:
             nodeno = nodeno + 1
@@ -219,7 +222,8 @@ def vdb_configure(virtual_source, snapshot, repository):
                 Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_snapshot(
                     snapshot).build())
             addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
-            addnode.addnode(nodeno)
+            logger.debug("ADDITIONAL CONNECTION HOST: {}".format(addnode.connection.environment.host.name))
+            addnode.addnode(nodeno, node)
             # TODO
             # FINISH HERE
             # addnode.delete_config()

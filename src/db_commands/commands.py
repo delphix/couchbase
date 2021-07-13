@@ -468,6 +468,22 @@ class DatabaseCommand(object):
         )
 
 
+    @staticmethod
+    def server_add(shell_path, hostname, port, username, newhost, services):
+        return "{shell_path} server-add --cluster {hostname}:{port} --username {username} --password $password \
+            --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password $password \
+            --services {services}".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username, services=services, newhost=newhost
+        )
+
+
+    @staticmethod
+    def rebalance(shell_path, hostname, port, username):
+        return "{shell_path} rebalance --cluster {hostname}:{port} --username {username} --password $password \
+            --no-progress-bar".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username
+        )
+
 class CommandFactory(DatabaseCommand, OSCommand):
     def __init__(self):
         DatabaseCommand.__init__(self)

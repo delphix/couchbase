@@ -695,17 +695,78 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
             raise
 
 
+    def start_node_bootstrap(self):
+        self.start_couchbase(no_wait=True)
+        end_time = time.time() + 3660
+        server_status = Status.INACTIVE
 
-    def addnode(self, nodeno):
+        #break the loop either end_time is exceeding from 1 minute or server is successfully started
+        while time.time() < end_time and server_status<>Status.ACTIVE:
+            helper_lib.sleepForSecond(1) # waiting for 1 second
+            server_status = self.staging_bootstrap_status() # fetching status
+            logger.debug("server status {}".format(server_status))
+
+
+
+    def addnode(self, nodeno, node_def):
         logger.debug("Adding a node")
 
+
+        self.delete_config()
+
+        self.start_node_bootstrap()
 
         self.node_init(nodeno)
 
 
+        helper_lib.sleepForSecond(10)
+
+        services = [ 'data', 'index' ]
+
+        if "fts_service" in node_def and node_def["fts_service"] == True:
+            services.append('fts')
+
+        if "eventing_service" in node_def and node_def["eventing_service"] == True:
+            services.append('eventing')
+
+        if "analytics_service" in node_def and node_def["analytics_service"] == True:
+            services.append('analytics')
+
+        logger.debug("services to add: {}".format(services))
+
+
+        hostip_command = CommandFactory.get_ip_of_hostname()
+        logger.debug("host ip command: {}".format(hostip_command))
+        host_ip_output, std_err, exit_code = utilities.execute_bash(self.connection, hostip_command)
+        logger.debug("host ip Output {} ".format(host_ip_output))
+
+        
+
+        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        command = CommandFactory.server_add(self.repository.cb_shell_path, 
+                                            self.connection.environment.host.name,
+                                            self.parameters.couchbase_port, 
+                                            self.parameters.couchbase_admin, 
+                                            host_ip_output,
+                                            ','.join(services))
+        logger.debug("add node command: {}".format(command))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("Command Output {} ".format(command_output))
+
+        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        command = CommandFactory.rebalance(self.repository.cb_shell_path, 
+                                            self.connection.environment.host.name,
+                                            self.parameters.couchbase_port, 
+                                            self.parameters.couchbase_admin)
+        logger.debug("rebalancd command: {}".format(command))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("Command Output {} ".format(command_output))
+
+        
+
         # /opt/couchbase/bin/couchbase-cli node-init -c marcincoucheetgt2.dcol1.delphix.com:8091 -u slon -p slonslon -d --node-init-data-path /mnt/provision/slonik/data2 --node-init-index-path /mnt/provision/slonik/data2 --node-init-analytics-path /mnt/provision/slonik/data2 --node-init-eventing-path /mnt/provision/slonik/data2
         # /opt/couchbase/bin/couchbase-cli server-add -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon -d --server-add http://marcincoucheetgt2.dcol1.delphix.com:8091 --server-add-username slon --server-add-password slonslon --services data,analytics
-        # opt/couchbase/bin/couchbase-cli rebalance -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon
+        # /opt/couchbase/bin/couchbase-cli rebalance -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon --no-progress-bar
 
 
 if __name__ == "__main__":
