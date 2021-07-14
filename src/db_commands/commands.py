@@ -221,6 +221,17 @@ class DatabaseCommand(object):
             username=username
         )
 
+
+    @staticmethod
+    def cluster_check(shell_path, hostname, port, username):
+        return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
+            shell_path=shell_path,
+            hostname=hostname,
+            port=port,
+            username=username
+        )
+
+
     @staticmethod
     def xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name):
         return "{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --create --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-password $password --xdcr-cluster-name {cluster_name}".format(
@@ -321,15 +332,15 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def get_status(shell_path, hostname, port, username):
-        return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password".format(
+    def get_server_list(shell_path, hostname, port, username):
+        return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username
         )
 
     @staticmethod
-    def node_init(shell_path, port, username, mount_path):
-        return "{shell_path} node-init  --cluster 127.0.0.1:{port} --username {username} --password $password --node-init-data-path {mount_path}/data  --node-init-index-path {mount_path}/data --node-init-analytics-path {mount_path}/data  --node-init-hostname 127.0.0.1".format(
-            shell_path=shell_path, port=port, username=username, mount_path=mount_path
+    def node_init(shell_path, port, username, data_path):
+        return "{shell_path} node-init  --cluster 127.0.0.1:{port} --username {username} --password $password --node-init-data-path {data_path}  --node-init-index-path {data_path} --node-init-analytics-path {data_path}  --node-init-hostname 127.0.0.1".format(
+            shell_path=shell_path, port=port, username=username, data_path=data_path
         )
 
     @staticmethod
@@ -456,6 +467,22 @@ class DatabaseCommand(object):
             newuser=newuser, newname=newname
         )
 
+
+    @staticmethod
+    def server_add(shell_path, hostname, port, username, newhost, services):
+        return "{shell_path} server-add --cluster {hostname}:{port} --username {username} --password $password \
+            --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password $password \
+            --services {services}".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username, services=services, newhost=newhost
+        )
+
+
+    @staticmethod
+    def rebalance(shell_path, hostname, port, username):
+        return "{shell_path} rebalance --cluster {hostname}:{port} --username {username} --password $password \
+            --no-progress-bar".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username
+        )
 
 class CommandFactory(DatabaseCommand, OSCommand):
     def __init__(self):

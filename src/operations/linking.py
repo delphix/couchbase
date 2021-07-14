@@ -8,6 +8,7 @@
 import logging
 import os
 import json
+import time
 
 from dlpx.virtualization.platform import Status
 
@@ -60,12 +61,26 @@ def configure_cluster(couchbase_obj):
         logger.debug("cluster config not found - preparing node")
         # no config in delphix directory
         # initial cluster setup
-        couchbase_obj.restart_couchbase()
+        couchbase_obj.stop_couchbase()
+        # we can't use normal monitor as server is not configured yet 
+        couchbase_obj.start_couchbase(no_wait=True)
+
+        end_time = time.time() + 3660
+
+        server_status = Status.INACTIVE
+
+        #break the loop either end_time is exceeding from 1 minute or server is successfully started
+        while time.time() < end_time and server_status<>Status.ACTIVE:
+            helper_lib.sleepForSecond(1) # waiting for 1 second
+            server_status = couchbase_obj.staging_bootstrap_status() # fetching status
+            logger.debug("server status {}".format(server_status))
+
         # check if cluster not configured and raise an issue
         if couchbase_obj.check_cluster_notconfigured():
             logger.debug("Node not configured - creating a new cluster")
             couchbase_obj.node_init()
             couchbase_obj.cluster_init()
+            logger.debug("Cluster configured")
         else:
             logger.debug("Node configured but no configuration in Delphix - ???????")
             if couchbase_obj.check_cluster_configured():
@@ -165,3 +180,6 @@ def build_indexes(couchbase_obj):
         couchbase_obj.build_index(i)
 
     couchbase_obj.check_index_build()
+
+
+

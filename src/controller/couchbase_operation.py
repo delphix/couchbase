@@ -54,7 +54,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         self.stop_couchbase()
         self.start_couchbase(provision)
 
-    def start_couchbase(self, provision=False):
+    def start_couchbase(self, provision=False, no_wait=False):
         """ start the couchbase service"""
         logger.debug("Starting couchbase services")
         # check if we need sudo
@@ -66,6 +66,10 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
         helper_lib.sleepForSecond(10)
 
+        if no_wait:
+            logger.debug("no wait - leaving start procedure")
+            return
+
         #Waiting for one minute to start the server
         # for prox to investigate
         end_time = time.time() + 3660
@@ -73,7 +77,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         #break the loop either end_time is exceeding from 1 minute or server is successfully started
         while time.time() < end_time and server_status == Status.INACTIVE:
             helper_lib.sleepForSecond(1) # waiting for 1 second
-            logger.debug("A KUKU")
             server_status = self.status(provision) # fetching status
             logger.debug("server status {}".format(server_status))
 
@@ -94,21 +97,78 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
             while time.time() < end_time and server_status == Status.ACTIVE:
                 helper_lib.sleepForSecond(1)  # waiting for 1 second
                 server_status = self.status()  # fetching status
+
+
+            logger.debug("Leaving stop loop")    
             if server_status == Status.ACTIVE:
+                logger.debug("Have failed to stop couchbase server")  
                 raise CouchbaseServicesError("Have failed to stop couchbase server")
         except CouchbaseServicesError as err:
+            logger.debug("Error: {}".format(err))  
             raise err
         except Exception as err:
+            logger.debug("Exception Error: {}".format(err)) 
             if self.status() == Status.INACTIVE:
                 logger.debug("Seems like couchbase service is not running. {}".format(err.message))
             else:
                 raise CouchbaseServicesError(err.message)
 
 
+    def ip_file_name(self):
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        ip_file = "{}/../var/lib/couchbase/ip".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+        check_file_command = CommandFactory.check_file(ip_file, sudo=need_sudo, uid=self.repository.uid)
+        check_ip_file, check_ip_file_err, exit_code = utilities.execute_bash(self.connection, check_file_command, callback_func=self.ignore_err)
+
+        if not (exit_code == 0 and "Found" in check_ip_file): 
+            ip_file = "{}/../var/lib/couchbase/ip_start".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+
+        logger.debug("IP file is {}".format(ip_file))
+        return ip_file
+
+
+    def staging_bootstrap_status(self):
+        logger.debug("staging_bootstrap_status")
+
+        try:
+
+
+            kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+            username = self.parameters.couchbase_admin
+
+
+            command = CommandFactory.server_info(self.repository.cb_shell_path, '127.0.0.1',
+                                                 self.parameters.couchbase_port, username)
+            logger.debug("Status command {}".format(command))
+            server_info, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+
+            #logger.debug("Status output: {}".format(server_info))
+            
+            status = helper_lib.get_value_of_key_from_json(server_info, 'status')
+            if status.strip() == StatusIsActive:
+                logger.debug("Server status is:  {}".format("ACTIVE"))
+                return Status.ACTIVE
+            else:
+                logger.debug("Server status is:  {}".format("INACTIVE"))
+                return Status.INACTIVE
+            
+            
+
+        except Exception as error:
+            # TODO
+            # rewrite it 
+            logger.debug("Exception: {}".format(str(error)))
+            if re.search("Unable to connect to host at", error.message):
+                logger.debug("Couchbase service is not running")
+            return Status.INACTIVE
+
     def status(self, provision=False):
         """Check the server status. Healthy or Warmup could be one status if the server is running"""
         
         logger.debug("checking status")
+        logger.debug(self.connection)
         try:
 
             if provision==True:
@@ -119,22 +179,36 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                 kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
                 username = self.parameters.couchbase_admin
 
-            command = CommandFactory.server_info(self.repository.cb_shell_path, self.connection.environment.host.name,
-                                                 self.parameters.couchbase_port, username)
 
+            need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+            ip_file = self.ip_file_name()
+
+            read_file_command = CommandFactory.cat(ip_file, sudo=need_sudo, uid=self.repository.uid)
+            logger.debug("read file command {}".format(read_file_command))
+
+            read_ip_file, std_err, exit_code = utilities.execute_bash(self.connection, read_file_command, **kwargs)
+            logger.debug("read file {}".format(read_ip_file))
+
+            command = CommandFactory.get_server_list(self.repository.cb_shell_path, '127.0.0.1',
+                                                 self.parameters.couchbase_port, username)
             logger.debug("Status command {}".format(command))
-            
             server_info, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
 
             #logger.debug("Status output: {}".format(server_info))
 
-            status = helper_lib.get_value_of_key_from_json(server_info, 'status')
-            if status.strip() == StatusIsActive:
-                logger.debug("Server status is:  {}".format("ACTIVE"))
-                return Status.ACTIVE
-            else:
-                logger.debug("Server status is:  {}".format("INACTIVE"))
-                return Status.INACTIVE
+            #status = helper_lib.get_value_of_key_from_json(server_info, 'status')
+            
+            for line in server_info.split("\n"):
+                logger.debug("Checking line: {}".format(line))
+                if read_ip_file in line:
+                    logger.debug("Checking IP: {}".format(read_ip_file))
+                    if "healthy" in line:
+                        logger.debug("We have healthy active node")
+                        return Status.ACTIVE
+            
+            
+            return Status.INACTIVE
+
         except Exception as error:
             # TODO
             # rewrite it 
@@ -270,15 +344,16 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         logger.debug("Bucket search output: {}".format(bucket_list_dict))
         return bucket_list_dict
 
-    def node_init(self):
+    def node_init(self, nodeno=1):
         """
         This method initializes couchbase server node. Where user sets different required paths
         :return: None
         """
         logger.debug("Initializing the NODE")
+
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         command = CommandFactory.node_init(self.repository.cb_shell_path, self.parameters.couchbase_port,
-                                           self.parameters.couchbase_admin, self.parameters.mount_path)
+                                           self.parameters.couchbase_admin, "{}/data_{}".format(self.parameters.mount_path, nodeno))
         logger.debug("Node init: {}".format(command))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
         logger.debug("Command Output {} ".format(command_output))
@@ -387,22 +462,31 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
 
 
-    def save_config(self, what):
+    def save_config(self, what, nodeno=1):
 
         # TODO
         # Error handling
 
         targetdir = self.get_config_directory()
-        if what == 'parent':
-            target_config_filename = os.path.join(targetdir,"config_parent.dat")
-            target_local_filename = os.path.join(targetdir,"local_parent.ini")
-            target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_parent")
+        # if what == 'parent':
+        #     target_config_filename = os.path.join(targetdir,"config_parent.dat")
+        #     target_local_filename = os.path.join(targetdir,"local_parent.ini")
+        #     target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_parent")
+        # else:
+        #     target_config_filename = os.path.join(targetdir,"config_current.dat")
+        #     target_local_filename = os.path.join(targetdir,"local_current.ini")
+        #     target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_current")
+
+
+        target_config_filename = os.path.join(targetdir,"config.dat_{}".format(nodeno))
+        target_local_filename = os.path.join(targetdir,"local.ini_{}".format(nodeno))
+        target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_{}".format(nodeno))
+
+        ip_file = self.ip_file_name()
+        if "start" in ip_file:
+            target_ip_filename = os.path.join(targetdir,"ip_start_{}".format(nodeno))
         else:
-            target_config_filename = os.path.join(targetdir,"config_current.dat")
-            target_local_filename = os.path.join(targetdir,"local_current.ini")
-            target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_current")
-
-
+            target_ip_filename = os.path.join(targetdir,"ip_{}".format(nodeno))
 
         filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
 
@@ -415,15 +499,20 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
         filename = "{}/../var/lib/couchbase/config/encrypted_data_keys".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
         cmd = CommandFactory.os_cp(filename, target_encryption_filename, need_sudo, self.repository.uid)
-        logger.debug("save config cp: {}".format(cmd))
+        logger.debug("save encrypted_data_keys cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
-
+        
+        cmd = CommandFactory.os_cp(ip_file, target_ip_filename, need_sudo, self.repository.uid)
+        logger.debug("save ip cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
         filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
         cmd = CommandFactory.os_cp(filename, target_local_filename, need_sudo, self.repository.uid)
         logger.debug("save init cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+
 
 
     def check_cluster_notconfigured(self):
@@ -474,24 +563,43 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         else:
             return False  
 
-    def restore_config(self, what):
+    def restore_config(self, what, nodeno=1):
 
         # TODO
         # Error handling
 
         sourcedir = self.get_config_directory()
-        if what == 'parent':
-            source_config_file = os.path.join(sourcedir,"config_parent.dat")
-            source_local_filename = os.path.join(sourcedir,"local_parent.ini")
-            source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_parent")
-        else:
-            source_config_file = os.path.join(sourcedir,"config_current.dat")
-            source_local_filename = os.path.join(sourcedir,"local_current.ini")
-            source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_current")
+        # if what == 'parent':
+        #     source_config_file = os.path.join(sourcedir,"config_parent.dat")
+        #     source_local_filename = os.path.join(sourcedir,"local_parent.ini")
+        #     source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_parent")
+        # else:
+        #     source_config_file = os.path.join(sourcedir,"config_current.dat")
+        #     source_local_filename = os.path.join(sourcedir,"local_current.ini")
+        #     source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_current")
 
+
+
+        source_config_file = os.path.join(sourcedir,"config.dat_{}".format(nodeno))
+        source_local_filename = os.path.join(sourcedir,"local.ini_{}".format(nodeno))
+        source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_{}".format(nodeno))
+
+        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        source_ip_file = os.path.join(sourcedir,"ip_{}".format(nodeno))
+        target_ip_file = "{}/../var/lib/couchbase/ip".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+        check_file_command = CommandFactory.check_file(source_ip_file, sudo=need_sudo, uid=self.repository.uid)
+        check_ip_file, check_ip_file_err, exit_code = utilities.execute_bash(self.connection, check_file_command, callback_func=self.ignore_err)
+
+        if not (exit_code == 0 and "Found" in check_ip_file): 
+            source_ip_file = os.path.join(sourcedir,"ip_start_{}".format(nodeno))
+            target_ip_file = "{}/../var/lib/couchbase/ip_start".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+
+        logger.debug("IP file is {}".format(source_ip_file))
+
+        ip_filename = os.path.join(sourcedir,"ip_{}".format(source_ip_file))
 
         targetfile = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
 
         cmd = CommandFactory.os_cp(source_config_file, targetfile, need_sudo, self.repository.uid)
         logger.debug("restore config cp: {}".format(cmd))
@@ -499,7 +607,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
         targetfile = "{}/../var/lib/couchbase/config/encrypted_data_keys".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
         cmd = CommandFactory.os_cp(source_encryption_keys, targetfile, need_sudo, self.repository.uid)
-        logger.debug("restore config cp: {}".format(cmd))
+        logger.debug("restore encrypted_data_keys cp: {}".format(cmd))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
+        
+        cmd = CommandFactory.os_cp(source_ip_file, target_ip_file, need_sudo, self.repository.uid)
+        logger.debug("restore ip cp: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
 
@@ -511,7 +624,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         if what == 'parent':
             #local.ini needs to have a proper entry 
             filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-            newpath = "{}/data".format(self.parameters.mount_path)
+            newpath = "{}/data_{}".format(self.parameters.mount_path, nodeno)
             cmd = CommandFactory.sed(filename, 's|view_index_dir.*|view_index_dir={}|'.format(newpath), need_sudo, self.repository.uid)
             logger.debug("sed config cmd: {}".format(cmd))
             command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
@@ -580,6 +693,80 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
         except Exception as error:
             # add error handling
             raise
+
+
+    def start_node_bootstrap(self):
+        self.start_couchbase(no_wait=True)
+        end_time = time.time() + 3660
+        server_status = Status.INACTIVE
+
+        #break the loop either end_time is exceeding from 1 minute or server is successfully started
+        while time.time() < end_time and server_status<>Status.ACTIVE:
+            helper_lib.sleepForSecond(1) # waiting for 1 second
+            server_status = self.staging_bootstrap_status() # fetching status
+            logger.debug("server status {}".format(server_status))
+
+
+
+    def addnode(self, nodeno, node_def):
+        logger.debug("Adding a node")
+
+
+        self.delete_config()
+
+        self.start_node_bootstrap()
+
+        self.node_init(nodeno)
+
+
+        helper_lib.sleepForSecond(10)
+
+        services = [ 'data', 'index' ]
+
+        if "fts_service" in node_def and node_def["fts_service"] == True:
+            services.append('fts')
+
+        if "eventing_service" in node_def and node_def["eventing_service"] == True:
+            services.append('eventing')
+
+        if "analytics_service" in node_def and node_def["analytics_service"] == True:
+            services.append('analytics')
+
+        logger.debug("services to add: {}".format(services))
+
+
+        hostip_command = CommandFactory.get_ip_of_hostname()
+        logger.debug("host ip command: {}".format(hostip_command))
+        host_ip_output, std_err, exit_code = utilities.execute_bash(self.connection, hostip_command)
+        logger.debug("host ip Output {} ".format(host_ip_output))
+
+        
+
+        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        command = CommandFactory.server_add(self.repository.cb_shell_path, 
+                                            self.connection.environment.host.name,
+                                            self.parameters.couchbase_port, 
+                                            self.parameters.couchbase_admin, 
+                                            host_ip_output,
+                                            ','.join(services))
+        logger.debug("add node command: {}".format(command))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("Command Output {} ".format(command_output))
+
+        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        command = CommandFactory.rebalance(self.repository.cb_shell_path, 
+                                            self.connection.environment.host.name,
+                                            self.parameters.couchbase_port, 
+                                            self.parameters.couchbase_admin)
+        logger.debug("rebalancd command: {}".format(command))
+        command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("Command Output {} ".format(command_output))
+
+        
+
+        # /opt/couchbase/bin/couchbase-cli node-init -c marcincoucheetgt2.dcol1.delphix.com:8091 -u slon -p slonslon -d --node-init-data-path /mnt/provision/slonik/data2 --node-init-index-path /mnt/provision/slonik/data2 --node-init-analytics-path /mnt/provision/slonik/data2 --node-init-eventing-path /mnt/provision/slonik/data2
+        # /opt/couchbase/bin/couchbase-cli server-add -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon -d --server-add http://marcincoucheetgt2.dcol1.delphix.com:8091 --server-add-username slon --server-add-password slonslon --services data,analytics
+        # /opt/couchbase/bin/couchbase-cli rebalance -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon --no-progress-bar
 
 
 if __name__ == "__main__":

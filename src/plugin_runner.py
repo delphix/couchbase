@@ -9,6 +9,10 @@ from operations import discovery, linked, virtual
 from utils import setup_logger
 from db_commands.constants import EVICTION_POLICY
 import logging
+from dlpx.virtualization.common import RemoteEnvironment
+from dlpx.virtualization.common import RemoteHost
+from dlpx.virtualization.common import RemoteUser
+from dlpx.virtualization.common import RemoteConnection
 
 
 plugin = Plugin()
@@ -119,11 +123,30 @@ def virtual_mount_specification(virtual_source, repository):
     logger.debug("Mounting path {}".format(mount_path))
     logger.debug("Setting ownership to uid {} and gid {}".format(repository.uid, repository.gid))
     ownership_spec = OwnershipSpecification(repository.uid, repository.gid)
+
+    logger.debug("in mounting: {}".format(str(virtual_source.parameters.node_list)))
+
+
+     
+    if virtual_source.parameters.node_list is not None and len(virtual_source.parameters.node_list) > 0:
+        # more nodes
+        for m in virtual_source.parameters.node_list:
+            logger.debug("in loop: {}".format(str(m)))
+            node_host = RemoteHost(name='foo',
+                                   reference=m["environment"].replace('_ENVIRONMENT', ''),
+                                   binary_path="",
+                                   scratch_path=""
+                                   )
+            e = RemoteEnvironment("foo", m["environment"], node_host )
+            mount = Mount(e, mount_path)
+            mounts.append(mount)
+
     return MountSpecification(mounts, ownership_spec)
 
 
 @plugin.virtual.status()
 def virtual_status(virtual_source, repository, source_config):
+    logger.debug("in status")
     return virtual.vdb_status(virtual_source, repository, source_config)
 
 
