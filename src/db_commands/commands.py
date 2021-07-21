@@ -14,20 +14,26 @@ so no need to create an object of the class, we can use the direct class name to
 #######################################################################################################################
 
 
+import inspect
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 class OSCommand(object):
     def __init__(self):
         pass
 
     @staticmethod
-    def find_binary_path():
+    def find_binary_path(**kwargs):
         return "echo $COUCHBASE_PATH"
 
     @staticmethod
-    def find_install_path(binary_path):
+    def find_install_path(binary_path, **kwargs):
         return "find {binary_path} -name couchbase-server".format(binary_path=binary_path)
 
     @staticmethod
-    def find_shell_path(binary_path):
+    def find_shell_path(binary_path, **kwargs):
         return "find {binary_path} -name couchbase-cli".format(binary_path=binary_path)
 
     @staticmethod
@@ -35,90 +41,94 @@ class OSCommand(object):
         return "ps -ef"
 
     @staticmethod
-    def make_directory(directory_path,sudo=False, uid=None):
+    def make_directory(directory_path,sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} mkdir -p {directory_path}".format(uid=uid, directory_path=directory_path)
         else:
             return "mkdir -p {directory_path}".format(directory_path=directory_path)
 
     @staticmethod
-    def change_permission(path,sudo=False, uid=None):
+    def change_permission(path,sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} chmod -R 775 {path}".format(uid=uid, path=path)
         else:
             return "chmod -R 775 {path}".format(path=path)
 
     @staticmethod
-    def get_config_directory(mount_path):
+    def get_config_directory(mount_path, **kwargs):
         return "{mount_path}/.delphix".format(mount_path=mount_path)
 
     @staticmethod
-    def read_file(filename):
+    def read_file(filename, **kwargs):
         return "cat {filename}".format(filename=filename)
 
     @staticmethod
-    def check_file(file_path, sudo=False, uid=None):
+    def check_file(file_path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} [ -f {file_path} ] && echo 'Found'".format(file_path=file_path, uid=uid)
         else:
             return "[ -f {file_path} ] && echo 'Found'".format(file_path=file_path)
 
     @staticmethod
-    def write_file(filename, data):
+    def write_file(filename, data, **kwargs):
         return "echo {data} > {filename}".format(filename=filename, data=data)
 
     @staticmethod
-    def get_ip_of_hostname():
+    def get_ip_of_hostname(**kwargs):
         return "hostname -i"
 
     @staticmethod
-    def check_directory(dir_path, sudo=False, uid=None):
+    def check_directory(dir_path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} [ -d {dir_path} ] && echo 'Found'".format(dir_path=dir_path, uid=uid)
         else:
             return "[ -d {dir_path} ] && echo 'Found'".format(dir_path=dir_path)
 
     @staticmethod
-    def delete_file(filename):
+    def delete_file(filename, **kwargs):
         return "rm  -f  {filename}".format(filename=filename)
 
     @staticmethod
-    def delete_dir(dirname, sudo=False, uid=None):
+    def delete_dir(dirname, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} rm  -rf  {dirname}".format(dirname=dirname, uid=uid)
         else:
             return "rm  -rf  {dirname}".format(dirname=dirname)
 
     @staticmethod
-    def os_mv(srcname, trgname, sudo=False, uid=None):
+    def os_mv(srcname, trgname, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
         else:
             return "mv {srcname} {trgname}".format(srcname=srcname, trgname=trgname)
 
     @staticmethod
-    def os_cp(srcname, trgname, sudo=False, uid=None):
+    def os_cp(srcname, trgname, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} cp {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
         else:
             return "cp {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
 
     @staticmethod
-    def get_dlpx_bin():
+    def get_dlpx_bin(**kwargs):
         return "echo $DLPX_BIN_JQ"
 
     @staticmethod
-    def unmount_file_system(mount_path):
-        return "sudo /bin/umount {mount_path}".format(mount_path=mount_path)
+    def unmount_file_system(mount_path, **kwargs):
+        if "options" in kwargs:
+            options = kwargs.pop('options')
+        else:
+            options = ""
+        return "sudo /bin/umount {options} {mount_path}".format(mount_path=mount_path, options=options)
 
     @staticmethod
-    def whoami():
+    def whoami(**kwargs):
         # uid=1003(delphix) gid=1003(delphix) groups=1003(delphix) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
         return "id"
 
 
     @staticmethod
-    def sed(filename, regex, sudo=False, uid=None):
+    def sed(filename, regex, sudo=False, uid=None, **kwargs):
         if sudo:
             return 'sudo -u \#{uid} sed -i -e "{regex}" {filename}'.format(regex=regex, filename=filename, uid=uid)
         else:
@@ -126,7 +136,7 @@ class OSCommand(object):
 
 
     @staticmethod
-    def cat(path, sudo=False, uid=None):
+    def cat(path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} cat {path}".format(
                 path=path, uid=uid
@@ -136,12 +146,20 @@ class OSCommand(object):
                 path=path
             )
 
+    @staticmethod
+    def df(mount_path, **kwargs):
+        return "df -h {mount_path}".format(mount_path=mount_path)
+
+    @staticmethod
+    def mount(**kwargs):
+        return "mount"
+
 class DatabaseCommand(object):
     def __init__(self):
         pass
 
     @staticmethod
-    def start_couchbase(install_path, sudo=False, uid=None):
+    def start_couchbase(install_path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{} {install_path} \-- -noinput -detached .".format(uid, install_path=install_path)
         else:
@@ -163,7 +181,7 @@ class DatabaseCommand(object):
             couchbase_base_dir=couchbase_base_dir)
 
     @staticmethod
-    def stop_couchbase(install_path, sudo=False, uid=None):
+    def stop_couchbase(install_path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{} {install_path} -k".format(uid, install_path=install_path)
         else:
@@ -180,7 +198,8 @@ class DatabaseCommand(object):
                      cluster_fts_ramsize,
                      cluster_eventing_ramsize,
                      cluster_analytics_ramsize,
-                     additional_services
+                     additional_services,
+                     **kwargs
                      ):
         return "{shell_path} cluster-init --cluster {hostname}:{port} --cluster-username {username} --cluster-password $password --cluster-ramsize {cluster_ramsize} --cluster-name {cluster_name} --cluster-index-ramsize {cluster_index_ramsize}  --cluster-fts-ramsize {cluster_fts_ramsize}  --cluster-eventing-ramsize {cluster_eventing_ramsize} --cluster-analytics-ramsize {cluster_analytics_ramsize} --services data,index,{additional_services}".format(
             shell_path=shell_path,
@@ -198,7 +217,7 @@ class DatabaseCommand(object):
 
     @staticmethod
     def cluster_setting(shell_path, hostname, port, username, cluster_ramsize, cluster_name, cluster_index_ramsize,
-                        cluster_fts_ramsize, cluster_eventing_ramsize, cluster_analytics_ramsize):
+                        cluster_fts_ramsize, cluster_eventing_ramsize, cluster_analytics_ramsize, **kwargs):
         return "{shell_path} setting-cluster -c {hostname}:{port} -u {username} -p $password --cluster-ramsize {cluster_ramsize} --cluster-name {cluster_name} --cluster-index-ramsize {cluster_index_ramsize} --cluster-fts-ramsize {cluster_fts_ramsize} --cluster-eventing-ramsize {cluster_eventing_ramsize} --cluster-analytics-ramsize {cluster_analytics_ramsize}".format(
             shell_path=shell_path,
             hostname=hostname,
@@ -212,28 +231,18 @@ class DatabaseCommand(object):
             cluster_analytics_ramsize=cluster_analytics_ramsize
         )
 
-    @staticmethod
-    def cluster_check(shell_path, hostname, port, username):
-        return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
-            shell_path=shell_path,
-            hostname=hostname,
-            port=port,
-            username=username
-        )
+    # @staticmethod
+    # def cluster_check(shell_path, hostname, port, username, **kwargs):
+    #     return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
+    #         shell_path=shell_path,
+    #         hostname=hostname,
+    #         port=port,
+    #         username=username
+    #     )
 
 
     @staticmethod
-    def cluster_check(shell_path, hostname, port, username):
-        return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
-            shell_path=shell_path,
-            hostname=hostname,
-            port=port,
-            username=username
-        )
-
-
-    @staticmethod
-    def xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name):
+    def xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name, **kwargs):
         return "{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --create --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-password $password --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -246,7 +255,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def xdcr_replicate(shell_path, source_hostname, source_port, source_username, source_bucket_name, target_bucket_name, cluster_name, hostname, port, username):
+    def xdcr_replicate(shell_path, source_hostname, source_port, source_username, source_bucket_name, target_bucket_name, cluster_name, hostname, port, username, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --create --xdcr-from-bucket {source_bucket_name} --xdcr-to-bucket {target_bucket_name} --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -258,7 +267,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def get_replication_uuid(shell_path, source_hostname, source_port, source_username):
+    def get_replication_uuid(shell_path, source_hostname, source_port, source_username, **kwargs):
         return "{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --list".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -267,7 +276,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def get_stream_id(shell_path, source_hostname, source_port, source_username, cluster_name):
+    def get_stream_id(shell_path, source_hostname, source_port, source_username, cluster_name, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --xdcr-cluster-name {cluster_name} --list".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -277,7 +286,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def pause_replication(shell_path, source_hostname, source_port, source_username, cluster_name, id):
+    def pause_replication(shell_path, source_hostname, source_port, source_username, cluster_name, id, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --xdcr-cluster-name {cluster_name} --pause --xdcr-replicator={id}".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -288,7 +297,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def resume_replication(shell_path, source_hostname, source_port, source_username, cluster_name, id):
+    def resume_replication(shell_path, source_hostname, source_port, source_username, cluster_name, id, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port}  --username {source_username} --password $source_password --xdcr-cluster-name {cluster_name} --resume --xdcr-replicator={id}".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -299,7 +308,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def delete_replication(shell_path, source_hostname, source_port, source_username, id, cluster_name):
+    def delete_replication(shell_path, source_hostname, source_port, source_username, id, cluster_name, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --delete --xdcr-replicator {id} --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -310,7 +319,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def xdcr_delete(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name):
+    def xdcr_delete(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name, **kwargs):
         return "{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --delete --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-password $password --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -323,7 +332,7 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def get_source_bucket_list(shell_path, source_hostname, source_port, source_username):
+    def get_source_bucket_list(shell_path, source_hostname, source_port, source_username, **kwargs):
         return "{shell_path} bucket-list --cluster {source_hostname}:{source_port} --username {source_username} --password $password -o json".format(
             shell_path=shell_path,
             source_hostname=source_hostname,
@@ -332,45 +341,45 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def get_server_list(shell_path, hostname, port, username):
+    def get_server_list(shell_path, hostname, port, username, **kwargs):
         return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username
         )
 
     @staticmethod
-    def node_init(shell_path, port, username, data_path):
+    def node_init(shell_path, port, username, data_path, **kwargs):
         return "{shell_path} node-init  --cluster 127.0.0.1:{port} --username {username} --password $password --node-init-data-path {data_path}  --node-init-index-path {data_path} --node-init-analytics-path {data_path}  --node-init-hostname 127.0.0.1".format(
             shell_path=shell_path, port=port, username=username, data_path=data_path
         )
 
     @staticmethod
-    def bucket_edit(shell_path, hostname, port, username, bucket_name, flush_value):
+    def bucket_edit(shell_path, hostname, port, username, bucket_name, flush_value, **kwargs):
         return "{shell_path} bucket-edit --cluster {hostname}:{port} --username {username} --password $password --bucket={bucket_name} --enable-flush {flush_value}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username, bucket_name=bucket_name,
             flush_value=flush_value
         )
 
     @staticmethod
-    def bucket_edit_ramquota(shell_path, hostname, port, username, bucket_name, ramsize):
+    def bucket_edit_ramquota(shell_path, hostname, port, username, bucket_name, ramsize, **kwargs):
         return "{shell_path} bucket-edit --cluster {hostname}:{port} --username {username} --password $password --bucket={bucket_name} --bucket-ramsize {ramsize}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username, bucket_name=bucket_name,
             ramsize=ramsize
         )
 
     @staticmethod
-    def bucket_delete(shell_path, hostname, port, username, bucket_name):
+    def bucket_delete(shell_path, hostname, port, username, bucket_name, **kwargs):
         return "{shell_path} bucket-delete --cluster {hostname}:{port} --username {username} --password $password  --bucket={bucket_name}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username, bucket_name=bucket_name
         )
 
     @staticmethod
-    def bucket_flush(shell_path, hostname, port, username, bucket_name):
+    def bucket_flush(shell_path, hostname, port, username, bucket_name, **kwargs):
         return "echo 'Yes' | {shell_path}  bucket-flush --cluster {hostname}:{port} --username {username} --password $password --bucket={bucket_name}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username, bucket_name=bucket_name
         )
 
     @staticmethod
-    def bucket_create(shell_path, hostname, port, username, bucket_name, ramsize, evictionpolicy, bucket_type, bucket_compression):
+    def bucket_create(shell_path, hostname, port, username, bucket_name, ramsize, evictionpolicy, bucket_type, bucket_compression, **kwargs):
         return "{shell_path} bucket-create --cluster 127.0.0.1:{port} --username {username} --password $password --bucket {bucket_name} --bucket-type {bucket_type} --bucket-ramsize {ramsize} --bucket-replica 0 --bucket-eviction-policy {evictionpolicy} {bucket_compression} --conflict-resolution sequence --wait".format(
             shell_path=shell_path, port=port, username=username,
             bucket_name=bucket_name, ramsize=ramsize, evictionpolicy=evictionpolicy,
@@ -378,19 +387,19 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def bucket_list(shell_path, hostname, port, username):
+    def bucket_list(shell_path, hostname, port, username, **kwargs):
         return "{shell_path} bucket-list --cluster {hostname}:{port} --username {username} --password $password -o json".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username,
         )
 
     @staticmethod
-    def get_indexes_name(hostname, port, username):
+    def get_indexes_name(hostname, port, username, **kwargs):
         return "curl {username}:$password@{hostname}:{port}/indexStatus".format(
             hostname=hostname, port=port, username=username
         )
 
     @staticmethod
-    def get_backup_bucket_list(path, sudo=False, uid=None):
+    def get_backup_bucket_list(path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} find {path} -name bucket-config.json".format(
                 path=path, uid=uid
@@ -405,19 +414,19 @@ class DatabaseCommand(object):
 
 
     @staticmethod
-    def build_index(base_path, hostname, port, username, index_def):
+    def build_index(base_path, hostname, port, username, index_def, **kwargs):
         return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s='{index_def}'".format(
             base_path=base_path, hostname=hostname, port=port, username=username, index_def=index_def
         )
 
     @staticmethod
-    def check_index_build(base_path, hostname, port, username):
+    def check_index_build(base_path, hostname, port, username, **kwargs):
         return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=\"SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'\"".format(
             base_path=base_path, hostname=hostname, port=port, username=username
         )
 
     @staticmethod
-    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, need_sudo=False, uid=None, skip=''):
+    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, need_sudo=False, uid=None, skip='', **kwargs):
         if need_sudo:
             return "sudo -u \#{uid} {base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password \
                     --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}".format(
@@ -445,7 +454,7 @@ class DatabaseCommand(object):
             )
 
     @staticmethod
-    def monitor_replication(source_username, source_hostname, source_port, bucket_name, uuid):
+    def monitor_replication(source_username, source_hostname, source_port, bucket_name, uuid, **kwargs):
         return "curl --silent -u {source_username}:$password http://{source_hostname}:{source_port}/pools/default/buckets/{bucket_name}/stats/replications%2F{uuid}%2F{bucket_name}%2F{bucket_name}%2Fchanges_left".format(
             source_username=source_username,
             source_hostname=source_hostname,
@@ -454,14 +463,21 @@ class DatabaseCommand(object):
             uuid=uuid,
         )
 
-    @staticmethod
-    def server_info(shell_path, hostname, port, username):
-        return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ".format(
-            shell_path=shell_path, hostname=hostname, port=port, username=username
-        )
+    # @staticmethod
+    # def couchbase_server_info(shell_path, hostname, port, username, **kwargs):
+    #     return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ".format(
+    #         shell_path=shell_path, hostname=hostname, port=port, username=username
+    #     )
 
     @staticmethod
-    def rename_cluster(shell_path, hostname, port, username, newuser, newname):
+    def couchbase_server_info(shell_path, hostname, username, port, **kwargs):
+        return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username
+        )
+        #return("{shell_path}".format(shell_path=shell_path))
+
+    @staticmethod
+    def rename_cluster(shell_path, hostname, port, username, newuser, newname, **kwargs):
         return "{shell_path} setting-cluster --cluster {hostname}:{port} --username {username} --password $password --cluster-username {newuser} --cluster-password $newpass --cluster-name {newname}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username,
             newuser=newuser, newname=newname
@@ -469,7 +485,7 @@ class DatabaseCommand(object):
 
 
     @staticmethod
-    def server_add(shell_path, hostname, port, username, newhost, services):
+    def server_add(shell_path, hostname, port, username, newhost, services, **kwargs):
         return "{shell_path} server-add --cluster {hostname}:{port} --username {username} --password $password \
             --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password $password \
             --services {services}".format(
@@ -478,7 +494,7 @@ class DatabaseCommand(object):
 
 
     @staticmethod
-    def rebalance(shell_path, hostname, port, username):
+    def rebalance(shell_path, hostname, port, username, **kwargs):
         return "{shell_path} rebalance --cluster {hostname}:{port} --username {username} --password $password \
             --no-progress-bar".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username
