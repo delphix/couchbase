@@ -13,6 +13,12 @@ from dlpx.virtualization.common import RemoteEnvironment
 from dlpx.virtualization.common import RemoteHost
 from dlpx.virtualization.common import RemoteUser
 from dlpx.virtualization.common import RemoteConnection
+from controller.helper_lib import check_stale_mountpoint
+from controller.helper_lib import clean_stale_mountpoint
+from controller.couchbase_operation import CouchbaseOperation
+from controller.resource_builder import Resource
+from controller.helper_lib import check_server_is_used
+
 
 
 plugin = Plugin()
@@ -54,6 +60,15 @@ def linked_post_snapshot(staged_source, repository, source_config, snapshot_para
 @plugin.linked.mount_specification()
 def linked_mount_specification(staged_source, repository):
     mount_path = staged_source.parameters.mount_path
+
+    if check_stale_mountpoint(staged_source.staged_connection, mount_path):
+        cleanup_process = CouchbaseOperation(
+            Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).build())
+        cleanup_process.stop_couchbase()
+        clean_stale_mountpoint(staged_source.staged_connection, mount_path)
+
+    check_server_is_used(staged_source.staged_connection, mount_path)
+
     environment = staged_source.staged_connection.environment
     linked.check_mount_path(staged_source, repository)
     logger.debug("Mounting path {}".format(mount_path))
@@ -119,6 +134,15 @@ def stop(virtual_source, repository, source_config):
 @plugin.virtual.mount_specification()
 def virtual_mount_specification(virtual_source, repository):
     mount_path = virtual_source.parameters.mount_path
+
+    if check_stale_mountpoint(virtual_source.connection, mount_path):
+        cleanup_process = CouchbaseOperation(
+            Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).build())
+        cleanup_process.stop_couchbase()
+        clean_stale_mountpoint(virtual_source.connection, mount_path)
+
+    check_server_is_used(virtual_source.connection, mount_path)
+
     mounts = [Mount(virtual_source.connection.environment, mount_path)]
     logger.debug("Mounting path {}".format(mount_path))
     logger.debug("Setting ownership to uid {} and gid {}".format(repository.uid, repository.gid))
@@ -141,6 +165,23 @@ def virtual_mount_specification(virtual_source, repository):
             mount = Mount(e, mount_path)
             mounts.append(mount)
 
+            
+            user = RemoteUser(name="unused", reference=m['environmentUser'])
+            environment = RemoteEnvironment(name="unused", reference=m['environment'], host=node_host)
+            clean_node_conn = RemoteConnection(environment=environment, user=user)
+
+
+
+            if check_stale_mountpoint(clean_node_conn, mount_path):
+                clean_node = CouchbaseOperation(
+                    Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).build(),
+                    clean_node_conn )
+                clean_node.stop_couchbase()
+                clean_stale_mountpoint(clean_node_conn, mount_path)
+            
+            check_server_is_used(clean_node_conn, mount_path)
+
+
     return MountSpecification(mounts, ownership_spec)
 
 
@@ -154,3 +195,10 @@ def virtual_status(virtual_source, repository, source_config):
 def unconfigure(virtual_source, repository, source_config):
     logger.debug("UNCONFIGURE")
     virtual.vdb_unconfigure(virtual_source, repository, source_config)
+
+
+@plugin.upgrade.virtual_source("2021.07.19")
+def add_node_to_virtual(old_virtual_source):
+  new_virt = dict(old_virtual_source)
+  new_virt["node_list"] = []
+  return new_virt

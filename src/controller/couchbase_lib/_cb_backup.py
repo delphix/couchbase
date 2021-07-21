@@ -51,11 +51,11 @@ class _CBBackupMixin(Resource, MixinInterface):
 
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         env = _CBBackupMixin.generate_environment_map(self)
-        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        
         cmd = CommandFactory.cb_backup_full(backup_location=self.parameters.couchbase_bak_loc,
                                             csv_bucket_list=csv_bucket,
                                             backup_repo=self.parameters.couchbase_bak_repo, 
-                                            need_sudo=need_sudo, uid=self.repository.uid, 
+                                            need_sudo=self.need_sudo, uid=self.uid, 
                                             skip=skip,
                                             **env)
         logger.debug("Backup restore: {}".format(cmd))

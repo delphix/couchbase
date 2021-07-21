@@ -5,12 +5,16 @@
 import types
 import re
 import logging
+import traceback
+import sys
+
 
 from db_commands.constants import CLUSTER_ALREADY_PRESENT, BUCKET_NAME_ALREADY_EXIST, MULTIPLE_VDB_ERROR, \
     SHUTDOWN_FAILED, ALREADY_CLUSTER_INIT, ALREADY_CLUSTER_FOR_BUCKET
 from controller import helper_lib
 from internal_exceptions.base_exceptions import GenericUserError
 from internal_exceptions.plugin_exceptions import ERR_RESPONSE_DATA
+from dlpx.virtualization.platform.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +84,22 @@ class DatabaseExceptionHandlerMeta(type):
             try:
                 output_list = function_name(*args, **kwargs)
                 return output_list
+
+            except UserError as ue:
+                logger.debug("User Error found")
+                ttype, value, traceb = sys.exc_info()
+                logger.debug("type: {}, value: {}".format(ttype, value))
+                logger.debug("trackback")
+                logger.debug(traceback.format_exc())            
+                raise
+
             except Exception as error:
                 logger.debug("Caught Exception : {}".format(error.message))
+                logger.debug("pioro")
+                ttype, value, traceb = sys.exc_info()
+                logger.debug("type: {}, value: {}".format(ttype, value))
+                logger.debug("trackback")
+                logger.debug(traceback.format_exc())   
                 mcs._exception_generator_factory(error.message)
 
         return wrapper_function

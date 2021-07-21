@@ -24,6 +24,7 @@ from datetime import datetime
 import db_commands.constants
 from db_commands.commands import CommandFactory
 from db_commands.constants import DEFAULT_CB_BIN_PATH
+from dlpx.virtualization.platform.exceptions import UserError
 
 from internal_exceptions.plugin_exceptions import RepositoryDiscoveryError, SourceConfigDiscoveryError, FileIOError, \
     UnmountFileSystemError
@@ -380,3 +381,56 @@ def get_sync_lock_file_name(dsource_type, dsource_name):
         striped_dsource_name = dsource_name.replace(" ", "")
         sync_filename = str(striped_dsource_name) + str(sync_filename)
     return sync_filename
+
+
+def check_stale_mountpoint(connection, path):
+
+
+
+    output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.df(path))
+    if exit_code != 0:
+        if "No such file or directory" in stderr:
+            # this is actually OK
+            return False
+        else:
+            logger.error("df retured error - stale mount point or other error")
+            logger.error("stdout: {} stderr: {} exit_code: {}".format(output.encode('utf-8'), stderr.encode('utf-8'), exit_code))
+            return True
+    else:
+        return False
+
+
+def check_server_is_used(connection, path):
+
+    output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.mount())
+    if exit_code != 0:
+        logger.error("mount retured error")
+        logger.error("stdout: {} stderr: {} exit_code: {}".format(output.encode('utf-8'), stderr.encode('utf-8'), exit_code))
+        raise UserError("Problem with reading mounted file systems", "Ask OS admin to check mount", stderr)
+    else:
+        # parse a mount output to find another Delphix mount points
+        fs_re = re.compile(r'(\S*)\son\s(\S*)\stype\s(\S*)')
+        for i in output.split("\n"):
+            match = re.search(fs_re, i)
+            if match is not None:
+                groups = match.groups()
+                if groups[2] == 'nfs':
+                    if path == groups[1]:
+                        # this is our mount point - skip it
+                        continue
+                    if "domain0" in groups[0] and "timeflow" in groups[0]:
+                        # this is a delphix mount point but it's not ours
+                        # raise an exception
+                        raise UserError("Another database (VDB or staging) is using this server.", "Disable another one to provision or enable this one", "{} {}".format(groups[0], groups[1]))
+
+def clean_stale_mountpoint(connection, path):
+
+
+
+    umount_std, umount_stderr, umount_exit_code = utilities.execute_bash(connection, CommandFactory.unmount_file_system(mount_path=path, options='-lf'))
+    if umount_exit_code != 0:
+        logger.error("Problem with cleaning mount path")
+        logger.error("stderr {}".format(umount_stderr))
+        raise UserError("Problem with cleaning mount path", "Ask OS admin to check mount points", umount_stderr)
+
+

@@ -85,6 +85,7 @@ def pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parame
     pre_snapshot_process.cb_backup_full(csv_bucket_list)
     logger.info("Re-ingesting from latest backup complete.")
 
+    linking.build_indexes(pre_snapshot_process)
     logger.info("Stopping Couchbase")
     pre_snapshot_process.stop_couchbase()
     pre_snapshot_process.save_config('parent')
@@ -155,9 +156,15 @@ def stop_staging_cbbkpmgr(staged_source, repository, source_config):
 
 
 def d_source_status_cbbkpmgr(staged_source, repository, source_config):
-    if helper_lib.check_dir_present(staged_source.staged_connection, staged_source.parameters.couchbase_bak_loc):
-        return Status.ACTIVE
-    return Status.INACTIVE
+    # if helper_lib.check_dir_present(staged_source.staged_connection, staged_source.parameters.couchbase_bak_loc):
+    #     return Status.ACTIVE
+    # return Status.INACTIVE
+    status_obj = CouchbaseOperation(
+        Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
+            source_config).build())
+    logger.debug("Checking status for D_SOURCE: {}".format(source_config.pretty_name))
+    return status_obj.status()
+
 
 
 def unmount_file_system_in_error_case(staged_source, repository, source_config):

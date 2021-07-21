@@ -187,6 +187,24 @@
         "description": "",
         "default": ""
       },
+      "fts_service": {
+          "default": true,
+          "type": "boolean",
+          "prettyName": "FTS Service",
+          "description": ""
+        },
+        "analytics_service": {
+          "default": true,
+          "type": "boolean",
+          "prettyName": "Analytics Service",
+          "description": ""
+        },
+        "eventing_service": {
+          "default": true,
+          "type": "boolean",
+          "prettyName": "Eventing Service",
+          "description": ""
+        },
       "node_list": {
         "type": "array",
         "prettyName": "Additional Nodes",
@@ -404,6 +422,12 @@
         "type": "boolean",
         "prettyName": "Eventing Service",
         "description": ""
+      },
+      "analytics_service": {
+          "default": true,
+          "type": "boolean",
+          "prettyName": "Analytics Service",
+          "description": ""
       },
       "config_settings_prov" : {
         "type": "array",

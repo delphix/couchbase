@@ -39,6 +39,15 @@ def vdb_status(virtual_source, repository, source_config):
             source_config).build())
     cb_status = provision_process.status()
     logger.debug("VDB Status is {}".format(cb_status))
+
+    if cb_status == Status.ACTIVE:
+        logger.debug("Checking mount point")
+        if helper_lib.check_stale_mountpoint(provision_process.connection, virtual_source.parameters.mount_path):
+            logger.debug("error with mount point - report inactive")
+            return Status.INACTIVE
+        else:
+            return Status.ACTIVE
+
     return cb_status
 
 
@@ -59,8 +68,8 @@ def vdb_unconfigure(virtual_source, repository, source_config):
             logger.debug("+++++++++++++++++++++++++++")
             addnode = CouchbaseOperation(
                 Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
-                    source_config).build())
-            addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
+                    source_config).build(),
+                    make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
             addnode.delete_config()
             addnode.stop_couchbase()
 
@@ -74,6 +83,8 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
         Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
             source_config).build())
 
+
+    provision_process.stop_couchbase()
     
     if provision_process.parameters.node_list is not None and len(provision_process.parameters.node_list) > 0:
         multinode = True
@@ -95,8 +106,9 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
             logger.debug("+++++++++++++++++++++++++++")
             addnode = CouchbaseOperation(
                 Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
-                    source_config).build())
-            addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
+                    source_config).build(),
+                    make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
+            addnode.stop_couchbase()
             addnode.restore_config(what='current', nodeno=nodeno)
             addnode.start_couchbase(no_wait=multinode)
 
@@ -133,8 +145,8 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
                 logger.debug("+++++++++++++++++++++++++++")
                 addnode = CouchbaseOperation(
                     Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
-                        source_config).build())
-                addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
+                        source_config).build(),
+                        make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
                 server_status = addnode.status() # fetching status
                 logger.debug("server status {}".format(server_status))
                 if server_status == Status.ACTIVE:
@@ -220,9 +232,9 @@ def vdb_configure(virtual_source, snapshot, repository):
             logger.debug("+++++++++++++++++++++++++++")
             addnode = CouchbaseOperation(
                 Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_snapshot(
-                    snapshot).build())
-            addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
-            logger.debug("ADDITIONAL CONNECTION HOST: {}".format(addnode.connection.environment.host.name))
+                    snapshot).build(),
+                    make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
+            logger.debug("ADDITIONAL CONNECTION HOST: {}".format(provision_process.connection.environment.host.name))
             addnode.addnode(nodeno, node)
             # TODO
             # FINISH HERE
@@ -392,8 +404,8 @@ def vdb_start(virtual_source, repository, source_config):
                 logger.debug("+++++++++++++++++++++++++++")
                 addnode = CouchbaseOperation(
                     Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
-                        source_config).build())
-                addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
+                        source_config).build(),
+                        make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
                 addnode.start_couchbase()
     except Exception:
         raise CouchbaseServicesError(" Start").to_user_error(), None, sys.exc_info()[2]
@@ -413,8 +425,8 @@ def vdb_stop(virtual_source, repository, source_config):
             logger.debug("+++++++++++++++++++++++++++")
             addnode = CouchbaseOperation(
                 Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
-                    source_config).build())
-            addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
+                    source_config).build(),
+                    make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
             addnode.stop_couchbase()
 
 def vdb_pre_snapshot(virtual_source, repository, source_config):
@@ -437,8 +449,8 @@ def vdb_pre_snapshot(virtual_source, repository, source_config):
             logger.debug("+++++++++++++++++++++++++++")
             addnode = CouchbaseOperation(
                 Resource.ObjectBuilder.set_virtual_source(virtual_source).set_repository(repository).set_source_config(
-                    source_config).build())
-            addnode.connection = make_nonprimary_connection(addnode.connection, node['environment'], node['environmentUser'])
+                    source_config).build(),
+                    make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
             addnode.save_config(what='current', nodeno=nodeno)
 
 

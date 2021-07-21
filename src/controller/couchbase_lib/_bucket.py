@@ -147,21 +147,21 @@ class _BucketMixin(Resource, MixinInterface):
     def move_bucket(self, bucket_name, direction):
         logger.debug("Rename folder")
 
-        need_sudo = helper_lib.need_sudo(self.connection, self.repository.uid, self.repository.gid)
+        
         
         if direction == 'save':
             src = join(self.virtual_source.parameters.mount_path,'data',bucket_name)
             dst = join(self.virtual_source.parameters.mount_path,'data',".{}.delphix".format(bucket_name))
-            command = CommandFactory.os_mv(src, dst, need_sudo, self.repository.uid)
+            command = CommandFactory.os_mv(src, dst, self.need_sudo, self.uid)
             logger.debug("rename command: {}".format(command))         
             stdout, error, exit_code = utilities.execute_bash(self.connection, command)
         elif direction == 'restore':
             dst = join(self.virtual_source.parameters.mount_path,'data',bucket_name)
             src = join(self.virtual_source.parameters.mount_path,'data',".{}.delphix".format(bucket_name))
-            command = CommandFactory.delete_dir(dst, need_sudo, self.repository.uid)
+            command = CommandFactory.delete_dir(dst, self.need_sudo, self.uid)
             logger.debug("delete command: {}".format(command))         
             stdout, error, exit_code = utilities.execute_bash(self.connection, command)
-            command = CommandFactory.os_mv(src, dst, need_sudo, self.repository.uid)
+            command = CommandFactory.os_mv(src, dst, self.need_sudo, self.uid)
             logger.debug("rename command: {}".format(command))         
             stdout, error, exit_code = utilities.execute_bash(self.connection, command)
         
