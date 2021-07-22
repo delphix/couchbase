@@ -124,7 +124,7 @@ def post_snapshot_cbbkpmgr(staged_source, repository, source_config, dsource_typ
     snapshot.snapshot_id = str(helper_lib.get_snapshot_id())
     snapshot.couchbase_admin = post_snapshot_process.parameters.couchbase_admin
     snapshot.couchbase_admin_password = post_snapshot_process.parameters.couchbase_admin_password
-    logger.debug("snapshot schema: {}".format(snapshot))
+    #logger.debug("snapshot schema: {}".format(snapshot))
     logger.debug("Deleting the lock files")
     helper_lib.delete_file(rx_connection, config.SNAP_SYNC_FILE_NAME)
     helper_lib.delete_file(rx_connection, config.SYNC_FILE_NAME)

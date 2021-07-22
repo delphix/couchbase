@@ -486,7 +486,6 @@ def post_snapshot(virtual_source, repository, source_config):
         snapshot.couchbase_admin = provision_process.parameters.couchbase_admin
         snapshot.couchbase_admin_password = provision_process.parameters.couchbase_admin_password
                               
-        logger.info("snapshot schema: {}".format(snapshot))
         return snapshot
     except Exception as err:
         logger.debug("Snap shot is failed with error {}".format(err.message))

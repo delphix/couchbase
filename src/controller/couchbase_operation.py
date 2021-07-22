@@ -1045,7 +1045,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
         helper_lib.sleepForSecond(10)
 
-        services = [ 'data', 'index' ]
+        services = [ 'data', 'index', 'query' ]
 
         if "fts_service" in node_def and node_def["fts_service"] == True:
             services.append('fts')
