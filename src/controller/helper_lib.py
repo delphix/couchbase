@@ -26,6 +26,8 @@ from db_commands.commands import CommandFactory
 from db_commands.constants import DEFAULT_CB_BIN_PATH
 from dlpx.virtualization.platform.exceptions import UserError
 
+from dlpx.virtualization.platform import Status
+
 from internal_exceptions.plugin_exceptions import RepositoryDiscoveryError, SourceConfigDiscoveryError, FileIOError, \
     UnmountFileSystemError
 from utils import utilities
@@ -402,6 +404,8 @@ def check_stale_mountpoint(connection, path):
 
 def check_server_is_used(connection, path):
 
+    ret = Status.INACTIVE
+
     output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.mount())
     if exit_code != 0:
         logger.error("mount retured error")
@@ -417,11 +421,17 @@ def check_server_is_used(connection, path):
                 if groups[2] == 'nfs':
                     if path == groups[1]:
                         # this is our mount point - skip it
+                        ret = Status.ACTIVE
                         continue
                     if "domain0" in groups[0] and "timeflow" in groups[0]:
                         # this is a delphix mount point but it's not ours
                         # raise an exception
                         raise UserError("Another database (VDB or staging) is using this server.", "Disable another one to provision or enable this one", "{} {}".format(groups[0], groups[1]))
+
+
+    return ret
+
+
 
 def clean_stale_mountpoint(connection, path):
 

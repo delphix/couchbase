@@ -1,7 +1,7 @@
 id: 18f4ff11-b758-4bf2-9a37-719a22f5a4b8
 name: couchbase
-externalVersion: "1.0.3.2-proximusonly"
-buildNumber: 1.0.3.2
+externalVersion: "1.1.0"
+buildNumber: 1.1.0.0
 language: PYTHON27
 hostTypes:
 - UNIX

@@ -272,6 +272,21 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                 username = self.parameters.couchbase_admin
 
 
+            #TODO
+            # Check if there is a mount point - even a started Couchbase without mountpoint means VDB
+            # is down or corrupted 
+            # Couchbase with config file can start and recreate empty buckets if there is no mount point
+            # for future version - maybe whole /opt/couchbase/var directory should be virtualized like for Docker
+            # to avoid problems 
+
+            logger.debug("Checking for mount points")
+            mount_point_state = helper_lib.check_server_is_used(self.connection, self.parameters.mount_path)
+            logger.debug("Status of mount point {}".format(mount_point_state))
+
+            if mount_point_state == Status.INACTIVE:
+                logger.error("There is no mount point VDB is down regardless Couchbase status")
+                return Status.INACTIVE
+
             
             ip_file = self.ip_file_name()
 
