@@ -1087,6 +1087,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                                                 services=','.join(services)
                                              )
 
+
+        if exit_code != 0:
+            logger.debug("Adding node error")
+            raise UserError("Problem with adding node", "Check an output and fix problem before retrying to provision a VDB", "stdout: {} stderr:{}".format(command_output, std_err))
+
+
         # kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         # command = CommandFactory.server_add(self.repository.cb_shell_path, 
         #                                     self.connection.environment.host.name,
@@ -1103,6 +1109,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
                                                 couchbase_command='rebalance',
                                                 hostname=self.connection.environment.host.name
                                              )
+
+
+        
 
         # kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         # command = CommandFactory.rebalance(self.repository.cb_shell_path, 

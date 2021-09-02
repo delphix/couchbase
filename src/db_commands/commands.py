@@ -426,8 +426,8 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
-    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, need_sudo=False, uid=None, skip='', **kwargs):
-        if need_sudo:
+    def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, sudo, uid, skip, **kwargs):
+        if sudo:
             return "sudo -u \#{uid} {base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password $password \
                     --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}".format(
                 base_path=base_path,

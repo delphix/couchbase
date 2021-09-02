@@ -14,6 +14,7 @@ from controller.couchbase_lib._mixin_interface import MixinInterface
 from controller.resource_builder import Resource
 from db_commands.constants import ENV_VAR_KEY
 from db_commands.commands import CommandFactory
+from dlpx.virtualization.platform.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
@@ -49,14 +50,27 @@ class _CBBackupMixin(Resource, MixinInterface):
 
         logger.debug("skip backup is set to: {}".format(skip))
 
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        env = _CBBackupMixin.generate_environment_map(self)
+        # kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        # env = _CBBackupMixin.generate_environment_map(self)
         
-        cmd = CommandFactory.cb_backup_full(backup_location=self.parameters.couchbase_bak_loc,
-                                            csv_bucket_list=csv_bucket,
-                                            backup_repo=self.parameters.couchbase_bak_repo, 
-                                            need_sudo=self.need_sudo, uid=self.uid, 
-                                            skip=skip,
-                                            **env)
-        logger.debug("Backup restore: {}".format(cmd))
-        utilities.execute_bash(self.connection, cmd, **kwargs)
+        # cmd = CommandFactory.cb_backup_full(backup_location=self.parameters.couchbase_bak_loc,
+        #                                     csv_bucket_list=csv_bucket,
+        #                                     backup_repo=self.parameters.couchbase_bak_repo, 
+        #                                     need_sudo=self.need_sudo, uid=self.uid, 
+        #                                     skip=skip,
+        #                                     **env)
+        # logger.debug("Backup restore: {}".format(cmd))
+        # utilities.execute_bash(self.connection, cmd, **kwargs)
+
+
+        stdout, stderr, exit_code = self.run_couchbase_command(couchbase_command='cb_backup_full',
+                                                            backup_location=self.parameters.couchbase_bak_loc,
+                                                            csv_bucket_list=csv_bucket,
+                                                            backup_repo=self.parameters.couchbase_bak_repo, 
+                                                            skip=skip, 
+                                                            base_path=helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path)
+                                                        )
+
+        if exit_code != 0:
+            raise UserError("Problem with restoring backup using cbbackupmgr", "Check if repo and all privileges are correct",
+                            "stdout: {}, stderr: {}, exit_code: {}".format(stdout, stderr, exit_code))
