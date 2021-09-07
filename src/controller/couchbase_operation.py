@@ -4,7 +4,7 @@
 
 #######################################################################################################################
 """
-This class defines methods for couchbase operations. Parent classes are: _BucketMixin, _ClusterMixin, _ReplicationMixin,
+This class defines methods for couchbase operations. Parent classes are: _BucketMixin, _ClusterMixin,
  _XDCrMixin, _CBBackupMixin. Modules name is explaining about the operations for which module is created for.
 The constructor of this class expects a `builder` on which each database operation will be performed
 Commands are defined for each method in module commands.py. To perform any delphix operation we need to create
@@ -27,7 +27,6 @@ from controller.resource_builder import Resource
 from controller import helper_lib
 from controller.couchbase_lib._bucket import _BucketMixin
 from controller.couchbase_lib._cluster import _ClusterMixin
-from controller.couchbase_lib._replication import _ReplicationMixin
 from controller.couchbase_lib._xdcr import _XDCrMixin
 from controller.couchbase_lib._cb_backup import _CBBackupMixin
 from db_commands.commands import CommandFactory
@@ -41,7 +40,7 @@ from dlpx.virtualization.platform.exceptions import UserError
 logger = logging.getLogger(__name__)
 
 
-class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMixin, _CBBackupMixin):
+class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin):
 
     def __init__(self, builder, node_connection=None):
         """
@@ -99,6 +98,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
             # for setting a new password
             env["newpass"] = kwargs.pop('newpass')
 
+        if "source_password" in kwargs:
+            env["source_password"] = kwargs.pop('source_password')
 
         autoparams = [ "shell_path", "install_path", "username", "port", "sudo", "uid", "hostname"]
 
@@ -116,7 +117,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _ReplicationMixin, _XDCrMi
 
         logger.debug("couchbase command to run: {}".format(command))
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, environment_vars=env)
-        return [stdout, stderr, exit_code]
+        return [stdout.encode('utf-8'), stderr.encode('utf-8'), exit_code]
 
 
     def run_os_command(self, os_command, **kwargs):

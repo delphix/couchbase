@@ -75,7 +75,7 @@ class OSCommand(object):
 
     @staticmethod
     def get_ip_of_hostname(**kwargs):
-        return "hostname -i"
+        return "hostname -I"
 
     @staticmethod
     def check_directory(dir_path, sudo=False, uid=None, **kwargs):
@@ -274,6 +274,10 @@ class DatabaseCommand(object):
             source_port=source_port,
             source_username=source_username,
         )
+
+
+
+
 
     @staticmethod
     def get_stream_id(shell_path, source_hostname, source_port, source_username, cluster_name, **kwargs):

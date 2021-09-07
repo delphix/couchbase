@@ -2,7 +2,7 @@
 # Copyright (c) 2020-2021 by Delphix. All rights reserved.
 #
 #######################################################################################################################
-# In this module, functions defined for couchbase backup manager ingestion mechanism.
+# In this module, functions defined common ingestion modes - backup and xdrc
 #######################################################################################################################
 
 import logging
@@ -21,10 +21,11 @@ from generated.definitions import SnapshotDefinition
 from internal_exceptions.database_exceptions import DuplicateClusterError
 from internal_exceptions.plugin_exceptions import MultipleSyncError, MultipleXDCRSyncError
 from operations import config
+from dlpx.virtualization.platform.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
-
+# potentially to remove - as checks are done on the mount points
 def check_for_concurrent(couchbase_obj, dsource_type, dsource_name, couchbase_host):
     config_dir = couchbase_obj.create_config_dir()
 
@@ -46,10 +47,22 @@ def check_for_concurrent(couchbase_obj, dsource_type, dsource_name, couchbase_ho
         msg = db_commands.constants.RESYNCE_OR_SNAPSYNC_FOR_OTHER_OBJECT_IN_PROGRESS.format(dsource_name, couchbase_host)
         helper_lib.write_file(couchbase_obj.connection, msg, config.SYNC_FILE_NAME)
 
+def verify_sync_lock_file_for_this_job(rx_connection, sync_filename):
+    if helper_lib.check_file_present(rx_connection, sync_filename):
+        logger.debug("Sync File Present: {}".format(sync_filename))
+        return True
+    config_dir = os.path.dirname(sync_filename)
+
+    possible_sync_filename = "/*" + db_commands.constants.LOCK_SYNC_OPERATION
+    possible_sync_filename = config_dir + possible_sync_filename
+    logger.debug("Checking for {}".format(possible_sync_filename))
+    if helper_lib.check_file_present(rx_connection, possible_sync_filename):
+        return False
+    return True
+
 
 def configure_cluster(couchbase_obj):
-    # TODO:
-    # add a check if cluster is already configured and if staging is configured - raise an expection
+    # configure Couchbase cluster
 
     logger.debug("Checking cluster config")
     if couchbase_obj.check_config():
@@ -69,7 +82,7 @@ def configure_cluster(couchbase_obj):
 
         server_status = Status.INACTIVE
 
-        #break the loop either end_time is exceeding from 1 minute or server is successfully started
+        #break the loop either end_time is exceeding from 1 hour or server is successfully started
         while time.time() < end_time and server_status<>Status.ACTIVE:
             helper_lib.sleepForSecond(1) # waiting for 1 second
             server_status = couchbase_obj.staging_bootstrap_status() # fetching status
@@ -86,10 +99,8 @@ def configure_cluster(couchbase_obj):
             if couchbase_obj.check_cluster_configured():
                 logger.debug("Configured with staging user/password and alive so not a problem - continue")
             else:
-                logger.debug("Cluster configured but not with user/password given in Delphix potentially another snapshot")
-                #TODO
-                #add nice user exception
-                raise Exception
+                logger.debug("Cluster configured but not with user/password given in Delphix potentially another cluster")
+                raise UserError("Cluster configured but not with user/password given in Delphix potentially another cluster")
 
 
 def buckets_precreation(couchbase_obj, bucket_details_source, bucket_details_staged):
@@ -101,20 +112,28 @@ def buckets_precreation(couchbase_obj, bucket_details_source, bucket_details_sta
     logger.debug("Bucket names passed for configuration: {}".format(config_setting))
     bucket_configured_staged = []
     if len(config_setting) > 0:
+        # process for list of buckets 
         logger.debug("Getting bucket information from config")
+        buckets_dict = { b["name"]:b  for b in bucket_details_source }
         for config_bucket in config_setting:
             bucket_configured_staged.append(config_bucket["bucketName"])
-            logger.debug("Filtering bucket name with size only from above output")
-            bkt_name_size = helper_lib.get_bucket_name_with_size(bucket_details_source, config_bucket["bucketName"])
-            bkt_size_mb = helper_lib.get_bucket_size_in_MB(couchbase_obj.parameters.bucket_size, bkt_name_size.split(",")[1])
+            logger.debug("Filtering bucket name with size only from above output") 
+            bucket = buckets_dict[config_bucket["bucketName"]]
+            logger.debug("Running bucket operations for {}".format(bucket))
+            bkt_name = bucket['name']
+            bkt_size = bucket['ram']
+            bkt_type = bucket['bucketType']
+            bkt_compression = bucket['compressionMode']
+
+            bkt_size_mb = helper_lib.get_bucket_size_in_MB(couchbase_obj.parameters.bucket_size, bkt_size)
 
             if config_bucket["bucketName"] not in bucket_details_staged:
-                couchbase_obj.bucket_create(config_bucket["bucketName"], bkt_size_mb)
+                couchbase_obj.bucket_create(config_bucket["bucketName"], bkt_size_mb, bkt_type, bkt_compression)
             else:
                 logger.debug("Bucket {} already present in staged environment. Recreating bucket ".format(
                     config_bucket["bucketName"]))
                 couchbase_obj.bucket_remove(config_bucket["bucketName"])
-                couchbase_obj.bucket_create(config_bucket["bucketName"], bkt_size_mb)
+                couchbase_obj.bucket_create(config_bucket["bucketName"], bkt_size_mb, bkt_type, bkt_compression)
             
             bucket_list.append(config_bucket["bucketName"])
 
@@ -128,10 +147,7 @@ def buckets_precreation(couchbase_obj, bucket_details_source, bucket_details_sta
         for bucket in extra_bucket:
             couchbase_obj.bucket_remove(bucket)
     else:
-        # logger.debug("Finding buckets present at staged server with size")
-        # all_bkt_list_with_size = helper_lib.get_all_bucket_list_with_size(bucket_details_source)
-        # logger.debug("Filtering bucket name with size only from above output")
-
+        # process for all buckets 
         filter_source_bucket = helper_lib.filter_bucket_name_from_json(bucket_details_source)
         for items in bucket_details_source:
             if items:
@@ -154,31 +170,16 @@ def buckets_precreation(couchbase_obj, bucket_details_source, bucket_details_sta
 
     return bucket_list
 
-def verify_sync_lock_file_for_this_job(rx_connection, sync_filename):
-    if helper_lib.check_file_present(rx_connection, sync_filename):
-        logger.debug("Sync File Present: {}".format(sync_filename))
-        return True
-    config_dir = os.path.dirname(sync_filename)
-
-    possible_sync_filename = "/*" + db_commands.constants.LOCK_SYNC_OPERATION
-    possible_sync_filename = config_dir + possible_sync_filename
-    logger.debug("Checking for {}".format(possible_sync_filename))
-    if helper_lib.check_file_present(rx_connection, possible_sync_filename):
-        return False
-    return True
-
 
 def build_indexes(couchbase_obj):
-    logger.debug("index builder")
+    # create indexes based on the index definition
 
+    logger.debug("index builder")
     ind = couchbase_obj.get_indexes_definition()
     logger.debug("indexes definition : {}".format(ind))
-
-
     for i in ind:
         logger.debug(i)
         couchbase_obj.build_index(i)
-
     couchbase_obj.check_index_build()
 
 
