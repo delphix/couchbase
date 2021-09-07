@@ -200,12 +200,7 @@ def stop_staging_xdcr(staged_source, repository, source_config):
     logger.debug("D_SOURCE:{} disabled".format(source_config.pretty_name))
 
 
-def d_source_status_xdcr(staged_source, repository, source_config):
-    status_obj = CouchbaseOperation(
-        Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
-            source_config).build())
-    logger.debug("Checking status for D_SOURCE: {}".format(source_config.pretty_name))
-    return status_obj.status()
+
 
 
 

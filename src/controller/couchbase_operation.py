@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 by Delphix. All rights reserved.
+# Copyright (c) 2020,2021 by Delphix. All rights reserved.
 #
 
 #######################################################################################################################
@@ -131,7 +131,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("os command to run: {}".format(command))
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command)
-        return [stdout, stderr, exit_code]
+        return [stdout.encode('utf-8'), stderr.encode('utf-8'), exit_code]
 
 
     def restart_couchbase(self, provision=False):
@@ -631,7 +631,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         # cmd = CommandFactory.check_index_build(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),self.connection.environment.host.name, self.parameters.couchbase_port, self.parameters.couchbase_admin)
         # logger.debug("check_index_build cmd: {}".format(cmd))
 
-        end_time = time.time() + 3660
+        # set timeout to 12 hours
+        end_time = time.time() + 3660*12
 
         tobuild = 1
 
@@ -665,27 +666,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         # TODO
         # Error handling
 
+        logger.debug("start save_config")
+
         targetdir = self.get_config_directory()
-        # if what == 'parent':
-        #     target_config_filename = os.path.join(targetdir,"config_parent.dat")
-        #     target_local_filename = os.path.join(targetdir,"local_parent.ini")
-        #     target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_parent")
-        # else:
-        #     target_config_filename = os.path.join(targetdir,"config_current.dat")
-        #     target_local_filename = os.path.join(targetdir,"local_current.ini")
-        #     target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_current")
-
-
         target_config_filename = os.path.join(targetdir,"config.dat_{}".format(nodeno))
         target_local_filename = os.path.join(targetdir,"local.ini_{}".format(nodeno))
         target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_{}".format(nodeno))
-
-        # replace it by node number - to validate in the future
-        # ip_file = self.ip_file_name()
-        # if "start" in ip_file:
-        #     target_ip_filename = os.path.join(targetdir,"ip_start_{}".format(nodeno))
-        # else:
-        #     target_ip_filename = os.path.join(targetdir,"ip_{}".format(nodeno))
 
         if nodeno == 1:
             ip_file = "{}/../var/lib/couchbase/ip".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
@@ -696,9 +682,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
 
         filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        # cmd = CommandFactory.os_cp(filename, target_config_filename, self.need_sudo, self.uid)
-        # logger.debug("save config cp: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_cp',
@@ -706,7 +689,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                         trgname=target_config_filename
                                                       )
 
-        logger.debug("save config.dat cp exit code: {}".format(exit_code))
+        logger.debug("save config.dat cp - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         if exit_code != 0:
             raise UserError("Error saving configuration file: config.dat", "Check sudo or user privileges to read Couchbase config.dat file", std_err)
@@ -731,15 +714,13 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                             trgname=target_encryption_filename
                                                         )
 
-            logger.debug("save encrypted_data_keys cp exit code: {}".format(exit_code))
+            logger.debug("save encrypted_data_keys.dat cp - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
             if exit_code != 0:
                 raise UserError("Error saving configuration file: encrypted_data_keys", "Check sudo or user privileges to read Couchbase encrypted_data_keys file", std_err)
 
 
         
-        # cmd = CommandFactory.os_cp(ip_file, target_ip_filename, self.need_sudo, self.uid)
-        # logger.debug("save ip cp: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+
 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_cp',
@@ -747,16 +728,14 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                         trgname=target_ip_filename
                                                     )      
 
-        logger.debug("save {} cp exit code: {}".format(ip_file, exit_code))
+
+        logger.debug("save {} - exit_code: {} stdout: {} std_err: {}".format(ip_file, exit_code, command_output, std_err))
 
         if exit_code != 0:
             raise UserError("Error saving configuration file: {}".format(ip_file), "Check sudo or user privileges to read Couchbase {} file".format(ip_file), std_err)
   
 
         filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        # cmd = CommandFactory.os_cp(filename, target_local_filename, self.need_sudo, self.uid)
-        # logger.debug("save init cp: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_cp',
@@ -764,7 +743,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                         trgname=target_local_filename
                                                     )   
 
-        logger.debug("save local.ini cp exit code: {}".format(exit_code))
+        logger.debug("save local.ini cp - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
         if exit_code != 0:
             raise UserError("Error saving configuration file: local.ini", "Check sudo or user privileges to read Couchbase local.ini file", std_err)
 
@@ -816,17 +795,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         # TODO
         # Error handling
 
+        logger.debug("start restore_config")
+
         sourcedir = self.get_config_directory()
-        # if what == 'parent':
-        #     source_config_file = os.path.join(sourcedir,"config_parent.dat")
-        #     source_local_filename = os.path.join(sourcedir,"local_parent.ini")
-        #     source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_parent")
-        # else:
-        #     source_config_file = os.path.join(sourcedir,"config_current.dat")
-        #     source_local_filename = os.path.join(sourcedir,"local_current.ini")
-        #     source_encryption_keys = os.path.join(sourcedir,"encrypted_data_keys_current")
-
-
 
         source_config_file = os.path.join(sourcedir,"config.dat_{}".format(nodeno))
         source_local_filename = os.path.join(sourcedir,"local.ini_{}".format(nodeno))
@@ -857,17 +828,13 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         targetfile = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
 
-        # cmd = CommandFactory.os_cp(source_config_file, targetfile, self.need_sudo, self.uid)
-        # logger.debug("restore config cp: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
-
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_cp',
                                                         srcname=source_config_file,
                                                         trgname=targetfile
                                                     )   
 
-
+        logger.debug("config.dat restore - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         check_encrypted_data_keys, check_ip_file_err, exit_code = self.run_os_command(
                                                         os_command='check_file',
@@ -878,23 +845,14 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         if  exit_code == 0 and "Found" in check_encrypted_data_keys: 
             targetfile = "{}/../var/lib/couchbase/config/encrypted_data_keys".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-            # cmd = CommandFactory.os_cp(source_encryption_keys, targetfile, self.need_sudo, self.uid)
-            # logger.debug("restore encrypted_data_keys cp: {}".format(cmd))
-            # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
-
             command_output, std_err, exit_code = self.run_os_command(
                                                             os_command='os_cp',
                                                             srcname=source_encryption_keys,
                                                             trgname=targetfile
                                                         )  
 
+            logger.debug("encrypted_data_keys restore - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
         
-        # cmd = CommandFactory.os_cp(source_ip_file, target_ip_file, self.need_sudo, self.uid)
-        # logger.debug("restore ip cp: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
-
-
-
 
         check_ip_delete_file, check_ip_delete_file, check_ip_exit_code = self.run_os_command(
                                                         os_command='check_file',
@@ -903,12 +861,14 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("Check delete old ip_file - exit_code: {} stdout: {}".format(check_ip_exit_code, check_ip_delete_file))
 
-#        if  check_ip_exit_code == 0 and "Found" in check_ip_delete_file: 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_mv',
                                                         srcname=delete_ip_file,
                                                         trgname="{}.bak".format(delete_ip_file)
                                                     )  
+
+        logger.debug("ipfile delete - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
+
 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_cp',
@@ -916,17 +876,17 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                         trgname=target_ip_file
                                                     )  
 
+        logger.debug("ipfile restore - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         targetfile = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        # cmd = CommandFactory.os_cp(source_local_filename, targetfile, self.need_sudo, self.uid)
-        # logger.debug("restore init cp: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='os_cp',
                                                         srcname=source_local_filename,
                                                         trgname=targetfile
                                                     )  
+
+        logger.debug("local.ini restore - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         if what == 'parent':
             #local.ini needs to have a proper entry 
@@ -935,10 +895,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             cmd = CommandFactory.sed(filename, 's|view_index_dir.*|view_index_dir={}|'.format(newpath), self.need_sudo, self.uid)
             logger.debug("sed config cmd: {}".format(cmd))
             command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+            logger.debug("setting index paths - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
             cmd = CommandFactory.sed(filename, 's|database_dir.*|database_dir={}|'.format(newpath), self.need_sudo, self.uid)
             logger.debug("sed config cmd: {}".format(cmd))
             command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+            logger.debug("setting data paths - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
         
 
 
@@ -947,38 +909,28 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         # TODO:
         # error handling
 
+        logger.debug("start delete_config")
+
         filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
 
-        
-        
         cmd = CommandFactory.check_file(filename, self.need_sudo, self.uid)
         logger.debug("check file cmd: {}".format(cmd))
         command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=self.ignore_err) 
-
-
-
 
         if exit_code == 0 and "Found" in command_output: 
             cmd = CommandFactory.os_mv(filename, "{}.bak".format(filename), self.need_sudo, self.uid)
             logger.debug("rename config cmd: {}".format(cmd))
             command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+            logger.debug("rename config.dat to bak - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        # cmd = CommandFactory.sed(filename, 's/view_index_dir.*//', self.need_sudo, self.uid)
-        # logger.debug("sed config cmd: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
-
-
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='sed',
                                                         filename=filename,
                                                         regex='s/view_index_dir.*//'
                                                     )  
         
-
-        # cmd = CommandFactory.sed(filename, 's/database_dir.*//', self.need_sudo, self.uid)
-        # logger.debug("sed config cmd: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
+        logger.debug("clean local.ini index - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='sed',
@@ -986,15 +938,13 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                         regex='s/database_dir.*//'
                                                     )  
 
-        # cmd = CommandFactory.change_permission(filename, self.need_sudo, self.uid)
-        # logger.debug("chmod config cmd: {}".format(cmd))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command_name=cmd) 
-
+        logger.debug("clean local.ini data - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
         command_output, std_err, exit_code = self.run_os_command(
                                                         os_command='change_permission',
                                                         path=filename
                                                     )  
 
+        logger.debug("fix local.ini permission - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
     def ignore_err(self, input):
         return True
@@ -1002,40 +952,26 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
     def rename_cluster(self):
         """Rename cluster based on user entries"""
-        try:
+
+        logger.debug("start rename_cluster")
+
+        command_output, std_err, exit_code = self.run_couchbase_command(
+                                                couchbase_command='rename_cluster',
+                                                username=self.snapshot.couchbase_admin,
+                                                password=self.snapshot.couchbase_admin_password,
+                                                newuser=self.parameters.couchbase_admin,
+                                                newpass=self.parameters.couchbase_admin_password,
+                                                newname=self.parameters.tgt_cluster_name
+                                            )
+
+        logger.debug("rename cluster - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
 
-            command_output, std_err, exit_code = self.run_couchbase_command(
-                                                    couchbase_command='rename_cluster',
-                                                    username=self.snapshot.couchbase_admin,
-                                                    password=self.snapshot.couchbase_admin_password,
-                                                    newuser=self.parameters.couchbase_admin,
-                                                    newpass=self.parameters.couchbase_admin_password,
-                                                    newname=self.parameters.tgt_cluster_name
-                                                )
 
-            # command = CommandFactory.rename_cluster(self.repository.cb_shell_path, 
-            #                                         self.connection.environment.host.name,
-            #                                         self.parameters.couchbase_port, 
-            #                                         self.snapshot.couchbase_admin,
-            #                                         self.parameters.couchbase_admin,
-            #                                         self.parameters.tgt_cluster_name)
-            # logger.debug("Rename command is {}".format(command))
-            # kwargs = {
-            #     ENV_VAR_KEY: {
-            #         'password': self.snapshot.couchbase_admin_password,
-            #         'newpass': self.parameters.couchbase_admin_password
-            #     }
-            # }
-            # server_info, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
-            logger.debug(command_output)
-
-        except Exception as error:
-            # add error handling
-            raise
 
 
     def start_node_bootstrap(self):
+        logger.debug("start start_node_bootstrap")
         self.start_couchbase(no_wait=True)
         end_time = time.time() + 3660
         server_status = Status.INACTIVE
@@ -1049,7 +985,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
 
     def addnode(self, nodeno, node_def):
-        logger.debug("Adding a node")
+        logger.debug("start addnode")
 
 
         self.delete_config()
@@ -1089,22 +1025,14 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                              )
 
 
+        logger.debug("Add node Output {} stderr: {} exit_code: {} ".format(command_output, std_err, exit_code))
+
         if exit_code != 0:
             logger.debug("Adding node error")
             raise UserError("Problem with adding node", "Check an output and fix problem before retrying to provision a VDB", "stdout: {} stderr:{}".format(command_output, std_err))
 
 
-        # kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        # command = CommandFactory.server_add(self.repository.cb_shell_path, 
-        #                                     self.connection.environment.host.name,
-        #                                     self.parameters.couchbase_port, 
-        #                                     self.parameters.couchbase_admin, 
-        #                                     host_ip_output,
-        #                                     ','.join(services))
-        # logger.debug("add node command: {}".format(command))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
 
-        logger.debug("Add node Output {} ".format(command_output))
 
         command_output, std_err, exit_code = self.run_couchbase_command(
                                                 couchbase_command='rebalance',
@@ -1113,21 +1041,13 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
 
         
+        logger.debug("Rebalance Output {} stderr: {} exit_code: {} ".format(command_output, std_err, exit_code))
 
-        # kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
-        # command = CommandFactory.rebalance(self.repository.cb_shell_path, 
-        #                                     self.connection.environment.host.name,
-        #                                     self.parameters.couchbase_port, 
-        #                                     self.parameters.couchbase_admin)
-        # logger.debug("rebalancd command: {}".format(command))
-        # command_output, std_err, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
-        logger.debug("Rebalance Output {} ".format(command_output))
+        if exit_code != 0:
+            logger.debug("Rebalancing error")
+            raise UserError("Problem with rebalancing cluster", "Check an output and fix problem before retrying to provision a VDB", "stdout: {} stderr:{}".format(command_output, std_err))
+     
 
-        
-
-        # /opt/couchbase/bin/couchbase-cli node-init -c marcincoucheetgt2.dcol1.delphix.com:8091 -u slon -p slonslon -d --node-init-data-path /mnt/provision/slonik/data2 --node-init-index-path /mnt/provision/slonik/data2 --node-init-analytics-path /mnt/provision/slonik/data2 --node-init-eventing-path /mnt/provision/slonik/data2
-        # /opt/couchbase/bin/couchbase-cli server-add -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon -d --server-add http://marcincoucheetgt2.dcol1.delphix.com:8091 --server-add-username slon --server-add-password slonslon --services data,analytics
-        # /opt/couchbase/bin/couchbase-cli rebalance -c marcincoucheetgt.dcol1.delphix.com:8091 -u slon -p slonslon --no-progress-bar
 
 
 if __name__ == "__main__":
