@@ -210,8 +210,8 @@
         "prettyName": "Additional Nodes",
         "items": {
             "type": "object",
-            "required": ["environment", "environmentUser"],
-            "ordering": ["environment", "environmentUser", "fts_service", "analytics_service", "eventing_service"],
+            "required": ["environment", "environmentUser", "node_addr"],
+            "ordering": ["environment", "environmentUser", "node_addr", "fts_service", "analytics_service", "eventing_service"],
             "properties": {
                 "environment": {
                     "type": "string",
@@ -227,6 +227,12 @@
                     "prettyName": "Delphix Environment User",
                     "description": "",
                     "matches": "environment"
+                },
+                "node_addr": {
+                  "type": "string",
+                  "prettyName": "Node hostname / IP",
+                  "description": "",
+                  "default": ""
                 },
                 "fts_service": {
                   "default": false,

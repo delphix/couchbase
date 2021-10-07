@@ -154,6 +154,11 @@ class OSCommand(object):
     def mount(**kwargs):
         return "mount"
 
+
+    @staticmethod
+    def resolve_name(hostname, **kwargs):
+        return "getent ahostsv4 {hostname} | grep STREAM | head -n 1 | cut -d ' ' -f 1".format(hostname=hostname)
+
 class DatabaseCommand(object):
     def __init__(self):
         pass

@@ -1011,16 +1011,23 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         logger.debug("services to add: {}".format(services))
 
 
-        hostip_command = CommandFactory.get_ip_of_hostname()
-        logger.debug("host ip command: {}".format(hostip_command))
-        host_ip_output, std_err, exit_code = utilities.execute_bash(self.connection, hostip_command)
-        logger.debug("host ip Output {} ".format(host_ip_output))
+        # hostip_command = CommandFactory.get_ip_of_hostname()
+        # logger.debug("host ip command: {}".format(hostip_command))
+        # host_ip_output, std_err, exit_code = utilities.execute_bash(self.connection, hostip_command)
+        # logger.debug("host ip Output {} ".format(host_ip_output))
 
+
+        logger.debug("node host name / IP: {}".format(node_def["node_addr"]))
+
+        resolve_name_command = CommandFactory.resolve_name(hostname=node_def["node_addr"])
+        logger.debug("resolve_name_command command: {}".format(resolve_name_command))
+        resolve_name_output, std_err, exit_code = utilities.execute_bash(self.connection, resolve_name_command)
+        logger.debug("resolve_name_command Output {} ".format(resolve_name_output))
 
         command_output, std_err, exit_code = self.run_couchbase_command(
                                                 couchbase_command='server_add',
                                                 hostname=self.connection.environment.host.name,
-                                                newhost=host_ip_output,
+                                                newhost=resolve_name_output,
                                                 services=','.join(services)
                                              )
 

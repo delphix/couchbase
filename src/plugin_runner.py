@@ -202,3 +202,15 @@ def add_node_to_virtual(old_virtual_source):
   new_virt = dict(old_virtual_source)
   new_virt["node_list"] = []
   return new_virt
+
+
+@plugin.upgrade.virtual_source("2021.10.06")
+def add_node_to_virtual(old_virtual_source):
+  logger.debug("Doing upgrade to node_addr")
+  new_virt = dict(old_virtual_source)
+  logger.debug(new_virt)
+  for i in new_virt["node_list"]:
+      i["node_addr"] = ""
+  logger.debug("After changes")
+  logger.debug(new_virt)  
+  return new_virt
