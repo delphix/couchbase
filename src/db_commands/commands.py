@@ -75,7 +75,7 @@ class OSCommand(object):
 
     @staticmethod
     def get_ip_of_hostname(**kwargs):
-        return "hostname -i"
+        return "hostname -I"
 
     @staticmethod
     def check_directory(dir_path, sudo=False, uid=None, **kwargs):
@@ -153,6 +153,11 @@ class OSCommand(object):
     @staticmethod
     def mount(**kwargs):
         return "mount"
+
+
+    @staticmethod
+    def resolve_name(hostname, **kwargs):
+        return "getent ahostsv4 {hostname} | grep STREAM | head -n 1 | cut -d ' ' -f 1".format(hostname=hostname)
 
 class DatabaseCommand(object):
     def __init__(self):
@@ -274,6 +279,10 @@ class DatabaseCommand(object):
             source_port=source_port,
             source_username=source_username,
         )
+
+
+
+
 
     @staticmethod
     def get_stream_id(shell_path, source_hostname, source_port, source_username, cluster_name, **kwargs):

@@ -263,7 +263,13 @@ def get_bucket_name_with_size(bucket_output, bucket):
     Return `bucket_name:ramUsed` 
     as output from bucket_output string for bucket(passed in argument) 
     """
-    output = get_all_bucket_list_with_size(bucket_output, bucket)
+
+    logger.debug("HUHU")
+    logger.debug(bucket_output)
+
+    output = get_all_bucket_list_with_size(bucket_output)
+    logger.debug("HAHA")
+    logger.debug(output)
     output = ":".join(output)
     bucket_info = re.search(r"{},\d+".format(bucket), output).group()
     logger.debug("For Bucket {} detail is : {}".format(bucket, bucket_info))

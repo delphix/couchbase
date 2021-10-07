@@ -8,6 +8,7 @@
 import logging
 import os
 import json
+import re
 
 from generated.definitions import SnapshotDefinition
 import db_commands.constants
@@ -19,6 +20,7 @@ from internal_exceptions.database_exceptions import DuplicateClusterError
 from internal_exceptions.plugin_exceptions import MultipleSyncError, MultipleXDCRSyncError
 from operations import config
 from operations import linking
+from dlpx.virtualization.platform.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
@@ -43,16 +45,6 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
 
     
 
-    already_set_up_done, name_conflict = resync_process.check_duplicate_replication(
-        resync_process.parameters.stg_cluster_name)
-    if already_set_up_done:
-        logger.info("No need to XDCR setup again")
-    elif name_conflict:
-        raise DuplicateClusterError("Already cluster is present")
-    else:
-        logger.info("First time XDCR set up")
-        resync_process.xdcr_setup()
-
 
     # common steps for both XDCR & CB back up
 
@@ -61,11 +53,16 @@ def resync_xdcr(staged_source, repository, source_config, input_parameters):
     buckets_toprocess = linking.buckets_precreation(resync_process, bucket_details_source, bucket_details_staged)
 
     # run this for all buckets 
-    for bkt_name in buckets_toprocess:
-        resync_process.xdcr_replicate(bkt_name, bkt_name)        
+    resync_process.setup_replication()       
 
     logger.debug("Finding staging_uuid & cluster_name on staging")
-    staging_uuid, cluster_name_staging = resync_process.get_replication_uuid()
+    staging_uuid = resync_process.get_replication_uuid()
+
+
+    if staging_uuid is None:
+        logger.debug("Can't find a replication UUID after setting it up")
+        raise UserError("Can't find a replication UUID after setting it up")
+
     # bucket_details_staged = resync_process.bucket_list()
     # logger.debug("Filtering bucket name from output")
     # filter_bucket_list = helper_lib.filter_bucket_name_from_output(bucket_details_staged)
@@ -149,38 +146,34 @@ def start_staging_xdcr(staged_source, repository, source_config):
     dsource_type = staged_source.parameters.d_source_type
     rx_connection = staged_source.staged_connection
 
+
+    start_staging.stop_couchbase()
     start_staging.delete_config()
     # TODO error handling
     start_staging.restore_config(what='current')
     start_staging.start_couchbase()
 
-    already_set_up_done, name_conflict = start_staging.check_duplicate_replication(
-        start_staging.parameters.stg_cluster_name)
-    if already_set_up_done:
-        logger.info("No need to XDCR setup again")
-    elif name_conflict:
-        raise DuplicateClusterError("Already cluster is present")
-    else:
-        logger.info("First time XDCR set up")
-        start_staging.xdcr_setup()
+    # already_set_up_done, name_conflict = start_staging.check_duplicate_replication(
+    #     start_staging.parameters.stg_cluster_name)
+    # if already_set_up_done:
+    #     logger.info("No need to XDCR setup again")
+    # elif name_conflict:
+    #     raise DuplicateClusterError("Already cluster is present")
+    # else:
+    #     logger.info("First time XDCR set up")
+    #     start_staging.xdcr_setup()
 
-    config_setting = staged_source.parameters.config_settings_prov
 
-    if len(config_setting) > 0:
-        for config_bucket in config_setting:
-            logger.debug("Creating replication for {}".format(config_bucket["bucketName"]))
-            start_staging.xdcr_replicate(config_bucket["bucketName"], config_bucket["bucketName"])
-    else:
-        bucket_details_source = start_staging.source_bucket_list()
-        for bkt_name in helper_lib.filter_bucket_name_from_json(bucket_details_source):
-            logger.debug("Creating replication for {}".format(bkt_name))
-            start_staging.xdcr_replicate(bkt_name, bkt_name)
+    start_staging.setup_replication()
 
-        config_dir = start_staging.create_config_dir()
-        msg = "dSource Creation / Snapsync for dSource {} is in progress".format(source_config.pretty_name)
-        helper_lib.write_file(rx_connection, msg,
-                              config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type,
-                                                                                    source_config.pretty_name))
+
+
+
+    config_dir = start_staging.create_config_dir()
+    msg = "dSource Creation / Snapsync for dSource {} is in progress".format(source_config.pretty_name)
+    helper_lib.write_file(rx_connection, msg,
+                            config_dir + "/" + helper_lib.get_sync_lock_file_name(dsource_type,
+                                                                                source_config.pretty_name))
     logger.debug("D_SOURCE:{} enabled".format(source_config.pretty_name))
 
 
@@ -207,12 +200,7 @@ def stop_staging_xdcr(staged_source, repository, source_config):
     logger.debug("D_SOURCE:{} disabled".format(source_config.pretty_name))
 
 
-def d_source_status_xdcr(staged_source, repository, source_config):
-    status_obj = CouchbaseOperation(
-        Resource.ObjectBuilder.set_staged_source(staged_source).set_repository(repository).set_source_config(
-            source_config).build())
-    logger.debug("Checking status for D_SOURCE: {}".format(source_config.pretty_name))
-    return status_obj.status()
+
 
 
 
