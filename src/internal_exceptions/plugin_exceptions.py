@@ -9,7 +9,9 @@ Adding exceptions related to plugin.
 #######################################################################################################################
 
 from internal_exceptions.base_exceptions import PluginException
+import logging
 
+logger = logging.getLogger(__name__)
 
 class RepositoryDiscoveryError(PluginException):
     def __init__(self, message=""):
@@ -45,10 +47,11 @@ class MultipleXDCRSyncError(PluginException):
 
 
 class MultipleSnapSyncError(PluginException):
-    def __init__(self, message=""):
+    def __init__(self, message="", filename=""):
+        logger.debug("Exception MultipleSnapSyncError file: {}".format(filename))
         message = "SnapSync is running for any other dSource " + message
         super(MultipleSnapSyncError, self).__init__(message,
-                                                    "Please wait while the other operation completes and try again ",
+                                                    "Please wait while the other operation completes and try again or delete a lock file {}".format(filename),
                                                     "Staging host already in use for SNAP-SYNC. Only Serial operations supported for couchbase")
 
 

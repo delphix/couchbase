@@ -14,22 +14,22 @@ Method1: Using GUI
 ------------------
 
 1. Click on **Manage** (present on top-left of this page) and then **Plugins**.  
-![Screenshot](/couchbase-plugin/image/image2.png)
+![Screenshot](./image/image2.png)
 
 2. Click on **+** icon.  
-![Screenshot](/couchbase-plugin/image/image3.png)
+![Screenshot](./image/image3.png)
 
 3. Click on **Upload** a plugin.  
-![Screenshot](/couchbase-plugin/image/image4.png)
+![Screenshot](./image/image4.png)
 
 4. Select the `build(artifacts.json)` from your device.   
-![Screenshot](/couchbase-plugin/image/image5.png)
+![Screenshot](./image/image5.png)
 
 5. Click on **close** button.  
-![Screenshot](/couchbase-plugin/image/image6.png)
+![Screenshot](./image/image6.png)
 
 6. See the plugin version in **Plugins** section.  
-![Screenshot](/couchbase-plugin/image/image7.png)
+![Screenshot](./image/image7.png)
 
 
 Method2: Using dvp command

@@ -20,37 +20,63 @@ Ingesting Couchbase
 
 **Staging Requirements**: O/S user with the following privileges:
 
-1. Regular o/s user.
-2. Execute access on couchbase binaries [ chmod -R 775 /opt/couchbase ].
-3. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ].
-4. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and acts as a base folder for NFS mounts.
-5. sudo privileges for mount and umount. See sample below assuming `delphix_os` is used as delphix user.
-    ```shell
-    Defaults:delphixos !requiretty
-    delphixos ALL=NOPASSWD: \ 
-    /bin/mount, /bin/umount
-    ```
-6. Customers who intend to use CBBACKUPMGR (Couchbase backup manager ingestion) must follow the instructions to avoid source/production server dependency.
+1. Couchbase binaries installed and configured:
+    * disable a auto start using OS services 
 
-    * Provide all source server buckets related information (using the command below) in a file and place where `<Toolkit-Directory-Path>/couchbase_src_bucket_info.cfg`:     
-       `/opt/couchbase/bin/couchbase-cli bucket-list --cluster <sourcehost>:8091  --username $username --password $password`
-    
+        `systemctl disable couchbase-server.service`  
+        `systemctl stop couchbase-server.service`
+
+2. Regular o/s user - ex. `delphix_os`
+3. Add OS user to `couchbase` OS group
+4. Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ].
+5. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and acts as a base folder for NFS mounts.
+6. sudo privileges for mount and umount. See sample below assuming `delphix_os` is used as delphix user.
+
+   ```bash
+   Defaults:delphixos !requiretty
+   delphixos ALL=NOPASSWD: \ 
+   /bin/mount, /bin/umount
+   ```
+     
+7. If Couchbase service is installed using `couchbase` user, Delphix OS user ex. `delphix_os` has to be able to run any command as `couchbase` using sudo
+   ```shell
+   delphix_os ALL=(couchbase) NOPASSWD: ALL
+   ```
+8. Customers who intend to use CBBACKUPMGR (Couchbase backup manager ingestion) must provide access to an existing backup on the staging server. 
+   Ex. backup location `/u01/couchbase_backup`, repository name `delphix`
     * Create config file using the following command. This file will be required at the time of dSource creation using CBBACKUPMGR.   
       `/opt/couchbase/bin/cbbackupmgr config --archive /u01/couchbase_backup --repo delphix`
-    
-    * Get data from source host in backup directory of staging host   
-      `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<hostname> -u user -p password`
+    * Bring backup of the production system:   
+        * Copy an existing backup
+        * Backup from source host into backup directory of staging host   
+        `/opt/couchbase/bin/cbbackupmgr backup -a /u01/couchbase_backup -r delphix -c couchbase://<production server> -u user -p password`
        
   
 
 **Target Requirements**: O/S user with the following privileges:
 
-1. Regular o/s user.
-2. Execute access on couchbase binaries `[ chmod -R 775 /opt/couchbase ]`.
-3. Empty folder on host to hold Delphix toolkit  `[ approximate 2GB free space ]`.
-4. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as a base folder for NFS mounts.
-5. sudo privileges for mount and umount. See sample below assuming `delphix_os` is used as delphix user.   
-    `Defaults:delphixos !requiretty`  
-    `delphixos ALL=NOPASSWD: /bin/mount, /bin/umount`
+1. Couchbase binaries installed and configured:
+    * disable a auto start using OS services 
+
+        `systemctl disable couchbase-server.service`  
+        `systemctl stop couchbase-server.service`
+
+2. Regular o/s user - ex. `delphix_os`
+3. Add OS user to `couchbase` OS group
+4. Empty folder on host to hold Delphix toolkit  `[ approximate 2GB free space ]`.
+5. Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and act as a base folder for NFS mounts.
+6. sudo privileges for mount and umount. See sample below assuming `delphix_os` is used as delphix user.   
+
+   ```bash
+   Defaults:delphixos !requiretty
+   delphixos ALL=NOPASSWD: \ 
+   /bin/mount, /bin/umount
+   ```
+
+7. If Couchbase service is installed using `couchbase` user, Delphix OS user ex. `delphix_os` has to be able to run any command as `couchbase` using sudo
+   
+      ```
+      delphix_os ALL=(couchbase) NOPASSWD: ALL
+      ```
     
 

@@ -51,6 +51,8 @@ markdown_extensions:
   - codehilite:
       guess_lang: false
   - meta
+  - pymdownx.highlight
+
 
 plugins:
   - search
