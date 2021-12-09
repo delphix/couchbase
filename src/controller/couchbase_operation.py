@@ -310,6 +310,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                                 password=password)
 
             #status = helper_lib.get_value_of_key_from_json(server_info, 'status')
+
+            if self.dSource == False and self.parameters.node_list is not None and len(self.parameters.node_list) > 0:
+                multinode = True
+            else:
+                multinode = False
+
             
             for line in server_info.split("\n"):
                 logger.debug("Checking line: {}".format(line))
@@ -322,6 +328,10 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                         logger.debug("We have healthy active node")
                         return Status.ACTIVE
             
+                    if multinode and "warmup" in line:
+                        logger.debug("We have starting mode in multinode cluster")
+                        return Status.ACTIVE
+
             
             return Status.INACTIVE
 
