@@ -4,7 +4,7 @@ theme:
   palette:
     primary:
     accent:
-  logo: 'image/logo.png'
+  logo: 'image/delphix-logo-white.png'
   favicon: 'image/logo.png'
   font:
     text: Helvetica Neue
