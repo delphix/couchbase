@@ -1,11 +1,10 @@
 site_name: Couchbase Plugin
 theme:
   name: material
-  custom_dir: 'material/'
   palette:
     primary:
     accent:
-  logo: 'image/delphix-logo-white.png'
+  logo: 'image/logo.png'
   favicon: 'image/logo.png'
   font:
     text: Helvetica Neue
@@ -20,25 +19,17 @@ google_analytics:
 repo_url: https://github.com/delphix/couchbase-plugin
 repo_name: Github
 use_directory_urls: false
-pages:
-  - Overview: 'index.md'
-  - Installation: 'Installation.md'
-  - Plugin Development : 'PluginDevelopment.md'
-  - Discovery: 'Discovery.md'
-  - Linking: 'Linking.md'
-  - Provisioning: 'Provisioning.md'
+
 
 extra:
   social:
-    - type: sitemap
-      link: https://www.delphix.com/
-    - type: facebook
+    - icon: fontawesome/brands/facebook
       link: https://www.facebook.com/DelphixCorp/
-    - type: twitter
+    - icon: fontawesome/brands/twitter
       link: https://twitter.com/delphix
-    - type: linkedin
+    - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/company/delphix
-    - type: github
+    - icon: fontawesome/brands/github
       link: https://github.com/delphix
 
 extra_css:
@@ -47,12 +38,18 @@ extra_css:
 markdown_extensions:
   - toc:
       permalink: true
+      baselevel: 3
   - admonition
   - codehilite:
       guess_lang: false
   - meta
-  - pymdownx.highlight
-
 
 plugins:
   - search
+
+nav:
+  - 'index.md'
+  - 'Installation.md'
+  - 'Discovery.md'
+  - 'Linking.md'
+  - 'Provisioning.md'

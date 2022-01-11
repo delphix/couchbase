@@ -2,44 +2,64 @@
 
 Virtual databases are a virtualized copies of dSource. 
 
-Prerequisites
-=============
+## Prerequisites
 
 -   Required a linked dSource from a source host.
--   Added compatible target environment on Delphix Engine.
+-   All prerequisites configured on target environments
+-   Added compatible target environment on Delphix Engine 
 
 
-Provisioning a VDB
-==================
+## Provisioning a VDB
 
-1. Click on the icon highlighted in red color.   
-![Screenshot](/couchbase-plugin/image/image24.png)
+1. Start a provisioning wizard  
+
 
 2. Select the target host from the dropdown on which VDB needs to be created.  
-![Screenshot](/couchbase-plugin/image/image25.png)
+   ![Screenshot](./image/provision_1.png)
 
 3. Enter the following values for the target configuration:
-    - `Target Port Number`: Port number on which Couchbase services will be started.
-    - `Mount Path`: NFS mount path where dSource snapshot will be mounted by Engine.
-    - `Target Cluster name`: Cluster name which is required to be set up on the target host.
-    - `Cluster Ram Size`
-    - `Cluster Index Ram Size`
-    - `Cluster FTS Ram Size`
-    - `Cluster Eventing Ram Size`
-    - `Cluster Analytics Ram Size`
-    - `Target couchbase Admin User`
-    - `Target couchbase Admin password`  
-![Screenshot](/couchbase-plugin/image/image26.png)
+    - **Target Port Number**: Port number on which Couchbase services will be started. ( ex. 8091 )
+    - **Mount Path**: NFS mount path where dSource snapshot will be mounted by Engine ( ex. /mnt/provision/targetdemo )
+    - **Target Cluster name**: Cluster name which is required to be set up on the target host. ( ex. targetdemo )
+    - **Cluster Ram Size**: Whole Cluster memory
+    - **Cluster Index Ram Size**: Cluster indexer memory
+    - **Cluster FTS Ram Size**: Cluster FTS memory ( if needed and FTS service will be configured )
+    - **Cluster Eventing Ram Size**: Cluster Eventing memory ( if needed and Eventing service will be configured )
+    - **Cluster Analytics Ram Size**: Cluster Analytics memory ( if needed and Analytics service will be configured )
 
-4. Provision vFiles: Add VDB name and target group.  
-![Screenshot](/couchbase-plugin/image/image27.png)
+    ![Screenshot](./image/provision_2.png)
 
-5. No need to add Policies, select **Next**.
+4. Enter the following values for the target configuration:
+    - **Target couchbase Admin User**: Target Cluster admin username 
+    - **Target couchbase Admin password**: Target Cluster admin password
+    - Select services needed on the target cluster ( FTS, Eventing, Analytics )
 
-6. No need to add Masking, select **Next**.
+    ![Screenshot](./image/provision_3.png)
 
-7. No need to add Hooks, select **Next**.
+5. Provision plugin based VDB. Enter the follwing value:
+    - **VDB Name**: Delphix Target Cluster name
+    - **Target group**: Delphix Target Cluster group
+    ![Screenshot](./image/provision_4.png)
 
-8. Preview the summary and select **Submit**. 
+5. Select a policy for VDB, select **Next**.
+    ![Screenshot](./image/provision_5.png)
+
+6. Select masking for VDB if needed, select **Next**
+    ![Screenshot](./image/provision_6.png)
+
+7. Add hooks for VDB if needed, select **Next**
+   ![Screenshot](./image/provision_7.png)
+
+8. Preview the summary and select **Submit**
+   ![Screenshot](./image/provision_8.png)
 
 9. Once the VDB is created successfully, you can review the datasets on **Manage** > **Datasets** > **vdb Name**.
+   ![Screenshot](./image/provision_9.png)
+
+
+## Accesssing Target VDB Cluster
+
+Use a IP / Hostname of the target environment and VDB port defined above to access Target Cluster VDB.
+Admin user name and password are defined based on input from point 4.
+
+![Screenshot](./image/couchbase_target.png)
