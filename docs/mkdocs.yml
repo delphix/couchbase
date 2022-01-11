@@ -1,11 +1,10 @@
-site_name: Couchbase Plugin
+site_name: "Couchbase Plugin"
 theme:
   name: material
   palette:
-    primary:
+    primary: light blue
     accent:
   logo: 'image/delphix-logo-white.png'
-  favicon: 'image/logo.png'
   font:
     text: Helvetica Neue
     code: Ubuntu Mono
@@ -33,7 +32,7 @@ extra:
       link: https://github.com/delphix
 
 extra_css:
-  - 'stylesheets/extra.css'
+  - stylesheets/extra.css
 
 markdown_extensions:
   - toc:
