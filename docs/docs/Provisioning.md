@@ -118,6 +118,4 @@ Virtual databases are a virtualized copies of dSource.
 Use a IP / Hostname of the target environment and VDB port defined above to access Target Cluster VDB.
 Admin user name and password are defined based on input from point 4.
 
-An example screenshot of Couchbase Console of the provisioned VDB can be find below:
 
-![Screenshot](./image/couchbase_target.png)
