@@ -1,5 +1,5 @@
 id: 18f4ff11-b758-4bf2-9a37-719a22f5a4b8
-name: couchbase
+name: sc:couchbase
 externalVersion: "1.1.2"
 buildNumber: 1.1.2.0
 language: PYTHON27
