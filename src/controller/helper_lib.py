@@ -24,6 +24,9 @@ from datetime import datetime
 import db_commands.constants
 from db_commands.commands import CommandFactory
 from db_commands.constants import DEFAULT_CB_BIN_PATH
+from dlpx.virtualization.platform.exceptions import UserError
+
+from dlpx.virtualization.platform import Status
 
 from internal_exceptions.plugin_exceptions import RepositoryDiscoveryError, SourceConfigDiscoveryError, FileIOError, \
     UnmountFileSystemError
@@ -91,6 +94,45 @@ def find_version(source_connection, install_path):
     return version
 
 
+def find_ids(source_connection, install_path):
+    """ return the couchbase uid and gid"""
+    std_out, std_err, exit_code = utilities.execute_bash(source_connection,
+                                                             CommandFactory.get_ids(install_path))
+    logger.debug("find ids output: {}".format(std_out))
+    ids = re.search(r"[-rwx.]+\s\d\s([\d]+)\s([\d]+).*", std_out)
+    if ids:
+        uid = int(ids.group(1))
+        gid = int(ids.group(2))
+    else:
+        uid = -1
+        gid = -1
+    logger.debug("Couchbase user uid {} gid {}".format(uid, gid))
+    return (uid, gid)
+
+def find_whoami(source_connection):
+    """ return the user env id"""
+    std_out, std_err, exit_code = utilities.execute_bash(source_connection,
+                                                             CommandFactory.whoami())
+    logger.debug("find whoami output: {}".format(std_out))
+    ids = re.search(r"uid=([\d]+).*gid=([\d]+)", std_out)
+    if ids:
+        uid = int(ids.group(1))
+        gid = int(ids.group(2))
+    else:
+        uid = -1
+        gid = -1
+    logger.debug("Delphix user uid {} gid {}".format(uid, gid))
+    return (uid, gid)
+
+
+def need_sudo(source_connection, couchbase_uid, couchbase_gid):
+    (uid, gid) = find_whoami(source_connection)
+    if uid != couchbase_uid or gid != couchbase_gid:
+        return True
+    else:
+        return False
+
+
 def is_instance_present_of_gosecrets(source_connection):
     """ check couchbase server is running or not"""
     instance, stderr, exit_code = utilities.execute_bash(source_connection, CommandFactory.get_process())
@@ -119,9 +161,32 @@ def get_base_directory_of_given_path(binary_path):
     return path
 
 
-def get_all_bucket_list_with_size(bucket_output, bucket=None):
-    """ Return bucket name with ramUsed( adjust ramused value ) from bucket_output"""
-    logger.debug("bucket_output: {}".format(bucket_output))
+def remap_bucket_json(bucket):
+    output = {}
+    if 'bucketType' in bucket:
+        output['bucketType'] = bucket['bucketType']
+    if 'name' in bucket:
+        output['name'] = bucket['name']
+    if 'quota' in bucket and 'ram' in bucket['quota']:
+        output['ram'] = bucket['quota']['ram']
+    elif 'ramQuota' in bucket:
+        # this is in MB
+        output['ram'] = int(bucket['ramQuota']) * 1024 * 1024
+    else:
+        logger.debug('No memory in bucket - setting to default')
+        output['ram'] = 1024000
+    if 'compressionMode' in bucket:
+        output['compressionMode'] = bucket['compressionMode']
+    else:
+        output['compressionMode'] = None
+    return output
+
+def get_all_bucket_list_with_size(bucket_output):
+    """ 
+    Return bucket name with ramUsed( adjust ramused value ) 
+    from bucket_output
+    """
+
     additional_buffer = 10
     min_size = 104857600
     all_bucket_list = ""
@@ -160,16 +225,51 @@ def get_stg_all_bucket_list_with_ramquota_size(bucket_output):
     return all_bucket_list.split(":")
 
 
-def filter_bucket_name_from_output(bucket_output):
+def filter_bucket_name_from_json(bucket_output):
     """ Filter bucket name from bucket_output. Return list of bucket names present in  bucket_output"""
-    output = filter(lambda bucket: bucket.find(":") == -1, bucket_output)
+    output = [ x['name'] for x in bucket_output if x['ram'] > 0]
     logger.debug("Bucket list: {}".format(output))
     return output
 
+def filter_bucket_name_from_output(bucket_output):
+    """ 
+    Filter bucket name from bucket_output. 
+    Return list of bucket names present in  bucket_output
+    """
+    output = []
+    logger.debug("filter input: {}".format(bucket_output))
+    logger.debug("filter input: {}".format(len(bucket_output)))
+    if bucket_output != []:
+        output = map(lambda x: x["name"], bucket_output)
+    logger.debug("Bucket list: {}".format(output))
+    return output
+
+def get_bucket_object(bucket_output, bucket):
+    """ 
+    Return bucket dict
+    from bucket_output string for bucket(passed in argument) 
+    """
+    output = filter(lambda x: x['name'] == bucket, bucket_output)
+    if len(output) != 1:
+        ret = None
+    else:
+        ret = output[-1]
+    logger.debug("For Bucket {} detail is : {}".format(bucket, ret))
+    return ret
+
 
 def get_bucket_name_with_size(bucket_output, bucket):
-    """ Return `bucket_name:ramUsed` as output from bucket_output string for bucket(passed in argument) """
-    output = get_all_bucket_list_with_size(bucket_output, bucket)
+    """ 
+    Return `bucket_name:ramUsed` 
+    as output from bucket_output string for bucket(passed in argument) 
+    """
+
+    logger.debug("HUHU")
+    logger.debug(bucket_output)
+
+    output = get_all_bucket_list_with_size(bucket_output)
+    logger.debug("HAHA")
+    logger.debug(output)
     output = ":".join(output)
     bucket_info = re.search(r"{},\d+".format(bucket), output).group()
     logger.debug("For Bucket {} detail is : {}".format(bucket, bucket_info))
@@ -188,8 +288,9 @@ def get_bucketlist_to_namesize_list(bucket_output, bucket_list):
 
 def sleepForSecond(sec):
     # Sleep/Pause the execution for given seconds
+    logger.debug("sleeping for {}".format(sec))
     time.sleep(sec)
-
+    logger.debug("sleeping is over")
 
 
 def current_time():
@@ -288,3 +389,64 @@ def get_sync_lock_file_name(dsource_type, dsource_name):
         striped_dsource_name = dsource_name.replace(" ", "")
         sync_filename = str(striped_dsource_name) + str(sync_filename)
     return sync_filename
+
+
+def check_stale_mountpoint(connection, path):
+
+
+
+    output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.df(path))
+    if exit_code != 0:
+        if "No such file or directory" in stderr:
+            # this is actually OK
+            return False
+        else:
+            logger.error("df retured error - stale mount point or other error")
+            logger.error("stdout: {} stderr: {} exit_code: {}".format(output.encode('utf-8'), stderr.encode('utf-8'), exit_code))
+            return True
+    else:
+        return False
+
+
+def check_server_is_used(connection, path):
+
+    ret = Status.INACTIVE
+
+    output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.mount())
+    if exit_code != 0:
+        logger.error("mount retured error")
+        logger.error("stdout: {} stderr: {} exit_code: {}".format(output.encode('utf-8'), stderr.encode('utf-8'), exit_code))
+        raise UserError("Problem with reading mounted file systems", "Ask OS admin to check mount", stderr)
+    else:
+        # parse a mount output to find another Delphix mount points
+        fs_re = re.compile(r'(\S*)\son\s(\S*)\stype\s(\S*)')
+        for i in output.split("\n"):
+            match = re.search(fs_re, i)
+            if match is not None:
+                groups = match.groups()
+                if groups[2] == 'nfs':
+                    if path == groups[1]:
+                        # this is our mount point - skip it
+                        ret = Status.ACTIVE
+                        continue
+                    if "domain0" in groups[0] and "timeflow" in groups[0]:
+                        # this is a delphix mount point but it's not ours
+                        # raise an exception
+                        raise UserError("Another database (VDB or staging) is using this server.", "Disable another one to provision or enable this one", "{} {}".format(groups[0], groups[1]))
+
+
+    return ret
+
+
+
+def clean_stale_mountpoint(connection, path):
+
+
+
+    umount_std, umount_stderr, umount_exit_code = utilities.execute_bash(connection, CommandFactory.unmount_file_system(mount_path=path, options='-lf'))
+    if umount_exit_code != 0:
+        logger.error("Problem with cleaning mount path")
+        logger.error("stderr {}".format(umount_stderr))
+        raise UserError("Problem with cleaning mount path", "Ask OS admin to check mount points", umount_stderr)
+
+
