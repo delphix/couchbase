@@ -53,7 +53,7 @@ def source_config_discovery(source_connection, repository):
 
 
 @plugin.linked.post_snapshot()
-def linked_post_snapshot(staged_source, repository, source_config, snapshot_parameters):
+def linked_post_snapshot(staged_source, repository, source_config, optional_snapshot_parameters):
     return linked.post_snapshot(staged_source, repository, source_config,staged_source.parameters.d_source_type)
 
 
@@ -79,8 +79,8 @@ def linked_mount_specification(staged_source, repository):
 
 
 @plugin.linked.pre_snapshot()
-def linked_pre_snapshot(staged_source, repository, source_config, snapshot_parameters):
-    if int(snapshot_parameters.resync) == 1:
+def linked_pre_snapshot(staged_source, repository, source_config, optional_snapshot_parameters):
+    if int(optional_snapshot_parameters.resync) == 1:
         linked.resync(staged_source, repository, source_config, staged_source.parameters)
     else:
         linked.pre_snapshot(staged_source, repository, source_config, staged_source.parameters)
