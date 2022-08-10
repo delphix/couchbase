@@ -139,7 +139,7 @@ class _BucketMixin(Resource, MixinInterface):
                 logger.debug("parse json")
                 bucket_list_dict = json.loads(bucket_list)
                 logger.debug("remap json")
-                bucket_list_dict = map(helper_lib.remap_bucket_json, bucket_list_dict)
+                bucket_list_dict = list(map(helper_lib.remap_bucket_json, bucket_list_dict))
         logger.debug("Bucket details in staged environment: {}".format(bucket_list))
         return bucket_list_dict
 
@@ -179,13 +179,13 @@ class _BucketMixin(Resource, MixinInterface):
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
         logger.debug("stdout: {}".format(stdout))
         content = json.loads(stdout)
-        pending_docs = self._get_last_value_of_node_stats(content["nodeStats"].values()[0])
+        pending_docs = self._get_last_value_of_node_stats(list(content["nodeStats"].values())[0])
         while pending_docs != 0:
             logger.debug("Documents pending for replication: {}".format(pending_docs))
             helper_lib.sleepForSecond(30)
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
             content = json.loads(stdout)
-            pending_docs = self._get_last_value_of_node_stats(content["nodeStats"].values()[0])
+            pending_docs = self._get_last_value_of_node_stats(list(content["nodeStats"].values())[0])
         else:
             logger.debug("Replication for bucket {} completed".format(bucket_name))
 

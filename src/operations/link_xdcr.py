@@ -11,7 +11,7 @@ import json
 import re
 
 from generated.definitions import SnapshotDefinition
-import db_commands.constants
+import db_commands
 from controller import helper_lib
 from controller.couchbase_operation import CouchbaseOperation
 from controller.resource_builder import Resource

@@ -12,7 +12,7 @@ import time
 
 from dlpx.virtualization.platform import Status
 
-import db_commands.constants
+import db_commands
 from controller import helper_lib
 from controller.couchbase_operation import CouchbaseOperation
 from controller.helper_lib import get_bucket_size_in_MB, get_sync_lock_file_name
@@ -83,7 +83,7 @@ def configure_cluster(couchbase_obj):
         server_status = Status.INACTIVE
 
         #break the loop either end_time is exceeding from 1 hour or server is successfully started
-        while time.time() < end_time and server_status<>Status.ACTIVE:
+        while time.time() < end_time and server_status != Status.ACTIVE:
             helper_lib.sleepForSecond(1) # waiting for 1 second
             server_status = couchbase_obj.staging_bootstrap_status() # fetching status
             logger.debug("server status {}".format(server_status))

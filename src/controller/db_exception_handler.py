@@ -47,7 +47,7 @@ class DatabaseExceptionHandlerMeta(type):
             return super(DatabaseExceptionHandlerMeta, mcs).__new__(mcs, caller_name, caller_base_name,
                                                                     attributes_in_caller)
         except Exception as err:
-            logger.debug("Exception occurred in metaclass: {}".format(err.message))
+            logger.debug("Exception occurred in metaclass: {}".format(str(err)))
             raise
 
     @classmethod
@@ -94,13 +94,13 @@ class DatabaseExceptionHandlerMeta(type):
                 raise
 
             except Exception as error:
-                logger.debug("Caught Exception : {}".format(error.message))
+                logger.debug("Caught Exception : {}".format(str(error)))
                 logger.debug("pioro")
                 ttype, value, traceb = sys.exc_info()
                 logger.debug("type: {}, value: {}".format(ttype, value))
                 logger.debug("trackback")
                 logger.debug(traceback.format_exc())   
-                mcs._exception_generator_factory(error.message)
+                mcs._exception_generator_factory(str(error))
 
         return wrapper_function
 

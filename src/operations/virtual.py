@@ -128,7 +128,7 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
 
 
         #break the loop either end_time is exceeding from 1 minute or server is successfully started
-        while time.time() < end_time and sum(active_servers.values()) <> server_count:
+        while time.time() < end_time and sum(active_servers.values()) != server_count:
             logger.debug("server count 2: {} active servers: {}".format(server_count, sum(active_servers.values())))
             nodeno = 1
             helper_lib.sleepForSecond(1) # waiting for 1 second
@@ -275,7 +275,7 @@ def _do_provision(provision_process, snapshot):
         bucket_list = helper_lib.filter_bucket_name_from_output(bucket_list)
         logger.debug(bucket_list)
     except Exception as err:
-        logger.debug("Failed to get bucket list. Error is " + err.message)
+        logger.debug("Failed to get bucket list. Error is " + str(err))
 
 
     renamed_folders = []
@@ -332,7 +332,7 @@ def _cleanup(provision_process, snapshot):
         # Removing extra information captured like ramsize, ramused. Only need to get bucket name from output
         bucket_list = helper_lib.filter_bucket_name_from_output(bucket_list)
     except Exception as err:
-        logger.debug("Failed to get bucket list. Error is " + err.message)
+        logger.debug("Failed to get bucket list. Error is " + str(err))
 
     snapshot_bucket_list_and_size = snapshot.bucket_list
     snapshot_bucket = _find_bucket_name_from_snapshot(snapshot)
@@ -408,7 +408,7 @@ def vdb_start(virtual_source, repository, source_config):
                         make_nonprimary_connection(provision_process.connection, node['environment'], node['environmentUser']))
                 addnode.start_couchbase()
     except Exception:
-        raise CouchbaseServicesError(" Start").to_user_error(), None, sys.exc_info()[2]
+        raise CouchbaseServicesError(" Start").to_user_error()(None).with_traceback(sys.exc_info()[2])
 
 
 def vdb_stop(virtual_source, repository, source_config):
@@ -488,7 +488,7 @@ def post_snapshot(virtual_source, repository, source_config):
                               
         return snapshot
     except Exception as err:
-        logger.debug("Snap shot is failed with error {}".format(err.message))
+        logger.debug("Snap shot is failed with error {}".format(str(err)))
         raise
 
 

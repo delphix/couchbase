@@ -36,6 +36,6 @@ class MixinInterface(object):
             try:
                 return function(*args, **kwargs)
             except AttributeError as AE:
-                logger.debug("Failed to read value from schema objects. Error: {}".format(AE.message))
+                logger.debug("Failed to read value from schema objects. Error: {}".format(str(AE)))
                 raise
         return inner
