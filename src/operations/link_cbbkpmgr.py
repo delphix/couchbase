@@ -11,7 +11,7 @@ import json
 
 from dlpx.virtualization.platform import Status
 
-import db_commands.constants
+import db_commands
 from controller import helper_lib
 from controller.couchbase_operation import CouchbaseOperation
 from controller.helper_lib import get_bucket_size_in_MB, get_sync_lock_file_name
@@ -177,5 +177,5 @@ def unmount_file_system_in_error_case(staged_source, repository, source_config):
         helper_lib.unmount_file_system(staged_source.staged_connection, staged_source.parameters.mount_path)
         logger.debug("Un mounting completed")
     except Exception as err:
-        logger.debug("Un-mounting failed, reason: "+err.message)
+        logger.debug("Un-mounting failed, reason: "+str(err))
 

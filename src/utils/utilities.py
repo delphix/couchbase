@@ -52,7 +52,7 @@ def _handle_exit_code(exit_code, std_err=None, std_output=None, callback_func=No
                 if result_of_match:
                     return True
             except Exception as err:
-                logger.debug("Failed to execute call back function with error: {}".format(err.message))
+                logger.debug("Failed to execute call back function with error: {}".format(str(err)))
 
     error_details = std_output
     if error_details is None or error_details == "":

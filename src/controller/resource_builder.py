@@ -34,7 +34,7 @@ Part2:
 #######################################################################################################################
 
 import logging
-from db_exception_handler import DatabaseExceptionHandlerMeta
+from controller.db_exception_handler import DatabaseExceptionHandlerMeta
 
 logger = logging.getLogger(__name__)
 

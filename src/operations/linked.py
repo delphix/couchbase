@@ -8,9 +8,9 @@
 import logging
 import sys
 
-import config
+from operations import config
 import db_commands
-import linking
+from operations import linking
 from controller import helper_lib
 from controller.couchbase_operation import CouchbaseOperation
 from controller.resource_builder import Resource
@@ -38,12 +38,12 @@ def resync(staged_source, repository, source_config, input_parameters):
 
     except Exception as ex_obj:
         logger.debug(str(ex_obj))
-        logger.debug("Caught exception {}".format(ex_obj.message))
         _cleanup_in_exception_case(staged_source.staged_connection, True, False)
         if input_parameters.d_source_type == constants.CBBKPMGR:
             link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
         if isinstance(ex_obj, PluginException) or isinstance(ex_obj, DatabaseException) or isinstance(ex_obj, GenericUserError):
-            raise ex_obj.to_user_error(), None, sys.exc_info()[2]
+            raise ex_obj.to_user_error()(None).with_traceback(
+                sys.exc_info()[2])
         raise
     
 
@@ -59,12 +59,13 @@ def pre_snapshot(staged_source, repository, source_config, input_parameters):
     except UserError:
         raise
     except Exception as ex_obj:
-        logger.debug("Caught exception: {}".format(ex_obj.message))
+        logger.debug("Caught exception: {}".format(str(ex_obj)))
         _cleanup_in_exception_case(staged_source.staged_connection, True, True)
         if input_parameters.d_source_type == constants.CBBKPMGR:
             link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
         if isinstance(ex_obj, PluginException) or isinstance(ex_obj, DatabaseException) or isinstance(ex_obj, GenericUserError):
-            raise ex_obj.to_user_error(), None, sys.exc_info()[2]
+            raise ex_obj.to_user_error()(None).with_traceback(
+                sys.exc_info()[2])
         raise
 
 
@@ -80,7 +81,7 @@ def post_snapshot(staged_source, repository, source_config, dsource_type):
     except UserError:
         raise
     except Exception as err:
-        logger.debug("Caught exception in post snapshot: {}".format(err.message))
+        logger.debug("Caught exception in post snapshot: {}".format(str(err)))
         _cleanup_in_exception_case(staged_source.staged_connection, True, True)
         if dsource_type == constants.CBBKPMGR:
             link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
@@ -99,7 +100,7 @@ def start_staging(staged_source, repository, source_config):
     except UserError:
         raise
     except Exception as err:
-        logger.debug("Enable operation is failed!" + err.message)
+        logger.debug("Enable operation is failed!" + str(err))
         raise
 
 
@@ -114,7 +115,7 @@ def stop_staging(staged_source, repository, source_config):
     except UserError:
         raise
     except Exception as err:
-        logger.debug("Disable operation is failed!" + err.message)
+        logger.debug("Disable operation is failed!" + str(err))
         raise
     
 
@@ -152,5 +153,5 @@ def _cleanup_in_exception_case(rx_connection, is_sync, is_snap_sync):
                 not config.SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED:
             logger.debug(constants.ALREADY_SYNC_FILE_PRESENT_ON_HOST)
     except Exception as err :
-        logger.debug("Failed to clean up the lock files {}".format(err.message))
+        logger.debug("Failed to clean up the lock files {}".format(str(err)))
         raise
