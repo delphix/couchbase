@@ -80,7 +80,7 @@ def linked_mount_specification(staged_source, repository):
 
 @plugin.linked.pre_snapshot()
 def linked_pre_snapshot(staged_source, repository, source_config, optional_snapshot_parameters):
-    if int(optional_snapshot_parameters.resync) == 1:
+    if optional_snapshot_parameters and int(optional_snapshot_parameters.resync) == 1:
         linked.resync(staged_source, repository, source_config, staged_source.parameters)
     else:
         linked.pre_snapshot(staged_source, repository, source_config, staged_source.parameters)

@@ -424,7 +424,7 @@ def check_server_is_used(connection, path):
             match = re.search(fs_re, i)
             if match is not None:
                 groups = match.groups()
-                if groups[2] == 'nfs':
+                if groups[2] and str(groups[2]).startswith('nfs'):
                     if path == groups[1]:
                         # this is our mount point - skip it
                         ret = Status.ACTIVE
