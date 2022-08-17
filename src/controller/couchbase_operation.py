@@ -117,7 +117,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("couchbase command to run: {}".format(command))
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, environment_vars=env)
-        return [stdout.encode('utf-8'), stderr.encode('utf-8'), exit_code]
+        return [stdout, stderr, exit_code]
 
 
     def run_os_command(self, os_command, **kwargs):
@@ -131,7 +131,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("os command to run: {}".format(command))
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command)
-        return [stdout.encode('utf-8'), stderr.encode('utf-8'), exit_code]
+        return [stdout, stderr, exit_code]
 
 
     def restart_couchbase(self, provision=False):
@@ -190,9 +190,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         except Exception as err:
             logger.debug("Exception Error: {}".format(err)) 
             if self.status() == Status.INACTIVE:
-                logger.debug("Seems like couchbase service is not running. {}".format(err.message))
+                logger.debug("Seems like couchbase service is not running. {}".format(str(err)))
             else:
-                raise CouchbaseServicesError(err.message)
+                raise CouchbaseServicesError(str(err))
 
 
     def ip_file_name(self):
@@ -253,7 +253,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             # TODO
             # rewrite it 
             logger.debug("Exception: {}".format(str(error)))
-            if re.search("Unable to connect to host at", error.message):
+            if re.search("Unable to connect to host at", str(error)):
                 logger.debug("Couchbase service is not running")
             return Status.INACTIVE
 
@@ -339,7 +339,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             # TODO
             # rewrite it 
             logger.debug("Exception: {}".format(str(error)))
-            if re.search("Unable to connect to host at", error.message):
+            if re.search("Unable to connect to host at", str(error)):
                 logger.debug("Couchbase service is not running")
             return Status.INACTIVE
 
@@ -399,6 +399,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         while loop_var:
             bin_directory = os.path.dirname(bin_directory)
             loop_var = loop_var - 1
+        logger.debug(f"bin_directory={bin_directory}")
+        logger.debug(f"DELPHIX_HIDDEN_FOLDER={DELPHIX_HIDDEN_FOLDER}")
         dir_name = bin_directory + "/" + DELPHIX_HIDDEN_FOLDER
         if not helper_lib.check_dir_present(self.connection, dir_name):
             self.make_directory(dir_name, force_env_user=True)
@@ -440,7 +442,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             bucket_list = bucket_list.replace("False", "\"False\"")
             logger.debug("parse json")
             bucket_list_dict = json.loads(bucket_list)
-            bucket_list_dict = map(helper_lib.remap_bucket_json, bucket_list_dict)
+            bucket_list_dict = list(map(helper_lib.remap_bucket_json, bucket_list_dict))
 
         logger.debug("Source Bucket Information {}".format(bucket_list_dict))
         return bucket_list_dict
@@ -488,7 +490,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         backup_list = bucket_list.split('\n')
         logger.debug("Bucket search output: {}".format(backup_list))
-        date_list = map(self.get_backup_date, backup_list) 
+        date_list = list(map(self.get_backup_date, backup_list))
         date_list.sort()
         logger.debug("date list: {}".format(date_list))
         files_to_process = [ x for x in backup_list if date_list[-1] in x ]
@@ -647,7 +649,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         tobuild = 1
 
         #break the loop either end_time is exceeding from 1 minute or server is successfully started
-        while time.time() < end_time and tobuild <> 0:
+        while time.time() < end_time and tobuild != 0:
 
             command_output, std_err, exit_code = self.run_couchbase_command(
                                         couchbase_command='check_index_build',
@@ -976,10 +978,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("rename cluster - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
-
-
-
-
     def start_node_bootstrap(self):
         logger.debug("start start_node_bootstrap")
         self.start_couchbase(no_wait=True)
@@ -987,7 +985,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         server_status = Status.INACTIVE
 
         #break the loop either end_time is exceeding from 1 minute or server is successfully started
-        while time.time() < end_time and server_status<>Status.ACTIVE:
+        while time.time() < end_time and server_status != Status.ACTIVE:
             helper_lib.sleepForSecond(1) # waiting for 1 second
             server_status = self.staging_bootstrap_status() # fetching status
             logger.debug("server status {}".format(server_status))
@@ -1068,6 +1066,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
 
 if __name__ == "__main__":
-    print "Checking Couchbase Class"
+    # print "Checking Couchbase Class"
     test_object = CouchbaseOperation(Resource.ObjectBuilder.set_dsource(True).build())
     print (test_object.get_config_file_path.__doc__)

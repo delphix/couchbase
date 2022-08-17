@@ -21,7 +21,7 @@ import re
 import time
 from datetime import datetime
 
-import db_commands.constants
+import db_commands
 from db_commands.commands import CommandFactory
 from db_commands.constants import DEFAULT_CB_BIN_PATH
 from dlpx.virtualization.platform.exceptions import UserError
@@ -240,7 +240,7 @@ def filter_bucket_name_from_output(bucket_output):
     logger.debug("filter input: {}".format(bucket_output))
     logger.debug("filter input: {}".format(len(bucket_output)))
     if bucket_output != []:
-        output = map(lambda x: x["name"], bucket_output)
+        output = list(map(lambda x: x["name"], bucket_output))
     logger.debug("Bucket list: {}".format(output))
     return output
 
@@ -337,7 +337,7 @@ def check_dir_present(connection, dir):
             logger.debug("dir path found {} ".format(dir))
             return True
     except Exception as err:
-        logger.debug("directory path is absent: {}".format(err.message))
+        logger.debug("directory path is absent: {}".format(str(err)))
     return False
 
 
@@ -367,8 +367,8 @@ def unmount_file_system(rx_connection, path):
     try:
         utilities.execute_bash(rx_connection, CommandFactory.unmount_file_system(path))
     except Exception as err:
-        logger.debug("error here {}".format(err.message))
-        raise UnmountFileSystemError(err.message)
+        logger.debug("error here {}".format(str(err)))
+        raise UnmountFileSystemError(str(err))
 
 
 def get_bucket_size_in_MB(bucket_size, bkt_name_size):
@@ -402,7 +402,7 @@ def check_stale_mountpoint(connection, path):
             return False
         else:
             logger.error("df retured error - stale mount point or other error")
-            logger.error("stdout: {} stderr: {} exit_code: {}".format(output.encode('utf-8'), stderr.encode('utf-8'), exit_code))
+            logger.error("stdout: {} stderr: {} exit_code: {}".format(output, stderr, exit_code))
             return True
     else:
         return False
@@ -415,7 +415,7 @@ def check_server_is_used(connection, path):
     output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.mount())
     if exit_code != 0:
         logger.error("mount retured error")
-        logger.error("stdout: {} stderr: {} exit_code: {}".format(output.encode('utf-8'), stderr.encode('utf-8'), exit_code))
+        logger.error("stdout: {} stderr: {} exit_code: {}".format(output, stderr, exit_code))
         raise UserError("Problem with reading mounted file systems", "Ask OS admin to check mount", stderr)
     else:
         # parse a mount output to find another Delphix mount points

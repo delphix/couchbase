@@ -41,9 +41,9 @@ def find_repos(source_connection):
 
         return repositories
     except RepositoryDiscoveryError as err:
-        err.to_user_error(), None, sys.exc_info()[2]
+        raise err.to_user_error()(None).with_traceback(sys.exc_info()[2])
     except Exception as err:
-        logger.debug("find_repos: Caught unexpected exception!" + err.message)
+        logger.debug("find_repos: Caught unexpected exception!" + str(err))
         raise
 
 
@@ -79,7 +79,7 @@ def find_source(source_connection, repository):
             # source_configs.append(source_config)
             # return source_configs
     except SourceConfigDiscoveryError as err:
-        raise err.to_user_error(), None, sys.exc_info()[2]
+        raise err.to_user_error()(None).with_traceback(sys.exc_info()[2])
     except Exception as err:
-        logger.debug("find_source: Caught unexpected exception!" + err.message)
+        logger.debug("find_source: Caught unexpected exception!" + str(err))
         raise

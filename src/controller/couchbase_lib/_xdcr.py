@@ -79,7 +79,7 @@ class _XDCrMixin(Resource, MixinInterface):
             logger.debug("{} : XDCR replication create succeeded".format(tgt))
             helper_lib.sleepForSecond(2)
         except Exception as e:
-            logger.debug("XDCR error {}".format(e.message))
+            logger.debug("XDCR error {}".format(str(e)))
 
 
     def get_replication_uuid(self):
@@ -165,7 +165,7 @@ class _XDCrMixin(Resource, MixinInterface):
         except UserError:
             raise
         except Exception as err:
-            logger.warn("Error identified: {} ".format(err.message))
+            logger.warn("Error identified: {} ".format(str(err)))
             logger.warn("UUID is None. Not able to find any cluster")
             return None
 

@@ -3,7 +3,7 @@
 #
 
 
-from base_exceptions import DatabaseException
+from internal_exceptions.base_exceptions import DatabaseException
 
 
 # Some of below defined exceptions are not being used currently but designed for future updates.
