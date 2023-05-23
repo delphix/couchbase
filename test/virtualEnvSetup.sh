@@ -37,7 +37,7 @@ fi
 
 printMessage "Virtual environment name is : $env_name, Path: $ROOT_DIR"
 
-virtualenv -p python2.7 ${VIRTUAL_ENV_PATH}
+virtualenv -p python3.8 ${VIRTUAL_ENV_PATH}
 if [[ $? -ne 0 ]]; then
     rm -rf ${VIRTUAL_ENV_PATH}
     printMessage "Virtual environment creation failed, removed ${VIRTUAL_ENV_PATH}"
