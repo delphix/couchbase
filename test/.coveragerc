@@ -1,7 +1,7 @@
 [run]
 omit =
     */generated/*
-    */lib/python2.7/*
+    */lib/python3.8/*
     *__init__.py*
     *.png
     *.css
