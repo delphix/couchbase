@@ -8,16 +8,18 @@
 import logging
 import sys
 
-import config
+from operations import config
 import db_commands
+from operations import linking
 from controller import helper_lib
 from controller.couchbase_operation import CouchbaseOperation
 from controller.resource_builder import Resource
 from controller.helper_lib import delete_file
 from db_commands import constants
 from internal_exceptions.base_exceptions import PluginException, DatabaseException, GenericUserError
-from internal_exceptions.plugin_exceptions import MountPathError
+from internal_exceptions.plugin_exceptions import MountPathError, MultipleSnapSyncError
 from operations import link_cbbkpmgr, link_xdcr
+from dlpx.virtualization.platform.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
@@ -29,15 +31,21 @@ def resync(staged_source, repository, source_config, input_parameters):
             link_cbbkpmgr.resync_cbbkpmgr(staged_source, repository, source_config, input_parameters)
         elif input_parameters.d_source_type == constants.XDCR:
             link_xdcr.resync_xdcr(staged_source, repository, source_config, input_parameters)
+
+        logger.debug("Completed resynchronization")
+    except UserError:
+        raise
+
     except Exception as ex_obj:
-        logger.debug("Caught exception {}".format(ex_obj.message))
+        logger.debug(str(ex_obj))
         _cleanup_in_exception_case(staged_source.staged_connection, True, False)
         if input_parameters.d_source_type == constants.CBBKPMGR:
             link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
         if isinstance(ex_obj, PluginException) or isinstance(ex_obj, DatabaseException) or isinstance(ex_obj, GenericUserError):
-            raise ex_obj.to_user_error(), None, sys.exc_info()[2]
+            raise ex_obj.to_user_error()(None).with_traceback(
+                sys.exc_info()[2])
         raise
-    logger.debug("Completed resynchronization")
+    
 
 
 def pre_snapshot(staged_source, repository, source_config, input_parameters):
@@ -47,15 +55,19 @@ def pre_snapshot(staged_source, repository, source_config, input_parameters):
             link_cbbkpmgr.pre_snapshot_cbbkpmgr(staged_source, repository, source_config, input_parameters)
         elif input_parameters.d_source_type == constants.XDCR:
             link_xdcr.pre_snapshot_xdcr(staged_source, repository, source_config, input_parameters)
+        logger.debug("Completed Pre-snapshot")
+    except UserError:
+        raise
     except Exception as ex_obj:
-        logger.debug("Caught exception: {}".format(ex_obj.message))
+        logger.debug("Caught exception: {}".format(str(ex_obj)))
         _cleanup_in_exception_case(staged_source.staged_connection, True, True)
         if input_parameters.d_source_type == constants.CBBKPMGR:
             link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
         if isinstance(ex_obj, PluginException) or isinstance(ex_obj, DatabaseException) or isinstance(ex_obj, GenericUserError):
-            raise ex_obj.to_user_error(), None, sys.exc_info()[2]
+            raise ex_obj.to_user_error()(None).with_traceback(
+                sys.exc_info()[2])
         raise
-    logger.debug("Completed Pre-snapshot")
+
 
 
 def post_snapshot(staged_source, repository, source_config, dsource_type):
@@ -65,13 +77,16 @@ def post_snapshot(staged_source, repository, source_config, dsource_type):
             return link_cbbkpmgr.post_snapshot_cbbkpmgr(staged_source, repository, source_config, dsource_type)
         elif dsource_type == constants.XDCR:
             return link_xdcr.post_snapshot_xdcr(staged_source, repository, source_config, dsource_type)
+        logger.debug("Completed Post-snapshot")
+    except UserError:
+        raise
     except Exception as err:
-        logger.debug("Caught exception in post snapshot: {}".format(err.message))
+        logger.debug("Caught exception in post snapshot: {}".format(str(err)))
         _cleanup_in_exception_case(staged_source.staged_connection, True, True)
         if dsource_type == constants.CBBKPMGR:
             link_cbbkpmgr.unmount_file_system_in_error_case(staged_source, repository, source_config)
         raise
-    logger.debug("Completed Post-snapshot")
+    
 
 
 def start_staging(staged_source, repository, source_config):
@@ -81,8 +96,11 @@ def start_staging(staged_source, repository, source_config):
             link_cbbkpmgr.start_staging_cbbkpmgr(staged_source, repository, source_config)
         elif staged_source.parameters.d_source_type == constants.XDCR:
             link_xdcr.start_staging_xdcr(staged_source, repository, source_config)
+        logger.debug("D_SOURCE:{} enabled".format(source_config.pretty_name))
+    except UserError:
+        raise
     except Exception as err:
-        logger.debug("Enable operation is failed!" + err.message)
+        logger.debug("Enable operation is failed!" + str(err))
         raise
 
 
@@ -93,17 +111,18 @@ def stop_staging(staged_source, repository, source_config):
             link_cbbkpmgr.stop_staging_cbbkpmgr(staged_source, repository, source_config)
         elif staged_source.parameters.d_source_type == constants.XDCR:
             link_xdcr.stop_staging_xdcr(staged_source, repository, source_config)
-    except Exception as err:
-        logger.debug("Disable operation is failed!" + err.message)
+        logger.debug("D_SOURCE:{} disabled".format(source_config.pretty_name))
+    except UserError:
         raise
-    logger.debug("D_SOURCE:{} disabled".format(source_config.pretty_name))
+    except Exception as err:
+        logger.debug("Disable operation is failed!" + str(err))
+        raise
+    
 
 
 def d_source_status(staged_source, repository, source_config):
-    if staged_source.parameters.d_source_type == constants.CBBKPMGR:
-        return link_cbbkpmgr.d_source_status_cbbkpmgr(staged_source, repository, source_config)
-    elif staged_source.parameters.d_source_type == constants.XDCR:
-        return link_xdcr.d_source_status_xdcr(staged_source, repository, source_config)
+    return linking.d_source_status(staged_source, repository, source_config)
+
 
 
 #This function verifies that LOCK_SNAPSYNC_OPERATION or LOCK_SYNC_OPERATION is present in hidden folder or not
@@ -115,9 +134,9 @@ def check_mount_path(staged_source, repository):
     snapsync_filename = mount_path_check.create_config_dir() + "/" + db_commands.constants.LOCK_SNAPSYNC_OPERATION
     sync_filename = mount_path_check.create_config_dir() + "/" + db_commands.constants.LOCK_SYNC_OPERATION
     if helper_lib.check_file_present(staged_source.staged_connection, snapsync_filename) :
-        raise MountPathError("Another Snap-Sync process is in progress ").to_user_error(), None, sys.exc_info()[2]
+        raise MultipleSnapSyncError("Another Snap-Sync process is in progress ", snapsync_filename).to_user_error()
     if helper_lib.check_file_present(staged_source.staged_connection, sync_filename):
-        raise MountPathError("Another Sync process is in progress ").to_user_error(), None, sys.exc_info()[2]
+        raise MultipleSnapSyncError("Another Sync process is in progress ", sync_filename).to_user_error()
     return True
 
 
@@ -134,5 +153,5 @@ def _cleanup_in_exception_case(rx_connection, is_sync, is_snap_sync):
                 not config.SYNC_FLAG_TO_USE_CLEANUP_ONLY_IF_CURRENT_JOB_CREATED:
             logger.debug(constants.ALREADY_SYNC_FILE_PRESENT_ON_HOST)
     except Exception as err :
-        logger.debug("Failed to clean up the lock files {}".format(err.message))
+        logger.debug("Failed to clean up the lock files {}".format(str(err)))
         raise
