@@ -73,14 +73,14 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
     def gid(self):
         return self.__gid
 
-
     def run_couchbase_command(self, couchbase_command, **kwargs):
         logger.debug('run_couchbase_command')
         logger.debug('couchbase_command: {}'.format(couchbase_command))
         if "password" in kwargs:
-            password = kwargs.pop('password')
+            password = kwargs.get('password')
         else:
             password = self.parameters.couchbase_admin_password
+            kwargs["password"] = password
 
         if "username" in kwargs:
             username = kwargs.pop('username')
@@ -99,14 +99,27 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             env["newpass"] = kwargs.pop('newpass')
 
         if "source_password" in kwargs:
-            env["source_password"] = kwargs.pop('source_password')
+            env["source_password"] = kwargs.get('source_password')
 
         autoparams = [ "shell_path", "install_path", "username", "port", "sudo", "uid", "hostname"]
 
         new_kwargs = {k: v for k, v in kwargs.items() if k not in autoparams}
-
-        method_to_call = getattr(CommandFactory, couchbase_command)
-        command = method_to_call(shell_path=self.repository.cb_shell_path,
+        if couchbase_command not in ["get_server_list",
+                                     "couchbase_server_info",
+                                     "cb_backup_full",
+                                     "build_index",
+                                     "check_index_build",
+                                     "get_source_bucket_list",
+                                     "get_replication_uuid",
+                                     "get_stream_id",
+                                     "delete_replication",
+                                     "node_init",
+                                     "get_indexes_name",
+                                     "rename_cluster",
+                                     "server_add",
+                                     "rebalance"]:
+            method_to_call = getattr(CommandFactory, couchbase_command)
+            command = method_to_call(shell_path=self.repository.cb_shell_path,
                                  install_path=self.repository.cb_install_path,
                                  username=username,
                                  port=self.parameters.couchbase_port,
@@ -115,8 +128,26 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                  hostname=hostname,
                                  **new_kwargs)
 
-        logger.debug("couchbase command to run: {}".format(command))
-        stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, environment_vars=env)
+            logger.debug("couchbase command to run: {}".format(command))
+            stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, environment_vars=env)
+        else:
+            couchbase_command = couchbase_command+"_expect"
+            logger.debug('new_couchbase_command: {}'.format(couchbase_command))
+            method_to_call = getattr(CommandFactory, couchbase_command)
+            command, env_vars = method_to_call(shell_path=self.repository.cb_shell_path,
+                                               install_path=self.repository.cb_install_path,
+                                               username=username,
+                                               port=self.parameters.couchbase_port,
+                                               sudo=self.need_sudo,
+                                               uid=self.uid,
+                                               hostname=hostname,
+                                               **new_kwargs
+                                               )
+            env.update(env_vars)
+            logger.debug("couchbase command to run: {}".format(command))
+            stdout, stderr, exit_code = utilities.execute_expect(self.connection,
+                                                               command,
+                                                               environment_vars=env)
         return [stdout, stderr, exit_code]
 
 
@@ -337,7 +368,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         except Exception as error:
             # TODO
-            # rewrite it 
+            # rewrite it
             logger.debug("Exception: {}".format(str(error)))
             if re.search("Unable to connect to host at", str(error)):
                 logger.debug("Couchbase service is not running")

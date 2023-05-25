@@ -164,6 +164,25 @@ class DatabaseCommand(object):
         pass
 
     @staticmethod
+    def get_parent_expect_block():
+        exp_block = """
+            set timeout 10
+            match_max -d 50000
+            log_user 0
+            {command_specific_operations}
+            lassign [wait] pid spawnid os_error_flag value
+
+            if {{$os_error_flag == 0}} {{
+                puts "DLPX_EXPECT_EXIT_CODE: $value"
+            }} else {{
+                puts "errno: $value"
+            }}
+            set output $expect_out(buffer)
+            puts $output
+        """
+        return exp_block
+
+    @staticmethod
     def start_couchbase(install_path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{} {install_path} \-- -noinput -detached .".format(uid, install_path=install_path)
@@ -247,6 +266,41 @@ class DatabaseCommand(object):
 
 
     @staticmethod
+    def cluster_setting_expect(shell_path, hostname, port, username, cluster_ramsize,
+                        cluster_name, cluster_index_ramsize,
+                        cluster_fts_ramsize, cluster_eventing_ramsize,
+                        cluster_analytics_ramsize, **kwargs):
+        command = f"{shell_path} setting-cluster -c {hostname}:{port} -u {username} --password --cluster-ramsize {cluster_ramsize} --cluster-name {cluster_name} --cluster-index-ramsize {cluster_index_ramsize} --cluster-fts-ramsize {cluster_fts_ramsize} --cluster-eventing-ramsize {cluster_eventing_ramsize} --cluster-analytics-ramsize {cluster_analytics_ramsize}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                            expect {
+                                                -re "Enter password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    # @staticmethod
+    # def cluster_check(shell_path, hostname, port, username, **kwargs):
+    #     return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
+    #         shell_path=shell_path,
+    #         hostname=hostname,
+    #         port=port,
+    #         username=username
+    #     )
+
+
+    @staticmethod
     def xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name, **kwargs):
         return "{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --create --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-password $password --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
@@ -260,6 +314,31 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def xdcr_setup_expect(shell_path, source_hostname, source_port, source_username,
+                   hostname, port, username, cluster_name, **kwargs):
+        command = f"{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password --create --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-cluster-name {cluster_name} --xdcr-password"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""set env(CMD) "${env(CB_CMD)} ${env(XDCR_PWD)}"
+                                            eval spawn ${env(CMD)}
+                                            expect {
+                                                -re "Enter password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "XDCR_PWD": kwargs.get("password"),
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def xdcr_replicate(shell_path, source_hostname, source_port, source_username, source_bucket_name, target_bucket_name, cluster_name, hostname, port, username, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --create --xdcr-from-bucket {source_bucket_name} --xdcr-to-bucket {target_bucket_name} --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
@@ -270,6 +349,31 @@ class DatabaseCommand(object):
             target_bucket_name=target_bucket_name,
             cluster_name=cluster_name
         )
+
+    @staticmethod
+    def xdcr_replicate_expect(shell_path, source_hostname, source_port,
+                           source_username, source_bucket_name,
+                           target_bucket_name, cluster_name, hostname, port,
+                           username, **kwargs):
+        command = f"{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password --create --xdcr-from-bucket {source_bucket_name} --xdcr-to-bucket {target_bucket_name} --xdcr-cluster-name {cluster_name}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                            expect {
+                                                -re "Enter password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def get_replication_uuid(shell_path, source_hostname, source_port, source_username, **kwargs):
@@ -285,6 +389,29 @@ class DatabaseCommand(object):
 
 
     @staticmethod
+    def get_replication_uuid_expect(shell_path, source_hostname, source_port,
+                             source_username, **kwargs):
+        command = f"{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password --list"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def get_stream_id(shell_path, source_hostname, source_port, source_username, cluster_name, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --xdcr-cluster-name {cluster_name} --list".format(
             shell_path=shell_path,
@@ -293,6 +420,29 @@ class DatabaseCommand(object):
             source_username=source_username,
             cluster_name=cluster_name
         )
+
+    @staticmethod
+    def get_stream_id_expect(shell_path, source_hostname, source_port,
+                      source_username, cluster_name, **kwargs):
+        command = f"{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password --xdcr-cluster-name {cluster_name} --list"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def pause_replication(shell_path, source_hostname, source_port, source_username, cluster_name, id, **kwargs):
@@ -306,6 +456,29 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def pause_replication_expect(shell_path, source_hostname, source_port,
+                          source_username, cluster_name, id, **kwargs):
+        command = f"{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password --xdcr-cluster-name {cluster_name} --pause --xdcr-replicator={id}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                                    expect {
+                                                        -re "Enter password:.*" {
+                                                            send "${env(CB_PWD)}\n"
+                                                            exp_continue
+                                                        }
+                                                        timeout {
+                                                            puts "EXPECT SCRIPT TIMEOUT"
+                                                            exit 2
+                                                        }
+                                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def resume_replication(shell_path, source_hostname, source_port, source_username, cluster_name, id, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port}  --username {source_username} --password $source_password --xdcr-cluster-name {cluster_name} --resume --xdcr-replicator={id}".format(
             shell_path=shell_path,
@@ -317,6 +490,29 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def resume_replication_expect(shell_path, source_hostname, source_port,
+                                 source_username, cluster_name, id, **kwargs):
+        command = f"{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port}  --username {source_username} --password --xdcr-cluster-name {cluster_name} --resume --xdcr-replicator={id}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                                        expect {
+                                                            -re "Enter password:.*" {
+                                                                send "${env(CB_PWD)}\n"
+                                                                exp_continue
+                                                            }
+                                                            timeout {
+                                                                puts "EXPECT SCRIPT TIMEOUT"
+                                                                exit 2
+                                                            }
+                                                        }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def delete_replication(shell_path, source_hostname, source_port, source_username, id, cluster_name, **kwargs):
         return "{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password $source_password --delete --xdcr-replicator {id} --xdcr-cluster-name {cluster_name}".format(
             shell_path=shell_path,
@@ -326,6 +522,29 @@ class DatabaseCommand(object):
             id=id,
             cluster_name=cluster_name
         )
+
+    @staticmethod
+    def delete_replication_expect(shell_path, source_hostname, source_port,
+                           source_username, id, cluster_name, **kwargs):
+        command = f"{shell_path} xdcr-replicate --cluster {source_hostname}:{source_port} --username {source_username} --password --delete --xdcr-replicator {id} --xdcr-cluster-name {cluster_name}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                                                expect {
+                                                                    -re "Enter password:.*" {
+                                                                        send "${env(CB_PWD)}\n"
+                                                                        exp_continue
+                                                                    }
+                                                                    timeout {
+                                                                        puts "EXPECT SCRIPT TIMEOUT"
+                                                                        exit 2
+                                                                    }
+                                                                }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def xdcr_delete(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name, **kwargs):
@@ -341,6 +560,31 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def xdcr_delete_expect(shell_path, source_hostname, source_port, source_username,
+                    hostname, port, username, cluster_name, **kwargs):
+        command = f"{shell_path} xdcr-setup --cluster {source_hostname}:{source_port} --username {source_username} --password --delete --xdcr-hostname {hostname}:{port} --xdcr-username {username} --xdcr-cluster-name {cluster_name} --xdcr-password"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""set env(CMD) "${env(CB_CMD)} ${env(XDCR_PWD)}"
+                                                    eval spawn ${env(CMD)}
+                                                    expect {
+                                                        -re "Enter password:.*" {
+                                                            send "${env(CB_PWD)}\n"
+                                                            exp_continue
+                                                        }
+                                                        timeout {
+                                                            puts "EXPECT SCRIPT TIMEOUT"
+                                                            exit 2
+                                                        }
+                                                    }"""
+        )
+        env_vars = {
+            "XDCR_PWD": kwargs.get("password"),
+            "CB_PWD": kwargs.get("source_password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def get_source_bucket_list(shell_path, source_hostname, source_port, source_username, **kwargs):
         return "{shell_path} bucket-list --cluster {source_hostname}:{source_port} --username {source_username} --password $password -o json".format(
             shell_path=shell_path,
@@ -350,16 +594,82 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def get_source_bucket_list_expect(shell_path, source_hostname, source_port, source_username, **kwargs):
+        command = f"{shell_path} bucket-list --cluster {source_hostname}:{source_port} --username {source_username} --password -o json"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                            expect {
+                                -re "Enter password:.*" {
+                                    send "${env(CB_PWD)}\n"
+                                    exp_continue
+                                }
+                                timeout {
+                                    puts "EXPECT SCRIPT TIMEOUT"
+                                    exit 2
+                                }
+                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def get_server_list(shell_path, hostname, port, username, **kwargs):
         return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username
         )
 
     @staticmethod
+    def get_server_list_expect(shell_path, hostname, port, username, **kwargs):
+        command = f"{shell_path} server-list --cluster {hostname}:{port} --username {username} --password"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+            expect {
+                -re "Enter password:.*" {
+                    send "${env(CB_PWD)}\n"
+                    exp_continue
+                }
+                timeout {
+                    puts "EXPECT SCRIPT TIMEOUT"
+                    exit 2
+                }
+            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def node_init(shell_path, port, username, data_path, **kwargs):
         return "{shell_path} node-init  --cluster 127.0.0.1:{port} --username {username} --password $password --node-init-data-path {data_path}  --node-init-index-path {data_path} --node-init-analytics-path {data_path}  --node-init-hostname 127.0.0.1".format(
             shell_path=shell_path, port=port, username=username, data_path=data_path
         )
+
+    @staticmethod
+    def node_init_expect(shell_path, port, username, data_path, **kwargs):
+        command = f"{shell_path} node-init  --cluster 127.0.0.1:{port} --username {username} --password --node-init-data-path {data_path}  --node-init-index-path {data_path} --node-init-analytics-path {data_path}  --node-init-hostname 127.0.0.1"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                    expect {
+                        -re "Enter password:.*" {
+                            send "${env(CB_PWD)}\n"
+                            exp_continue
+                        }
+                        timeout {
+                            puts "EXPECT SCRIPT TIMEOUT"
+                            exit 2
+                        }
+                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def bucket_edit(shell_path, hostname, port, username, bucket_name, flush_value, **kwargs):
@@ -369,11 +679,57 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def bucket_edit_expect(shell_path, hostname, port, username, bucket_name,
+                    flush_value, **kwargs):
+        command = f"{shell_path} bucket-edit --cluster {hostname}:{port} --username {username} --password --bucket={bucket_name} --enable-flush {flush_value}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                            expect {
+                                -re "Enter password:.*" {
+                                    send "${env(CB_PWD)}\n"
+                                    exp_continue
+                                }
+                                timeout {
+                                    puts "EXPECT SCRIPT TIMEOUT"
+                                    exit 2
+                                }
+                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def bucket_edit_ramquota(shell_path, hostname, port, username, bucket_name, ramsize, **kwargs):
         return "{shell_path} bucket-edit --cluster {hostname}:{port} --username {username} --password $password --bucket={bucket_name} --bucket-ramsize {ramsize}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username, bucket_name=bucket_name,
             ramsize=ramsize
         )
+
+    @staticmethod
+    def bucket_edit_ramquota_expect(shell_path, hostname, port, username, bucket_name,
+                             ramsize, **kwargs):
+        command = f"{shell_path} bucket-edit --cluster {hostname}:{port} --username {username} --password --bucket={bucket_name} --bucket-ramsize {ramsize}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def bucket_delete(shell_path, hostname, port, username, bucket_name, **kwargs):
@@ -382,10 +738,56 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def bucket_delete_expect(shell_path, hostname, port, username, bucket_name,
+                             **kwargs):
+        command = f"{shell_path} bucket-delete --cluster {hostname}:{port} --username {username} --password --bucket={bucket_name}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def bucket_flush(shell_path, hostname, port, username, bucket_name, **kwargs):
         return "echo 'Yes' | {shell_path}  bucket-flush --cluster {hostname}:{port} --username {username} --password $password --bucket={bucket_name}".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username, bucket_name=bucket_name
         )
+
+    @staticmethod
+    def bucket_flush_expect(shell_path, hostname, port, username, bucket_name,
+                            **kwargs):
+        command = f"echo 'Yes' | {shell_path}  bucket-flush --cluster {hostname}:{port} --username {username} --password $password --bucket={bucket_name}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def bucket_create(shell_path, hostname, port, username, bucket_name, ramsize, evictionpolicy, bucket_type, bucket_compression, **kwargs):
@@ -396,16 +798,85 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def bucket_create_expect(shell_path, hostname, port, username, bucket_name,
+                             ramsize, evictionpolicy, bucket_type, bucket_compression,
+                             **kwargs):
+        command = f"{shell_path} bucket-create --cluster 127.0.0.1:{port} --username {username} --password --bucket {bucket_name} --bucket-type {bucket_type} --bucket-ramsize {ramsize} --bucket-replica 0 --bucket-eviction-policy {evictionpolicy} {bucket_compression} --conflict-resolution sequence --wait"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                            expect {
+                                                -re "Enter password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def bucket_list(shell_path, hostname, port, username, **kwargs):
         return "{shell_path} bucket-list --cluster {hostname}:{port} --username {username} --password $password -o json".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username,
         )
 
     @staticmethod
+    def bucket_list_expect(shell_path, hostname, port, username, **kwargs):
+        command = f"{shell_path} bucket-list --cluster {hostname}:{port} --username {username} --password -o json"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                    expect {
+                        -re "Enter password:.*" {
+                            send "${env(CB_PWD)}\n"
+                            exp_continue
+                        }
+                        timeout {
+                            puts "EXPECT SCRIPT TIMEOUT"
+                            exit 2
+                        }
+                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def get_indexes_name(hostname, port, username, **kwargs):
         return "curl {username}:$password@{hostname}:{port}/indexStatus".format(
             hostname=hostname, port=port, username=username
         )
+
+    @staticmethod
+    def get_indexes_name_expect(hostname, port, username, **kwargs):
+        command = f"curl -u {username} {hostname}:{port}/indexStatus"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                            expect {
+                                -re "Enter host password for user.*" {
+                                    send "${env(CB_PWD)}\n"
+                                    exp_continue
+                                }
+                                timeout {
+                                    puts "EXPECT SCRIPT TIMEOUT"
+                                    exit 2
+                                }
+                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
 
     @staticmethod
     def get_backup_bucket_list(path, sudo=False, uid=None, **kwargs):
@@ -418,10 +889,6 @@ class DatabaseCommand(object):
                 path=path
             )
 
-
-
-
-
     @staticmethod
     def build_index(base_path, hostname, port, username, index_def, **kwargs):
         return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s='{index_def}'".format(
@@ -429,10 +896,76 @@ class DatabaseCommand(object):
         )
 
     @staticmethod
+    def build_index_expect(base_path, hostname, port, username, index_def, **kwargs):
+        command = f"{base_path}/cbq -e {hostname}:{port} -u {username} -q=true"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter Password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        -re ".*ERROR 100 :.*" {
+                                            puts "Error occured"
+                                            send "\x04"
+                                        }
+                                            -re "(.|\n)*cbq>(.|\n)*" {
+                                            send "${env(CB_QUERY)};\n"
+                                            expect -re "\n(.|\n)*"
+                                            send "\x04"
+                                            expect eof
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command,
+            "CB_QUERY": index_def
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def check_index_build(base_path, hostname, port, username, **kwargs):
         return "{base_path}/cbq -e {hostname}:{port} -u {username} -p $password -q=true -s=\"SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'\"".format(
             base_path=base_path, hostname=hostname, port=port, username=username
         )
+
+    @staticmethod
+    def check_index_build_expect(base_path, hostname, port, username, **kwargs):
+        command = f"{base_path}/cbq -e {hostname}:{port} -u {username} -q=true"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                            expect {
+                                                -re "Enter Password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                -re ".*ERROR 100 :.*" {
+                                                    puts "Error occured"
+                                                    send "\x04"
+                                                }
+                                                    -re "(.|\n)*cbq>(.|\n)*" {
+                                                    send "${env(CB_QUERY)};\n"
+                                                    expect -re "\n(.|\n)*"
+                                                    send "\x04"
+                                                    expect eof
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command,
+            "CB_QUERY": "SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'"
+        }
+        return expect_block, env_vars
 
     @staticmethod
     def cb_backup_full(base_path, backup_location, backup_repo, hostname, port, username, csv_bucket_list, sudo, uid, skip, **kwargs):
@@ -463,6 +996,35 @@ class DatabaseCommand(object):
             )
 
     @staticmethod
+    def cb_backup_full_expect(base_path, backup_location, backup_repo, hostname, port,
+                       username, csv_bucket_list, sudo, uid, skip, **kwargs):
+        if sudo:
+            command = f"sudo -u \#{uid} {base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password \
+                        --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}"
+        else:
+            command = f"{base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password \
+                        --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                            expect {
+                                -re "Password:.*" {
+                                    send "${env(CB_PWD)}\n"
+                                    set timeout -1
+                                    exp_continue
+                                }
+                                timeout {
+                                    puts "EXPECT SCRIPT TIMEOUT"
+                                    exit 2
+                                }
+                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def monitor_replication(source_username, source_hostname, source_port, bucket_name, uuid, **kwargs):
         return "curl --silent -u {source_username}:$password http://{source_hostname}:{source_port}/pools/default/buckets/{bucket_name}/stats/replications%2F{uuid}%2F{bucket_name}%2F{bucket_name}%2Fchanges_left".format(
             source_username=source_username,
@@ -479,11 +1041,158 @@ class DatabaseCommand(object):
     #     )
 
     @staticmethod
+    def monitor_replication_expect(source_username, source_hostname, source_port,
+                            bucket_name, uuid, **kwargs):
+        command = f"curl --silent -u {source_username} http://{source_hostname}:{source_port}/pools/default/buckets/{bucket_name}/stats/replications%2F{uuid}%2F{bucket_name}%2F{bucket_name}%2Fchanges_left"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter host password for user.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    # @staticmethod
+    # def couchbase_server_info(shell_path, hostname, port, username, **kwargs):
+    #     return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ".format(
+    #         shell_path=shell_path, hostname=hostname, port=port, username=username
+    #     )
+
+    @staticmethod
     def couchbase_server_info(shell_path, hostname, username, port, **kwargs):
         return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password".format(
             shell_path=shell_path, hostname=hostname, port=port, username=username
         )
         #return("{shell_path}".format(shell_path=shell_path))
+
+    @staticmethod
+    def couchbase_server_info_expect(shell_path, hostname, username, port, **kwargs):
+        command = f"{shell_path} server-info --cluster {hostname}:{port} --username {username} --password"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                    expect {
+                        -re "Enter password:.*" {
+                            send "${env(CB_PWD)}\n"
+                            exp_continue
+                        }
+                        timeout {
+                            puts "EXPECT SCRIPT TIMEOUT"
+                            exit 2
+                        }
+                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
+    def rename_cluster(shell_path, hostname, port, username, newuser, newname, **kwargs):
+        return "{shell_path} setting-cluster --cluster {hostname}:{port} --username {username} --password $password --cluster-username {newuser} --cluster-password $newpass --cluster-name {newname}".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username,
+            newuser=newuser, newname=newname
+        )
+
+    @staticmethod
+    def rename_cluster_expect(shell_path, hostname, port, username, newuser, newname, **kwargs):
+        command = f"{shell_path} setting-cluster --cluster {hostname}:{port} --username {username} --password --cluster-username {newuser} --cluster-name {newname} --cluster-password"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""set env(CMD) "${env(CB_CMD)} ${env(NEW_CB_PWD)}"
+                                                    eval spawn ${env(CMD)}
+                                                    expect {
+                                                        -re "Enter password:.*" {
+                                                            send "${env(CB_PWD)}\n"
+                                                            exp_continue
+                                                        }
+                                                        timeout {
+                                                            puts "EXPECT SCRIPT TIMEOUT"
+                                                            exit 2
+                                                        }
+                                                    }"""
+        )
+        env_vars = {
+            "NEW_CB_PWD": kwargs.get("newpass"),
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+    @staticmethod
+    def server_add(shell_path, hostname, port, username, newhost, services, **kwargs):
+        return "{shell_path} server-add --cluster {hostname}:{port} --username {username} --password $password \
+            --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password $password \
+            --services {services}".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username, services=services, newhost=newhost
+        )
+
+    @staticmethod
+    def server_add_expect(shell_path, hostname, port, username, newhost, services,
+                   **kwargs):
+        command = f"{shell_path} server-add --cluster {hostname}:{port} --username {username} --password \
+                --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password $password \
+                --services {services}"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                            expect {
+                                -re "Enter password:.*" {
+                                    send "${env(CB_PWD)}\n"
+                                    exp_continue
+                                }
+                                timeout {
+                                    puts "EXPECT SCRIPT TIMEOUT"
+                                    exit 2
+                                }
+                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
+
+    @staticmethod
+    def rebalance(shell_path, hostname, port, username, **kwargs):
+        return "{shell_path} rebalance --cluster {hostname}:{port} --username {username} --password $password \
+            --no-progress-bar".format(
+            shell_path=shell_path, hostname=hostname, port=port, username=username
+        )
+
+    @staticmethod
+    def rebalance_expect(shell_path, hostname, port, username, **kwargs):
+        command = f"{shell_path} rebalance --cluster {hostname}:{port} --username {username} --password \
+                --no-progress-bar"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                    expect {
+                                        -re "Enter password:.*" {
+                                            send "${env(CB_PWD)}\n"
+                                            exp_continue
+                                        }
+                                        timeout {
+                                            puts "EXPECT SCRIPT TIMEOUT"
+                                            exit 2
+                                        }
+                                    }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command
+        }
+        return expect_block, env_vars
+
 
     @staticmethod
     def rename_cluster(shell_path, hostname, port, username, newuser, newname, **kwargs):

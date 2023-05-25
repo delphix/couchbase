@@ -39,10 +39,14 @@ class _BucketMixin(Resource, MixinInterface):
         logger.debug("Editing bucket: {} ".format(bucket_name))
         self.__validate_bucket_name(bucket_name)
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_edit(bucket_name=bucket_name, flush_value=flush_value, **env)
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        kwargs = {ENV_VAR_KEY: {
+            'password': self.parameters.couchbase_admin_password}}
+        env.update(kwargs[ENV_VAR_KEY])
+        # command = CommandFactory.bucket_edit(bucket_name=bucket_name, flush_value=flush_value, **env)
+        command, env_vars = CommandFactory.bucket_edit_expect(bucket_name=bucket_name, flush_value=flush_value, **env)
+        kwargs[ENV_VAR_KEY].update(env_vars)
         logger.debug("edit bucket {}".format(command))
-        return utilities.execute_bash(self.connection, command, **kwargs)
+        return utilities.execute_expect(self.connection, command, **kwargs)
 
     def bucket_edit_ramquota(self, bucket_name, _ramsize):
         """
@@ -53,31 +57,45 @@ class _BucketMixin(Resource, MixinInterface):
         # It requires the before bucket delete
         logger.debug("Editing bucket: {} ".format(bucket_name))
         self.__validate_bucket_name(bucket_name)
+        kwargs = {ENV_VAR_KEY: {
+            'password': self.parameters.couchbase_admin_password}}
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_edit_ramquota(bucket_name=bucket_name, ramsize=_ramsize, **env)
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        env.update(kwargs[ENV_VAR_KEY])
+        # command = CommandFactory.bucket_edit_ramquota(bucket_name=bucket_name, ramsize=_ramsize, **env)
+        command, env_vars = CommandFactory.bucket_edit_ramquota_expect(bucket_name=bucket_name,
+                                                      ramsize=_ramsize, **env)
+        kwargs[ENV_VAR_KEY].update(env_vars)
         logger.debug("edit ram bucket {}".format(command))
-        return utilities.execute_bash(self.connection, command, **kwargs)
+        return utilities.execute_expect(self.connection, command, **kwargs)
 
     def bucket_delete(self, bucket_name):
         # To delete the bucket
         logger.debug("Deleting bucket: {} ".format(bucket_name))
         self.__validate_bucket_name(bucket_name)
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_delete(bucket_name=bucket_name, **env)
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        kwargs = {ENV_VAR_KEY: {
+            'password': self.parameters.couchbase_admin_password}}
+        env.update(kwargs[ENV_VAR_KEY])
+        # command = CommandFactory.bucket_delete(bucket_name=bucket_name, **env)
+        command, env_vars = CommandFactory.bucket_delete_expect(bucket_name=bucket_name, **env)
+        kwargs[ENV_VAR_KEY].update(env_vars)
         logger.debug("delete bucket {}".format(command))
-        return utilities.execute_bash(self.connection, command, **kwargs)
+        return utilities.execute_expect(self.connection, command, **kwargs)
 
     def bucket_flush(self, bucket_name):
         # It requires the before bucket delete
         logger.debug("Flushing bucket: {} ".format(bucket_name))
         self.__validate_bucket_name(bucket_name)
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_flush(bucket_name=bucket_name, **env)
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        kwargs = {ENV_VAR_KEY: {
+            'password': self.parameters.couchbase_admin_password}}
+        env.update(kwargs[ENV_VAR_KEY])
+        # command, env_vars = CommandFactory.bucket_flush(bucket_name=bucket_name, **env)
+        command, env_vars = CommandFactory.bucket_flush_expect(
+            bucket_name=bucket_name, **env)
+        kwargs[ENV_VAR_KEY].update(env_vars)
         logger.debug("flush bucket {}".format(command))
-        return utilities.execute_bash(self.connection, command, **kwargs)
+        return utilities.execute_expect(self.connection, command, **kwargs)
 
     def bucket_remove(self, bucket_name):
         logger.debug("Removing bucket: {} ".format(bucket_name))
@@ -107,10 +125,14 @@ class _BucketMixin(Resource, MixinInterface):
 
         policy = self.parameters.bucket_eviction_policy
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, bucket_type=bucket_type, bucket_compression=bucket_compression, **env)
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        kwargs = {ENV_VAR_KEY: {
+            'password': self.parameters.couchbase_admin_password}}
+        env.update(kwargs[ENV_VAR_KEY])
+        # command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, bucket_type=bucket_type, bucket_compression=bucket_compression, **env)
+        command, env_vars = CommandFactory.bucket_create_expect(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, bucket_type=bucket_type, bucket_compression=bucket_compression, **env)
         logger.debug("create bucket {}".format(command))
-        output, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        kwargs[ENV_VAR_KEY].update(env_vars)
+        output, error, exit_code = utilities.execute_expect(self.connection, command, **kwargs)
         logger.debug("create bucket output: {} {} {}".format(output, error, exit_code))
         helper_lib.sleepForSecond(2)
 
@@ -120,10 +142,17 @@ class _BucketMixin(Resource, MixinInterface):
         # It will return also other information like ramused, ramsize etc
         logger.debug("Finding staged bucket list")
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_list(**env)
-        kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        kwargs = {ENV_VAR_KEY: {
+            'password': self.parameters.couchbase_admin_password}}
+        env.update(kwargs[ENV_VAR_KEY])
+        # command = CommandFactory.bucket_list(**env)
+        command, env_vars = CommandFactory.bucket_list_expect(**env)
+        kwargs[ENV_VAR_KEY].update(env_vars)
         logger.debug("list bucket {}".format(command))
-        bucket_list, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        # bucket_list, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        bucket_list, error, exit_code = utilities.execute_expect(self.connection,
+                                                               command,
+                                                               **kwargs)
         logger.debug("list bucket output{}".format(bucket_list))
         if return_type == list:
             #bucket_list = bucket_list.split("\n")
@@ -142,7 +171,6 @@ class _BucketMixin(Resource, MixinInterface):
                 bucket_list_dict = list(map(helper_lib.remap_bucket_json, bucket_list_dict))
         logger.debug("Bucket details in staged environment: {}".format(bucket_list))
         return bucket_list_dict
-
 
     def move_bucket(self, bucket_name, direction):
         logger.debug("Rename folder")
@@ -172,11 +200,14 @@ class _BucketMixin(Resource, MixinInterface):
         # To monitor the replication
         logger.debug("Monitoring the replication for bucket {} ".format(bucket_name))
         kwargs = {ENV_VAR_KEY: {'password': self.staged_source.parameters.xdcr_admin_password}}
-        command = CommandFactory.monitor_replication(source_username=self.staged_source.parameters.xdcr_admin,
+        env = kwargs[ENV_VAR_KEY]
+        command, env_vars = CommandFactory.monitor_replication_expect(source_username=self.staged_source.parameters.xdcr_admin,
                                                      source_hostname=self.source_config.couchbase_src_host,
                                                      source_port=self.source_config.couchbase_src_port,
-                                                     bucket_name=bucket_name, uuid=staging_UUID)
-        stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+                                                     bucket_name=bucket_name, uuid=staging_UUID,
+                                                     **env)
+        kwargs[ENV_VAR_KEY].update(env_vars)
+        stdout, stderr, exit_code = utilities.execute_expect(self.connection, command, **kwargs)
         logger.debug("stdout: {}".format(stdout))
         content = json.loads(stdout)
         pending_docs = self._get_last_value_of_node_stats(list(content["nodeStats"].values())[0])
