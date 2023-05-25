@@ -11,8 +11,10 @@
 import logging
 from utils import utilities
 import json
+from os.path import join
 from internal_exceptions.database_exceptions import BucketOperationError
 from controller import helper_lib
+from controller.helper_lib import remap_bucket_json
 from controller.couchbase_lib._mixin_interface import MixinInterface
 from controller.resource_builder import Resource
 from db_commands.commands import CommandFactory
@@ -39,6 +41,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_edit(bucket_name=bucket_name, flush_value=flush_value, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("edit bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_edit_ramquota(self, bucket_name, _ramsize):
@@ -53,6 +56,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_edit_ramquota(bucket_name=bucket_name, ramsize=_ramsize, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("edit ram bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_delete(self, bucket_name):
@@ -62,6 +66,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_delete(bucket_name=bucket_name, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("delete bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_flush(self, bucket_name):
@@ -71,6 +76,7 @@ class _BucketMixin(Resource, MixinInterface):
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_flush(bucket_name=bucket_name, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("flush bucket {}".format(command))
         return utilities.execute_bash(self.connection, command, **kwargs)
 
     def bucket_remove(self, bucket_name):
@@ -81,31 +87,86 @@ class _BucketMixin(Resource, MixinInterface):
         self.bucket_delete(bucket_name)
         helper_lib.sleepForSecond(2)
 
-    def bucket_create(self, bucket_name, ram_size=0):
+    def bucket_create(self, bucket_name, ram_size, bucket_type, bucket_compression):
         logger.debug("Creating bucket: {} ".format(bucket_name))
         # To create the bucket with given ram size
         self.__validate_bucket_name(bucket_name)
         if ram_size is None:
             logger.debug("Needed ramsize for bucket_create. Currently it is: {}".format(ram_size))
             return
+        
+
+        if bucket_type == 'membase':
+            # API return different type
+            bucket_type = 'couchbase'
+
+        if bucket_compression is not None:
+            bucket_compression = '--compression-mode {}'.format(bucket_compression)
+        else:
+            bucket_compression = ''
+
         policy = self.parameters.bucket_eviction_policy
         env = _BucketMixin.generate_environment_map(self)
-        command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, **env)
+        command = CommandFactory.bucket_create(bucket_name=bucket_name, ramsize=ram_size, evictionpolicy=policy, bucket_type=bucket_type, bucket_compression=bucket_compression, **env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("create bucket {}".format(command))
         output, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("create bucket output: {} {} {}".format(output, error, exit_code))
         helper_lib.sleepForSecond(2)
 
+
     def bucket_list(self, return_type=list):
-        # See the all bucket. It will return also other information like ramused, ramsize etc
+        # See the all bucket. 
+        # It will return also other information like ramused, ramsize etc
         logger.debug("Finding staged bucket list")
         env = _BucketMixin.generate_environment_map(self)
         command = CommandFactory.bucket_list(**env)
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
+        logger.debug("list bucket {}".format(command))
         bucket_list, error, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+        logger.debug("list bucket output{}".format(bucket_list))
         if return_type == list:
-            bucket_list = bucket_list.split("\n")
+            #bucket_list = bucket_list.split("\n")
+            if bucket_list == "[]" or bucket_list is None:
+                logger.debug("empty list")
+                return []
+            else:
+                logger.debug("clean up json")
+                bucket_list = bucket_list.replace("u'","'")
+                bucket_list = bucket_list.replace("'", "\"")
+                bucket_list = bucket_list.replace("True", "\"True\"")
+                bucket_list = bucket_list.replace("False", "\"False\"")
+                logger.debug("parse json")
+                bucket_list_dict = json.loads(bucket_list)
+                logger.debug("remap json")
+                bucket_list_dict = list(map(helper_lib.remap_bucket_json, bucket_list_dict))
         logger.debug("Bucket details in staged environment: {}".format(bucket_list))
-        return bucket_list
+        return bucket_list_dict
+
+
+    def move_bucket(self, bucket_name, direction):
+        logger.debug("Rename folder")
+
+        
+        
+        if direction == 'save':
+            src = join(self.virtual_source.parameters.mount_path,'data',bucket_name)
+            dst = join(self.virtual_source.parameters.mount_path,'data',".{}.delphix".format(bucket_name))
+            command = CommandFactory.os_mv(src, dst, self.need_sudo, self.uid)
+            logger.debug("rename command: {}".format(command))         
+            stdout, error, exit_code = utilities.execute_bash(self.connection, command)
+        elif direction == 'restore':
+            dst = join(self.virtual_source.parameters.mount_path,'data',bucket_name)
+            src = join(self.virtual_source.parameters.mount_path,'data',".{}.delphix".format(bucket_name))
+            command = CommandFactory.delete_dir(dst, self.need_sudo, self.uid)
+            logger.debug("delete command: {}".format(command))         
+            stdout, error, exit_code = utilities.execute_bash(self.connection, command)
+            command = CommandFactory.os_mv(src, dst, self.need_sudo, self.uid)
+            logger.debug("rename command: {}".format(command))         
+            stdout, error, exit_code = utilities.execute_bash(self.connection, command)
+        
+
+
 
     def monitor_bucket(self, bucket_name, staging_UUID):
         # To monitor the replication
@@ -118,13 +179,13 @@ class _BucketMixin(Resource, MixinInterface):
         stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
         logger.debug("stdout: {}".format(stdout))
         content = json.loads(stdout)
-        pending_docs = self._get_last_value_of_node_stats(content["nodeStats"].values()[0])
+        pending_docs = self._get_last_value_of_node_stats(list(content["nodeStats"].values())[0])
         while pending_docs != 0:
             logger.debug("Documents pending for replication: {}".format(pending_docs))
             helper_lib.sleepForSecond(30)
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
             content = json.loads(stdout)
-            pending_docs = self._get_last_value_of_node_stats(content["nodeStats"].values()[0])
+            pending_docs = self._get_last_value_of_node_stats(list(content["nodeStats"].values())[0])
         else:
             logger.debug("Replication for bucket {} completed".format(bucket_name))
 

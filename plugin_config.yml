@@ -1,8 +1,8 @@
 id: 18f4ff11-b758-4bf2-9a37-719a22f5a4b8
-name: couchbase
-externalVersion: 1.0.0
-buildNumber: 1.0.0
-language: PYTHON27
+name: sc:couchbase
+externalVersion: "1.2.0"
+buildNumber: 1.2.0.0
+language: PYTHON38
 hostTypes:
 - UNIX
 pluginType: STAGED

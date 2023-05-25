@@ -5,16 +5,67 @@ Environment discovery is a process that enables the Couchbase Plugin to determin
 . Whenever there is any change (installing a new database home) to an already set up environment in the Delphix application, we need to perform an environment refresh. 
 
 
-Prerequisites
-=============
+## Prerequisites
 
--   A source environment must be added to the Delphix Engine.
+-   A stagine or target environment must be added to the Delphix Engine.
 -   Installation of the Couchbase Plugin is required before the Discovery. 
 -   Environment variable `$COUCHBASE_PATH ` should set on staging/target host, which contains the binary path of Couchbase.
 
 
-Refreshing an Environment
-=========================
+### Configuring a staging environment 
+
+Environments contain repositories, and each environment may have any number of repositories associated with it.
+Couchbase is limiting number of Couchbase binaries installed on server to one, and in that case each environment will contain
+a single repository with current Couchbase installation.
+
+Repository contains database instances and in each repository any number of source cluster can be configured.
+Please keep in mind that only one dSource can be enabled simiultaniusly on a given staging server.
+
+For next step go to XDCR Setup or Backup Setup sections below
+
+### XDCR Setup
+
+By default Couchbase cluster are not discovered and has to be added manually using the following steps:
+
+1. Login to the **Delphix Management** application.
+2. Click **Manage**.
+3. Select **Environments**.
+4. Select the repository.
+5. Click on **+** icon (Shown in next image).
+
+
+![Screenshot](./image/add_repository.png)
+
+
+6. Add required details in the `Add database` section.
+ - Enter port number in **Source Couchbase port** section.
+ - Enter source host address in section **Source Host** ( this will be used as Source cluster for XDCR replication )
+ - Enter unique name for the staging database in **identify field** section.
+ - Enter Couchbase data path of staging host in **DB data path** section.
+
+
+![Screenshot](./image/add_sourceconfig_xdcr.png)
+
+### Backup Setup
+
+By default Couchbase clusters are not discovered and has to be added manually using the following steps:
+
+1. Login to the **Delphix Management** application.
+2. Click **Manage**.
+3. Select **Environments**.
+4. Select the repository.
+5. Click on **+** icon (Shown in next image).
+
+![Screenshot](./image/add_repository.png)
+
+6. Add required details in the `Add database` section.
+ - Enter port number in **Source Couchbase port** section ( this can be any dummy number - this field is not used for backup based ingestion )
+ - Enter source host address in section **Source Host** ( this can be any dummy number - this field is not used for backup based ingestion )
+ - Enter unique name for the staging database in **identify field** section.
+ - Enter Couchbase data path of staging host in **DB data path** section.
+
+
+## Refreshing an Environment
 Environment refresh will update the metadata associated with that environment and send a new Plugin to the host.
 
 1. Login to the **Delphix Management** application.
@@ -24,56 +75,5 @@ Environment refresh will update the metadata associated with that environment an
 5. Select the **Refresh** icon.
 6. In the Refresh confirmation dialog select **Refresh**.
 
-![Screenshot](/couchbase-plugin/image/image9.png)
-
-
-XDCR Setup
-===================
-Environments exist to contain `repositories`, and each environment may have any number of repositories associated with it.
-`Repository` contains database instances and in each repository any number of `SourceConfig` objects, which represent known database instances. Source config is not generated automatically in
- Couchbase plugin. Therefore, we need to add `SourceConfig` object through which can create a dSource. 
-
-1. Login to the **Delphix Management** application.
-2. Click **Manage**.
-3. Select **Environments**.
-4. Select the repository.
-5. Click on **+** icon (Shown in next image).
-
-
-![Screenshot](/couchbase-plugin/image/image10.png)
-
-
-6. Add required details in the `Add database` section.
- - Enter port number in **Source Couchbase port** section.
- - Enter source host address in section **Source Host**.
- - Enter unique name for the staging database in **identify field** section.
- - Enter Couchbase data path of staging host in **DB data path** section.
-
-
-![Screenshot](/couchbase-plugin/image/image11.png)
-
-
-CBBACKUPMGR Setup
-=================
-
-The steps to add source config remain the same as we saw in XDCR setup. In this approach, we don't connect to source environment as this is zero-touch production approach.
-We can enter any random or dummy value in this field of source host name when we choose CBBACKUPMGR option for data ingestion.
-
-1. Login to the **Delphix Management** application.
-2. Click **Manage**.
-3. Select **Environments**.
-4. Select the repository.
-5. Click on **+** icon (Shown in next image).  
-![Screenshot](/couchbase-plugin/image/image10.png)
-
-6. In the **Add Database** section enter the following information:
- - `Source Couchbase port`: This is the port number to be used by Couchbase services.
- - `Source Host`: Leave this field as blank.
- - `identity field`: Provide unique name for staging database.
- - `DB data path`: Leave this field as blank.
-
-
-![Screenshot](/couchbase-plugin/image/image11.png)
-
-
+![Screenshot](./image/add_sourceconfig_backup.png)
 

@@ -34,7 +34,7 @@ def execute_bash(source_connection, command_name, callback_func=None, environmen
 
     # Verify the exit code of each executed command. 0 means command ran successfully and for other code it is failed.
     # For failed cases we need to find the scenario in which programs will die and otherwise execution will continue.
-    _handle_exit_code(exit_code, error, output, callback_func)
+    #_handle_exit_code(exit_code, error, output, callback_func)
     return [output, error, exit_code]
 
 
@@ -52,7 +52,7 @@ def _handle_exit_code(exit_code, std_err=None, std_output=None, callback_func=No
                 if result_of_match:
                     return True
             except Exception as err:
-                logger.debug("Failed to execute call back function with error: {}".format(err.message))
+                logger.debug("Failed to execute call back function with error: {}".format(str(err)))
 
     error_details = std_output
     if error_details is None or error_details == "":

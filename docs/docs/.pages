@@ -1,7 +1,6 @@
 arrange:
   - Overview: 'index.md'
   - [Installation]: 'Installation.md'
-  - PluginDevelopment : 'PluginDevelopment.md'
   - Discovery: 'Discovery.md'
   - Linking: 'Linking.md'
   - Provisioning: 'Provisioning.md'
