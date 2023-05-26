@@ -539,17 +539,19 @@
 <li>Add OS user to <code>couchbase</code> OS group</li>
 <li>Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ].</li>
 <li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and acts as a base folder for NFS mounts.</li>
-<li>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.</li>
-</ol>
-<p><div class="highlight"><pre><span></span><code>Defaults:delphixos !requiretty
+<li>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.
+   <div class="highlight"><pre><span></span><code>Defaults:delphixos !requiretty
 delphixos <span class="nv">ALL</span><span class="o">=</span>NOPASSWD: <span class="se">\ </span>
 /bin/mount, /bin/umount
-</code></pre></div>
-7. If Couchbase service is installed using <code>couchbase</code> user, Delphix OS user ex. <code>delphix_os</code> has to be able to run any command as <code>couchbase</code> using sudo
+</code></pre></div></li>
+<li>If Couchbase service is installed using <code>couchbase</code> user, Delphix OS user ex. <code>delphix_os</code> has to be able to run any command as <code>couchbase</code> using sudo
    <div class="highlight"><pre><span></span><code>delphix_os <span class="nv">ALL</span><span class="o">=(</span>couchbase<span class="o">)</span> NOPASSWD: ALL
-</code></pre></div>
-8. Additional Utilities required on staging host:
-    * <code>expect</code></p>
+</code></pre></div></li>
+<li>Additional Utilities required on staging host:<ul>
+<li><code>expect</code></li>
+</ul>
+</li>
+</ol>
 
               
             </article>
