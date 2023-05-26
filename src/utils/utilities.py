@@ -6,6 +6,7 @@ import logging
 
 from dlpx.virtualization import libs
 from dlpx.virtualization.libs import exceptions
+import random
 
 from db_commands import commands
 
@@ -50,10 +51,13 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
     if source_connection is None:
         raise exceptions.PluginScriptError("Connection object cannot be empty")
 
-    # environment_vars["CB_PWD"] = environment_vars["password"]
+    file_random_id = random.randint(1000000000, 9999999999)
+
+    file_path = f"/tmp/expect_script_{file_random_id}.exp"
+
     result = libs.run_bash(
         source_connection,
-        command=f"echo -e '{command_name}' > /tmp/expect_script.exp",
+        command=f"echo -e '{command_name}' > {file_path}",
         use_login_shell=True
     )
     output = result.stdout.strip()
@@ -66,7 +70,7 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
 
     result = libs.run_bash(
         source_connection,
-        command=f"/usr/bin/expect -f /tmp/expect_script.exp",
+        command=f"/usr/bin/expect -f {file_path}",
         variables=environment_vars,
         use_login_shell=True
     )
@@ -79,6 +83,12 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
     logger.debug(f"expect_output==={output}")
     logger.debug(f"expect_error==={error}")
     logger.debug(f"expect_exit_code==={exit_code}")
+
+    libs.run_bash(
+        source_connection,
+        command=f"rm -rf {file_path}",
+        use_login_shell=True
+    )
 
     if "DLPX_EXPECT_EXIT_CODE" in output:
         exit_code = int(output.split("DLPX_EXPECT_EXIT_CODE:")[1].split("\n")[0])

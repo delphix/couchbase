@@ -255,16 +255,6 @@ class DatabaseCommand(object):
             cluster_analytics_ramsize=cluster_analytics_ramsize
         )
 
-    # @staticmethod
-    # def cluster_check(shell_path, hostname, port, username, **kwargs):
-    #     return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
-    #         shell_path=shell_path,
-    #         hostname=hostname,
-    #         port=port,
-    #         username=username
-    #     )
-
-
     @staticmethod
     def cluster_setting_expect(shell_path, hostname, port, username, cluster_ramsize,
                         cluster_name, cluster_index_ramsize,
@@ -289,16 +279,6 @@ class DatabaseCommand(object):
             "CB_CMD": command
         }
         return expect_block, env_vars
-
-    # @staticmethod
-    # def cluster_check(shell_path, hostname, port, username, **kwargs):
-    #     return "{shell_path} server-list --cluster {hostname}:{port} --username {username} --password $password".format(
-    #         shell_path=shell_path,
-    #         hostname=hostname,
-    #         port=port,
-    #         username=username
-    #     )
-
 
     @staticmethod
     def xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname, port, username, cluster_name, **kwargs):
