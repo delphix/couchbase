@@ -571,12 +571,14 @@
     <code>Defaults:delphixos !requiretty
    delphixos ALL=NOPASSWD: \ 
    /bin/mount, /bin/umount</code></li>
-<li>If Couchbase service is installed using <code>couchbase</code> user, Delphix OS user ex. <code>delphix_os</code> has to be able to run any command as <code>couchbase</code> using sudo</li>
+<li>If Couchbase service is installed using <code>couchbase</code> user, Delphix OS user ex. <code>delphix_os</code> has to be able to run any command as <code>couchbase</code> using sudo
+   <div class="highlight"><pre><span></span><code>delphix_os ALL=(couchbase) NOPASSWD: ALL
+</code></pre></div></li>
+<li>Additional Utilities required on staging host:<ul>
+<li><code>expect</code></li>
+</ul>
+</li>
 </ol>
-<p><div class="highlight"><pre><span></span><code>delphix_os ALL=(couchbase) NOPASSWD: ALL
-</code></pre></div>
-8. Additional Utilities required on staging host:
-    * <code>expect</code></p>
 <h2 id="additional-prerequisites-for-xdcr-ingestion">Additional prerequisites for XDCR ingestion</h2>
 <p>Production Couchbase database user with the following provileges</p>
 <ul>
