@@ -92,8 +92,13 @@ class _ClusterMixin(Resource, MixinInterface):
         kwargs = {ENV_VAR_KEY: {'password': self.parameters.couchbase_admin_password}}
         cluster_name = self._get_cluster_name()
         env = _ClusterMixin.generate_environment_map(self)
-        cmd = CommandFactory.cluster_setting(cluster_name=cluster_name, **env)
-        stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
+        env.update(kwargs[ENV_VAR_KEY])
+        # cmd = CommandFactory.cluster_setting(cluster_name=cluster_name, **env)
+        cmd, env_vars = CommandFactory.cluster_setting_expect(cluster_name=cluster_name, **env)
+        # stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
+        kwargs[ENV_VAR_KEY].update(env_vars)
+        stdout, stderr, exit_code = utilities.execute_expect(self.connection,
+                                                             cmd, **kwargs)
         if re.search(r"ERROR", str(stdout)):
             logger.error("Cluster modification failed, killing the execution")
             raise Exception(stdout)
