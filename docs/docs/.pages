@@ -1,6 +1,9 @@
 arrange:
-  - Overview: 'index.md'
-  - [Installation]: 'Installation.md'
-  - Discovery: 'Discovery.md'
-  - Linking: 'Linking.md'
-  - Provisioning: 'Provisioning.md'
+  - index.md
+  - Requirements
+  - Installation.md
+  - Discovery.md
+  - Linking.md
+  - Provisioning.md
+  - Limitations.md
+  - Release_Notes
