@@ -1,6 +1,6 @@
 # Release-v1.2.1
 
-To deploy and configure Mongo plugin, refer to [Overview](/).
+To deploy and configure Couchbase plugin, refer to [Overview](/).
 
 ## New & Improved
 * CE-313 Couchbase Plugin Security Fixes and Hardening    
