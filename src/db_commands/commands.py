@@ -1014,12 +1014,6 @@ class DatabaseCommand(object):
             uuid=uuid,
         )
 
-    # @staticmethod
-    # def couchbase_server_info(shell_path, hostname, port, username, **kwargs):
-    #     return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ".format(
-    #         shell_path=shell_path, hostname=hostname, port=port, username=username
-    #     )
-
     @staticmethod
     def monitor_replication_expect(source_username, source_hostname, source_port,
                             bucket_name, uuid, **kwargs):
@@ -1042,12 +1036,6 @@ class DatabaseCommand(object):
             "CB_CMD": command
         }
         return expect_block, env_vars
-
-    # @staticmethod
-    # def couchbase_server_info(shell_path, hostname, port, username, **kwargs):
-    #     return "{shell_path} server-info --cluster {hostname}:{port} --username {username} --password $password ".format(
-    #         shell_path=shell_path, hostname=hostname, port=port, username=username
-    #     )
 
     @staticmethod
     def couchbase_server_info(shell_path, hostname, username, port, **kwargs):
@@ -1243,74 +1231,3 @@ if __name__ == "__main__":
     hostname = "192.168.1.14"
     dir_path = "/var/tmp"
     DLPX_BIN_JQ = "/var/tmp"
-    # print "find_install_path: ", CommandFactory.find_install_path(binary_path), "\n"
-    # print "find_binary_path: ", CommandFactory.find_binary_path(), "\n"
-    # print "find_install_path: ", CommandFactory.find_install_path(binary_path), "\n"
-    # print "get_process: ", CommandFactory.get_process(), "\n"
-    # print "get_version: ", CommandFactory.get_version(install_path), "\n"
-    # print "start_couchbase: ", CommandFactory.start_couchbase(install_path), "\n"
-    # print "get_data_directory: ", CommandFactory.get_data_directory("couchbase_base_dir"), "\n"
-    # print "install_path: ", CommandFactory.stop_couchbase(install_path), "\n"
-    # print "cluster_init: ", CommandFactory.cluster_init(shell_path, hostname, port, username, cluster_ramsize,
-    #                                                     cluster_name, cluster_index_ramsize, cluster_fts_ramsize,
-    #                                                     cluster_eventing_ramsize, cluster_analytics_ramsize,
-    #                                                     additional_services), "\n"
-    # print "cluster_setting: ", CommandFactory.cluster_setting(shell_path, hostname, port, username, cluster_ramsize,
-    #                                                           cluster_name, cluster_index_ramsize, cluster_fts_ramsize,
-    #                                                           cluster_eventing_ramsize, cluster_analytics_ramsize), "\n"
-    # print "xdcr_setup: ", CommandFactory.xdcr_setup(shell_path, source_hostname, source_port, source_username, hostname,
-    #                                                 port, username, cluster_name), "\n"
-    # print "xdcr_replicate: ", CommandFactory.xdcr_replicate(shell_path, source_hostname, source_port, source_username,
-    #                                                         source_bucket_name, target_bucket_name, cluster_name), "\n"
-    # print "get_replication_uuid :", CommandFactory.get_replication_uuid(shell_path, source_hostname, source_port,
-    #                                                                     source_username), "\n"
-    # print "get_stream_id:", CommandFactory.get_stream_id(shell_path, source_hostname, source_port, source_username,
-    #                                                      cluster_name), "\n"
-    # print "pause_replication:", CommandFactory.pause_replication(shell_path, source_hostname, source_port,
-    #                                                              source_username, cluster_name, uuid), "\n"
-    # print "resume_replication:", CommandFactory.resume_replication(shell_path, source_hostname, source_port,
-    #                                                                source_username, cluster_name, uuid), "\n"
-    # print "delete_replication:", CommandFactory.delete_replication(shell_path, source_hostname, source_port,
-    #                                                                source_username, uuid, cluster_name), "\n"
-    # print "xdcr_delete:", CommandFactory.xdcr_delete(shell_path, source_hostname, source_port, source_username,
-    #                                                  hostname, port, username, cluster_name), "\n"
-    # print "get_source_bucket_list:", CommandFactory.get_source_bucket_list(shell_path, source_hostname, source_port,
-    #                                                                        source_username), "\n"
-    # print "get_status: ", CommandFactory.get_status(shell_path, hostname, port, username), "\n"
-    # print "change_permission: ", CommandFactory.change_permission(directory_path), "\n"
-    # print "make_directory: ", CommandFactory.make_directory(directory_path), "\n"
-    # print "get_config_directory: ", CommandFactory.get_config_directory(mount_path), "\n"
-    # print "node_init:", CommandFactory.node_init(shell_path, port, username, mount_path), "\n"
-    # print "bucket_edit: ", CommandFactory.bucket_edit(shell_path, hostname, port, username, bucket_name,
-    #                                                   flush_value), "\n"
-    # print "bucket_edit_ramquota: ", CommandFactory.bucket_edit_ramquota(shell_path, hostname, port, username,
-    #                                                                     bucket_name, ramsize), "\n"
-    # print "bucket_delete: ", CommandFactory.bucket_delete(shell_path, hostname, port, username, bucket_name), "\n"
-    # print "bucket_flush: ", CommandFactory.bucket_flush(shell_path, hostname, port, username, bucket_name), "\n"
-    # print "bucket_create: ", CommandFactory.bucket_create(shell_path, hostname, port, username, bucket_name, ramsize,
-    #                                                       evictionpolicy), "\n"
-    # print "bucket_list: ", CommandFactory.bucket_list(shell_path, hostname, port, username), "\n"
-    # print "get_indexes_name: ", CommandFactory.get_indexes_name(base_path, hostname, port, username, index), "\n"
-    # print "build_index: ", CommandFactory.build_index(base_path, hostname, port, username, index_name), "\n"
-    # print "is_build_completed: ", CommandFactory.is_build_completed(base_path, hostname, port, username, index), "\n"
-    # print "cb_backup_full: ", CommandFactory.cb_backup_full(base_path, backup_location, backup_repo, hostname, port,
-    #                                                         username, csv_bucket_list), "\n"
-    # print "monitor_replication: ", CommandFactory.monitor_replication(source_username, source_hostname, source_port,
-    #                                                                   bucket_name, uuid), "\n"
-    # print "server_info: ", CommandFactory.server_info(shell_path, hostname, port, username), "\n"
-    #
-    # print "read_file: ", CommandFactory.read_file(filename), "\n"
-    #
-    # print "write_file: ", CommandFactory.write_file(filename, data), "\n"
-    #
-    # print "check_file: ", CommandFactory.check_file(file_path), "\n"
-    #
-    # print "get_ip_of_hostname: ", CommandFactory.get_ip_of_hostname(hostname), "\n"
-    #
-    # print "check_directory: ", CommandFactory.check_directory(dir_path), "\n"
-    #
-    # print "delete_file: ", CommandFactory.delete_file(filename), "\n"
-    #
-    # print "get_dlpx_bin: ", CommandFactory.get_dlpx_bin(), "\n"
-    #
-    # print "unmount_file_system: ", CommandFactory.unmount_file_system(mount_path), "\n"

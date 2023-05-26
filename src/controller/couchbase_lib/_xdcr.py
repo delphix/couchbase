@@ -47,11 +47,9 @@ class _XDCrMixin(Resource, MixinInterface):
             'password': self.parameters.couchbase_admin_password}}
         env = _XDCrMixin.generate_environment_map(self)
         env.update(kwargs[ENV_VAR_KEY])
-        # cmd = CommandFactory.xdcr_delete(cluster_name=cluster_name, **env)
         cmd, env_vars = CommandFactory.xdcr_delete_expect(
             cluster_name=cluster_name, **env)
         kwargs[ENV_VAR_KEY].update(env_vars)
-        # stdout, stderr, exit_code = utilities.execute_bash(self.connection, cmd, **kwargs)
         stdout, stderr, exit_code = utilities.execute_expect(self.connection,
                                                              cmd, **kwargs)
         if exit_code != 0:
@@ -70,7 +68,6 @@ class _XDCrMixin(Resource, MixinInterface):
                                 'password': self.parameters.couchbase_admin_password}}
         env = _XDCrMixin.generate_environment_map(self)
         env.update(kwargs[ENV_VAR_KEY])
-        # cmd = CommandFactory.xdcr_setup(cluster_name=self.parameters.stg_cluster_name, **env)
         cmd, env_vars = CommandFactory.xdcr_setup_expect(cluster_name=self.parameters.stg_cluster_name, **env)
         kwargs[ENV_VAR_KEY].update(env_vars)
         stdout, stderr, exit_code = utilities.execute_expect(self.connection, cmd, **kwargs)
@@ -82,8 +79,6 @@ class _XDCrMixin(Resource, MixinInterface):
             kwargs = {ENV_VAR_KEY: {'source_password': self.parameters.xdcr_admin_password}}
             env = _XDCrMixin.generate_environment_map(self)
             env.update(kwargs[ENV_VAR_KEY])
-            # cmd = CommandFactory.xdcr_replicate(source_bucket_name=src, target_bucket_name=tgt,
-            #                                     cluster_name=self.parameters.stg_cluster_name, **env)
             cmd, env_vars = CommandFactory.xdcr_replicate_expect(
                 source_bucket_name=src,
                 target_bucket_name=tgt,
