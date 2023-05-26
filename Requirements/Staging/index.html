@@ -568,9 +568,10 @@
 <li>Empty folder on host to hold delphix toolkit  [ approximate 2GB free space ].</li>
 <li>Empty folder on host to mount nfs filesystem. This is just an empty folder with no space requirements and acts as a base folder for NFS mounts.</li>
 <li>sudo privileges for mount and umount. See sample below assuming <code>delphix_os</code> is used as delphix user.
-    <code>Defaults:delphixos !requiretty
-   delphixos ALL=NOPASSWD: \ 
-   /bin/mount, /bin/umount</code></li>
+   <div class="highlight"><pre><span></span><code>Defaults:delphixos !requiretty
+delphixos ALL=NOPASSWD: \ 
+/bin/mount, /bin/umount
+</code></pre></div></li>
 <li>If Couchbase service is installed using <code>couchbase</code> user, Delphix OS user ex. <code>delphix_os</code> has to be able to run any command as <code>couchbase</code> using sudo
    <div class="highlight"><pre><span></span><code>delphix_os ALL=(couchbase) NOPASSWD: ALL
 </code></pre></div></li>
