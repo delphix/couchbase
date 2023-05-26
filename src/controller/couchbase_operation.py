@@ -96,7 +96,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         if "newpass" in kwargs:
             # for setting a new password
-            env["newpass"] = kwargs.pop('newpass')
+            env["newpass"] = kwargs.get('newpass')
 
         if "source_password" in kwargs:
             env["source_password"] = kwargs.get('source_password')
