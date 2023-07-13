@@ -167,7 +167,7 @@ class DatabaseCommand(object):
     def get_parent_expect_block():
         exp_block = """
             set timeout 10
-            match_max -d 50000
+            match_max -d 5000000
             log_user 0
             {command_specific_operations}
             lassign [wait] pid spawnid os_error_flag value
@@ -988,6 +988,11 @@ class DatabaseCommand(object):
             command_specific_operations="""eval spawn ${env(CB_CMD)}
                             expect {
                                 -re "Password:.*" {
+                                    send "${env(CB_PWD)}\n"
+                                    set timeout -1
+                                    exp_continue
+                                }
+                                -re "Password for --password:.*" {
                                     send "${env(CB_PWD)}\n"
                                     set timeout -1
                                     exp_continue
