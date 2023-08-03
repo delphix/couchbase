@@ -1114,7 +1114,7 @@ class DatabaseCommand(object):
     def server_add_expect(shell_path, hostname, port, username, newhost, services,
                    **kwargs):
         command = f"{shell_path} server-add --cluster {hostname}:{port} --username {username} --password \
-                --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password $password \
+                --server-add http://{newhost}:{port} --server-add-username {username} --server-add-password {kwargs.get('password')} \
                 --services {services}"
         expect_block = DatabaseCommand.get_parent_expect_block().format(
             command_specific_operations="""eval spawn ${env(CB_CMD)}
@@ -1152,6 +1152,7 @@ class DatabaseCommand(object):
                                     expect {
                                         -re "Enter password:.*" {
                                             send "${env(CB_PWD)}\n"
+                                            set timeout -1
                                             exp_continue
                                         }
                                         timeout {
@@ -1160,6 +1161,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"rebalance command ::::: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
