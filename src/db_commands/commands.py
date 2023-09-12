@@ -637,7 +637,7 @@ class DatabaseCommand(object):
         logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
-            "CB_CMD": "command"
+            "CB_CMD": command
         }
         return expect_block, env_vars
 

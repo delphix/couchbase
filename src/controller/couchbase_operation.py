@@ -912,7 +912,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             )
 
     def delete_config_folder(self):
-        if int(self.repository.version.split(".")[0]) == 7:
+        if int(self.repository.version.split(".")[0]) >= 6:
             config_directory_path = "{}/../var/lib/couchbase/config".format(
                 helper_lib.get_base_directory_of_given_path(
                     self.repository.cb_shell_path))
@@ -942,6 +942,13 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                 logger.debug(f"mv directory >> command_output=={command_output}"
                              f" , command_stderr=={command_stderr} , "
                              f"command_exit_code=={command_exit_code}")
+
+    def delete_xdcr_config(self):
+        if self.parameters.d_source_type == "XDCR":
+            is_xdcr_setup, cluster_name = self.delete_replication()
+            if is_xdcr_setup:
+                logger.info("Deleting XDCR")
+                self.xdcr_delete(cluster_name)
 
     def restore_config(self, what, nodeno=1):
 

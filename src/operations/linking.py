@@ -74,9 +74,11 @@ def configure_cluster(couchbase_obj):
         logger.debug("cluster config not found - preparing node")
         # no config in delphix directory
         # initial cluster setup
+        couchbase_obj.delete_xdcr_config()
         couchbase_obj.stop_couchbase()
         couchbase_obj.delete_data_folder()
         couchbase_obj.delete_config_folder()
+
         # we can't use normal monitor as server is not configured yet 
         couchbase_obj.start_couchbase(no_wait=True)
 
