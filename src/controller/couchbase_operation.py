@@ -92,6 +92,11 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         else:
             hostname = self.connection.environment.host.name
 
+        if "port" in kwargs:
+            port = kwargs.pop("port")
+        else:
+            port = self.parameters.couchbase_port
+
         env = {"password": password}
 
         if "newpass" in kwargs:
@@ -119,12 +124,14 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                      "server_add",
                                      "rebalance",
                                      "get_scope_list_expect",
-                                     "change_cluster_password"]:
+                                     "change_cluster_password",
+                                     "create_scope_expect",
+                                     "create_collection_expect"]:
             method_to_call = getattr(CommandFactory, couchbase_command)
             command = method_to_call(shell_path=self.repository.cb_shell_path,
                                  install_path=self.repository.cb_install_path,
                                  username=username,
-                                 port=self.parameters.couchbase_port,
+                                 port=port,
                                  sudo=self.need_sudo,
                                  uid=self.uid,
                                  hostname=hostname,
@@ -139,7 +146,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             command, env_vars = method_to_call(shell_path=self.repository.cb_shell_path,
                                                install_path=self.repository.cb_install_path,
                                                username=username,
-                                               port=self.parameters.couchbase_port,
+                                               port=port,
                                                sudo=self.need_sudo,
                                                uid=self.uid,
                                                hostname=hostname,

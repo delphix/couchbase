@@ -962,6 +962,74 @@ class DatabaseCommand(object):
         return expect_block, env_vars
 
     @staticmethod
+    def create_scope_expect(base_path, hostname, port, username, **kwargs):
+        command = f"{base_path}/cbq -e {hostname}:{port} -u {username} -q=true"
+        cb_query = f"CREATE SCOPE `{kwargs.get('bucket_name')}`.{kwargs.get('scope_name')};"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                            expect {
+                                                -re "Enter Password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                -re ".*ERROR 100 :.*" {
+                                                    puts "Error occured"
+                                                    send "\x04"
+                                                }
+                                                    -re "(.|\n)*cbq>(.|\n)*" {
+                                                    send "${env(CB_QUERY)};\n"
+                                                    expect -re "\n(.|\n)*"
+                                                    send "\x04"
+                                                    expect eof
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command,
+            "CB_QUERY": cb_query
+        }
+        return expect_block, env_vars
+
+    @staticmethod
+    def create_collection_expect(base_path, hostname, port, username, **kwargs):
+        command = f"{base_path}/cbq -e {hostname}:{port} -u {username} -q=true"
+        cb_query = f"CREATE COLLECTION `{kwargs.get('bucket_name')}`.{kwargs.get('scope_name')}.{kwargs.get('collection_name')};"
+        expect_block = DatabaseCommand.get_parent_expect_block().format(
+            command_specific_operations="""eval spawn ${env(CB_CMD)}
+                                            expect {
+                                                -re "Enter Password:.*" {
+                                                    send "${env(CB_PWD)}\n"
+                                                    exp_continue
+                                                }
+                                                -re ".*ERROR 100 :.*" {
+                                                    puts "Error occured"
+                                                    send "\x04"
+                                                }
+                                                    -re "(.|\n)*cbq>(.|\n)*" {
+                                                    send "${env(CB_QUERY)};\n"
+                                                    expect -re "\n(.|\n)*"
+                                                    send "\x04"
+                                                    expect eof
+                                                }
+                                                timeout {
+                                                    puts "EXPECT SCRIPT TIMEOUT"
+                                                    exit 2
+                                                }
+                                            }"""
+        )
+        env_vars = {
+            "CB_PWD": kwargs.get("password"),
+            "CB_CMD": command,
+            "CB_QUERY": cb_query
+        }
+        return expect_block, env_vars
+
+    @staticmethod
     def get_backup_bucket_list(path, sudo=False, uid=None, **kwargs):
         if sudo:
             return "sudo -u \#{uid} find {path} -name bucket-config.json".format(
