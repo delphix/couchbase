@@ -214,7 +214,7 @@ class _BucketMixin(Resource, MixinInterface):
         while pending_docs != 0:
             logger.debug("Documents pending for replication: {}".format(pending_docs))
             helper_lib.sleepForSecond(30)
-            stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, **kwargs)
+            stdout, stderr, exit_code = utilities.execute_expect(self.connection, command, **kwargs)
             content = json.loads(stdout)
             pending_docs = self._get_last_value_of_node_stats(list(content["nodeStats"].values())[0])
         else:

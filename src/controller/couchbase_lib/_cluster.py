@@ -69,10 +69,17 @@ class _ClusterMixin(Resource, MixinInterface):
         lambda_expr = lambda output: bool(re.search(ALREADY_CLUSTER_INIT, output))
         env = _ClusterMixin.generate_environment_map(self)
         env['additional_services'] = additional_service
-        cmd = CommandFactory.cluster_init(cluster_name=cluster_name, **env)
-        logger.debug("Cluster init: {}".format(cmd))
-        stdout, stderr, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=lambda_expr,
-                                                           **kwargs)
+        if int(self.repository.version.split(".")[0]) == 7:
+            env.update(kwargs[ENV_VAR_KEY])
+            cmd, env_vars = CommandFactory.cluster_init_rest_expect(cluster_name=cluster_name, **env)
+            kwargs[ENV_VAR_KEY].update(env_vars)
+            stdout, stderr, exit_code = utilities.execute_expect(self.connection,
+                                                                 cmd, **kwargs)
+        else:
+            cmd = CommandFactory.cluster_init(cluster_name=cluster_name, **env)
+            logger.debug("Cluster init: {}".format(cmd))
+            stdout, stderr, exit_code = utilities.execute_bash(self.connection, command_name=cmd, callback_func=lambda_expr,
+                                                               **kwargs)
         if re.search(r"ERROR", str(stdout)):
             if re.search(r"ERROR: Cluster is already initialized", stdout):
                 logger.debug("Performing cluster setting as cluster is already initialized")

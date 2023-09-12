@@ -60,7 +60,6 @@ def vdb_unconfigure(virtual_source, repository, source_config):
     vdb_stop(virtual_source, repository, source_config)
     provision_process.delete_config()
 
-
     if provision_process.parameters.node_list is not None and len(provision_process.parameters.node_list) > 0:
         for node in provision_process.parameters.node_list:
             logger.debug("+++++++++++++++++++++++++++")
@@ -176,6 +175,7 @@ def vdb_configure(virtual_source, snapshot, repository):
 
     # to make sure there is no config 
     provision_process.delete_config()
+    # provision_process.delete_config_folder()
 
 
     provision_process.restore_config(what='parent')
@@ -201,6 +201,8 @@ def vdb_configure(virtual_source, snapshot, repository):
 
     provision_process.restart_couchbase(provision=True)
     provision_process.rename_cluster()
+    # provision_process.node_init()
+    # provision_process.cluster_init()
     #provision_process.node_init()
     #provision_process.cluster_init()
     

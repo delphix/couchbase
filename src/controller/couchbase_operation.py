@@ -117,7 +117,9 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                                      "get_indexes_name",
                                      "rename_cluster",
                                      "server_add",
-                                     "rebalance"]:
+                                     "rebalance",
+                                     "get_scope_list_expect",
+                                     "change_cluster_password"]:
             method_to_call = getattr(CommandFactory, couchbase_command)
             command = method_to_call(shell_path=self.repository.cb_shell_path,
                                  install_path=self.repository.cb_install_path,
@@ -131,7 +133,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
             logger.debug("couchbase command to run: {}".format(command))
             stdout, stderr, exit_code = utilities.execute_bash(self.connection, command, environment_vars=env)
         else:
-            couchbase_command = couchbase_command+"_expect"
+            couchbase_command = couchbase_command+"_expect" if not couchbase_command.endswith("_expect") else couchbase_command
             logger.debug('new_couchbase_command: {}'.format(couchbase_command))
             method_to_call = getattr(CommandFactory, couchbase_command)
             command, env_vars = method_to_call(shell_path=self.repository.cb_shell_path,
@@ -632,17 +634,46 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         if self.parameters.d_source_type == constants.CBBKPMGR:
             logger.debug("Only build for backup ingestion")
-
+            # logger.debug(f"couchbase repository: {self.repository}")
+            #
+            # buckets = {}
+            # for i in indexes_raw['indexes']:
+            #     if i['bucket'] in buckets:
+            #         buckets[i['bucket']].append(i['indexName'])
+            #     else:
+            #         buckets[i['bucket']] = [ i['indexName'] ]
+            #
+            # for buc, ind in buckets.items():
+            #     ind_def = 'build index on `{}` (`{}`)'.format(buc, '`,`'.join(ind))
+            #     indexes.append(ind_def)
             buckets = {}
             for i in indexes_raw['indexes']:
-                if i['bucket'] in buckets:
-                    buckets[i['bucket']].append(i['indexName'])
-                else:
-                    buckets[i['bucket']] = [ i['indexName'] ]
+                bucket_name = i['bucket']
+                index_name = i['indexName']
+                scope_name = i['scope'] if 'scope' in i.keys() else '_default'
+                collection_name = i[
+                    'collection'] if 'collection' in i.keys() else '_default'
 
-            for buc, ind in buckets.items():
-                ind_def = 'build index on `{}` (`{}`)'.format(buc, '`,`'.join(ind))
-                indexes.append(ind_def)
+                if bucket_name not in buckets:
+                    buckets[bucket_name] = {}
+                if scope_name not in buckets[bucket_name].keys():
+                    buckets[bucket_name][scope_name] = {}
+                if collection_name not in buckets[bucket_name][
+                    scope_name].keys():
+                    buckets[bucket_name][scope_name][collection_name] = []
+
+                buckets[bucket_name][scope_name][collection_name].append(
+                    index_name)
+
+            for bucket_name in buckets.keys():
+                for scope_name in buckets[bucket_name].keys():
+                    for collection_name in buckets[bucket_name][scope_name].keys():
+                        ind = buckets[bucket_name][scope_name][collection_name]
+                        if collection_name == "_default" and scope_name == "_default":
+                            ind_def = f'build index on `{bucket_name}` (`{"`,`".join(ind)}`)'
+                        else:
+                            ind_def = f'build index on `{bucket_name}`.{scope_name}.{collection_name} (`{"`,`".join(ind)}`)'
+                        indexes.append(ind_def)
 
         else:
             # full definition for replication
@@ -716,13 +747,22 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         target_local_filename = os.path.join(targetdir,"local.ini_{}".format(nodeno))
         target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_{}".format(nodeno))
 
-        if nodeno == 1:
+        if nodeno == 1 or int(self.repository.version.split(".")[0]) == 7:
             ip_file = "{}/../var/lib/couchbase/ip".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
             target_ip_filename = os.path.join(targetdir,"ip_{}".format(nodeno))
+            output, err, exit_code = self.run_os_command(
+                os_command='check_file',
+                file_path=ip_file
+            )
+            if exit_code != 0 and "Found" not in output:
+                ip_file = "{}/../var/lib/couchbase/ip_start".format(
+                    helper_lib.get_base_directory_of_given_path(
+                        self.repository.cb_shell_path))
+                target_ip_filename = os.path.join(targetdir,
+                                                  "ip_start_{}".format(nodeno))
         else:
             ip_file = "{}/../var/lib/couchbase/ip_start".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
             target_ip_filename = os.path.join(targetdir,"ip_start_{}".format(nodeno))
-
 
         filename = "{}/../var/lib/couchbase/config/config.dat".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
 
@@ -790,6 +830,22 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         if exit_code != 0:
             raise UserError("Error saving configuration file: local.ini", "Check sudo or user privileges to read Couchbase local.ini file", std_err)
 
+        if int(self.repository.version.split(".")[0]) == 7:
+            chronicle_target_dir = os.path.join(targetdir, f"chronicle_{nodeno}")
+            command_output, std_err, exit_code = self.run_os_command(
+                os_command='check_directory',
+                dir_path=chronicle_target_dir
+            )
+            if exit_code == 0 and "Found" in command_output:
+                command_output, std_err, exit_code = self.run_os_command(
+                    os_command='delete_dir',
+                    dirname=chronicle_target_dir
+                )
+            command_output, std_err, exit_code = self.run_os_command(
+                os_command="os_cpr",
+                srcname="{}/../var/lib/couchbase/config/chronicle".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path)),
+                trgname=chronicle_target_dir
+            )
 
 
     def check_cluster_notconfigured(self):
@@ -831,7 +887,54 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         if exit_code == 0 and "Found" in command_output: 
             return True
         else:
-            return False  
+            return False
+
+    def delete_data_folder(self, nodeno=1):
+        data_folder = "{}/data_{}".format(self.parameters.mount_path, nodeno)
+        command_output, command_stderr, command_exit_code = self.run_os_command(
+            os_command="check_directory",
+            dir_path=data_folder
+        )
+        logger.debug(f"check data directory >> command_output=={command_output}"
+                     f" , command_stderr=={command_stderr} , "
+                     f"command_exit_code=={command_exit_code}")
+        if command_output == "Found":
+            command_output, command_stderr, command_exit_code = self.run_os_command(
+                os_command="delete_dir",
+                dirname=data_folder
+            )
+
+    def delete_config_folder(self):
+        if int(self.repository.version.split(".")[0]) == 7:
+            config_directory_path = "{}/../var/lib/couchbase/config".format(
+                helper_lib.get_base_directory_of_given_path(
+                    self.repository.cb_shell_path))
+            command_output, command_stderr, command_exit_code = self.run_os_command(
+                os_command="check_directory",
+                dir_path=config_directory_path
+            )
+            logger.debug(f"check directory >> command_output=={command_output}"
+                         f" , command_stderr=={command_stderr} , "
+                         f"command_exit_code=={command_exit_code}")
+            if command_output == "Found":
+                target_folder = f"{config_directory_path}_bkp"
+                command_output, command_stderr, command_exit_code = self.run_os_command(
+                    os_command="check_directory",
+                    dir_path=target_folder
+                )
+                if command_output == "Found":
+                    command_output, command_stderr, command_exit_code = self.run_os_command(
+                        os_command="delete_dir",
+                        dirname=target_folder
+                    )
+                command_output, command_stderr, command_exit_code = self.run_os_command(
+                    os_command='os_mv',
+                    srcname=config_directory_path,
+                    trgname=target_folder
+                )
+                logger.debug(f"mv directory >> command_output=={command_output}"
+                             f" , command_stderr=={command_stderr} , "
+                             f"command_exit_code=={command_exit_code}")
 
     def restore_config(self, what, nodeno=1):
 
@@ -931,6 +1034,28 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("local.ini restore - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
+        if int(self.repository.version.split(".")[0]) == 7:
+            source_chronicle_dirname = os.path.join(sourcedir, "chronicle_{}".format(nodeno))
+            target_chronicle_dirname = "{}/../var/lib/couchbase/config/chronicle".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+            command_output, std_err, exit_code = self.run_os_command(
+                os_command='check_directory',
+                dir_path=target_chronicle_dirname
+            )
+            if exit_code == 0 and "Found" in command_output:
+                command_output, std_err, exit_code = self.run_os_command(
+                    os_command='delete_dir',
+                    dirname=target_chronicle_dirname
+                )
+            command_output, std_err, exit_code = self.run_os_command(
+                os_command='os_cpr',
+                srcname=source_chronicle_dirname,
+                trgname=target_chronicle_dirname
+            )
+
+        logger.debug(
+            "chronicle restore - exit_code: {} stdout: {} std_err: {}".format(
+                exit_code, command_output, std_err))
+
         if what == 'parent':
             #local.ini needs to have a proper entry 
             filename = "{}/../etc/couchdb/local.ini".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
@@ -989,6 +1114,12 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("fix local.ini permission - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
+        chronicle_dir_name = "{}/../var/lib/couchbase/config/chronicle".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
+        command_output, std_err, exit_code = self.run_os_command(
+            os_command='delete_dir',
+            dirname=chronicle_dir_name
+        )
+
     def ignore_err(self, input):
         return True
 
@@ -998,14 +1129,28 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("start rename_cluster")
 
+        # command_output, std_err, exit_code = self.run_couchbase_command(
+        #                                         couchbase_command='rename_cluster',
+        #                                         username=self.snapshot.couchbase_admin,
+        #                                         password=self.snapshot.couchbase_admin_password,
+        #                                         newuser=self.parameters.couchbase_admin,
+        #                                         newpass=self.parameters.couchbase_admin_password,
+        #                                         newname=self.parameters.tgt_cluster_name
+        #                                     )
         command_output, std_err, exit_code = self.run_couchbase_command(
-                                                couchbase_command='rename_cluster',
-                                                username=self.snapshot.couchbase_admin,
-                                                password=self.snapshot.couchbase_admin_password,
-                                                newuser=self.parameters.couchbase_admin,
-                                                newpass=self.parameters.couchbase_admin_password,
-                                                newname=self.parameters.tgt_cluster_name
-                                            )
+            couchbase_command='rename_cluster',
+            username=self.snapshot.couchbase_admin,
+            password=self.snapshot.couchbase_admin_password,
+            newname=self.parameters.tgt_cluster_name
+        )
+        command_output, std_err, exit_code = self.run_couchbase_command(
+            couchbase_command='change_cluster_password',
+            username=self.snapshot.couchbase_admin,
+            password=self.snapshot.couchbase_admin_password,
+            newuser=self.parameters.couchbase_admin,
+            newpass=self.parameters.couchbase_admin_password
+        )
+
 
         logger.debug("rename cluster - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 

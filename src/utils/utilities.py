@@ -7,6 +7,7 @@ import logging
 from dlpx.virtualization import libs
 from dlpx.virtualization.libs import exceptions
 import random
+from db_commands.constants import ENV_VAR_KEY
 
 from db_commands import commands
 
@@ -53,6 +54,35 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
 
     file_random_id = random.randint(1000000000, 9999999999)
 
+    logger.debug(f"environment_vars: {environment_vars}")
+    if "SHELL_DATA" in environment_vars:
+        result = libs.run_bash(
+            source_connection,
+            command=f'echo -e "$SHELL_DATA" > $CB_CMD',
+            use_login_shell=True,
+            variables=environment_vars
+        )
+        output = result.stdout.strip()
+        error = result.stderr.strip()
+        exit_code = result.exit_code
+
+        logger.debug(f"dump_output==={output}")
+        logger.debug(f"dump_error==={error}")
+        logger.debug(f"dump_exit_code==={exit_code}")
+        result = libs.run_bash(
+            source_connection,
+            command=f"chmod +x $CB_CMD",
+            use_login_shell=True,
+            variables=environment_vars
+        )
+        output = result.stdout.strip()
+        error = result.stderr.strip()
+        exit_code = result.exit_code
+
+        logger.debug(f"executable_output==={output}")
+        logger.debug(f"executable_error==={error}")
+        logger.debug(f"executable_exit_code==={exit_code}")
+
     file_path = f"/tmp/expect_script_{file_random_id}.exp"
 
     result = libs.run_bash(
@@ -92,7 +122,10 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
 
     if "DLPX_EXPECT_EXIT_CODE" in output:
         exit_code = int(output.split("DLPX_EXPECT_EXIT_CODE:")[1].split("\n")[0])
-        msg = output.split("DLPX_EXPECT_EXIT_CODE:")[1].split("\n", 1)[1].strip()
+        if "\n" in output:
+            msg = output.split("DLPX_EXPECT_EXIT_CODE:")[1].split("\n", 1)[1].strip()
+        else:
+            msg = ""
         if exit_code != 0:
             error = msg
         else:
