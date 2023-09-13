@@ -7,9 +7,6 @@ import logging
 from dlpx.virtualization import libs
 from dlpx.virtualization.libs import exceptions
 import random
-from db_commands.constants import ENV_VAR_KEY
-
-from db_commands import commands
 
 # logger object
 logger = logging.getLogger(__name__)

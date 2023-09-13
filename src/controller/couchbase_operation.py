@@ -641,18 +641,6 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         if self.parameters.d_source_type == constants.CBBKPMGR:
             logger.debug("Only build for backup ingestion")
-            # logger.debug(f"couchbase repository: {self.repository}")
-            #
-            # buckets = {}
-            # for i in indexes_raw['indexes']:
-            #     if i['bucket'] in buckets:
-            #         buckets[i['bucket']].append(i['indexName'])
-            #     else:
-            #         buckets[i['bucket']] = [ i['indexName'] ]
-            #
-            # for buc, ind in buckets.items():
-            #     ind_def = 'build index on `{}` (`{}`)'.format(buc, '`,`'.join(ind))
-            #     indexes.append(ind_def)
             buckets = {}
             for i in indexes_raw['indexes']:
                 bucket_name = i['bucket']
@@ -906,7 +894,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                      f" , command_stderr=={command_stderr} , "
                      f"command_exit_code=={command_exit_code}")
         if command_output == "Found":
-            command_output, command_stderr, command_exit_code = self.run_os_command(
+            self.run_os_command(
                 os_command="delete_dir",
                 dirname=data_folder
             )
