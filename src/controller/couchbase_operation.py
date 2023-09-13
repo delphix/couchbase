@@ -1215,6 +1215,8 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                 new_port = "8091"
             else:
                 new_port = "18091"
+        else:
+            new_port = "18091"
 
         command_output, std_err, exit_code = self.run_couchbase_command(
                                                 couchbase_command='server_add',
