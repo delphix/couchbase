@@ -27,6 +27,6 @@
 | Couchbase 6.0.x   |      ![Screenshot](../image/check.svg)      |![Screenshot](../image/check.svg)     |
 | Couchbase 6.5.x   |      ![Screenshot](../image/check.svg)      |![Screenshot](../image/check.svg)     |
 | Couchbase 6.6.x   |      ![Screenshot](../image/check.svg)      |![Screenshot](../image/check.svg)     |
-| Couchbase 7.1.x   |      ![Screenshot](../image/error.svg)      |![Screenshot](../image/check.svg)     |
+| Couchbase 7.1.x   |      ![Screenshot](../image/check.svg)      |![Screenshot](../image/check.svg)     |
 
 
