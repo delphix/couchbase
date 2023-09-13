@@ -71,6 +71,12 @@ class _ClusterMixin(Resource, MixinInterface):
         env['additional_services'] = additional_service
         if int(self.repository.version.split(".")[0]) >= 7:
             env.update(kwargs[ENV_VAR_KEY])
+            if "(CE)" in self.repository.version:
+                env["cluster_eventing_ramsize"] = None
+                env["cluster_analytics_ramsize"] = None
+                env["indexerStorageMode"] = "forestdb"
+            else:
+                env["indexerStorageMode"] = "plasma"
             cmd, env_vars = CommandFactory.cluster_init_rest_expect(cluster_name=cluster_name, **env)
             kwargs[ENV_VAR_KEY].update(env_vars)
             stdout, stderr, exit_code = utilities.execute_expect(self.connection,

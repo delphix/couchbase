@@ -269,14 +269,17 @@ class DatabaseCommand(object):
             "clusterName": cluster_name,
             "indexMemoryQuota": cluster_index_ramsize,
             "ftsMemoryQuota": cluster_fts_ramsize,
-            "eventingMemoryQuota": cluster_eventing_ramsize,
-            "cbasMemoryQuota": cluster_analytics_ramsize,
             "services": f"data,index,{additional_services}",
-            "indexerStorageMode": "plasma",
+            "indexerStorageMode": kwargs.get("indexerStorageMode"),
             "afamily": "ipv4",
             "afamilyOnly": "false",
             "nodeEncryption": "off"
         }
+        if cluster_eventing_ramsize is not None:
+            payload_data["eventingMemoryQuota"] = cluster_eventing_ramsize
+        if cluster_analytics_ramsize is not None:
+            payload_data["cbasMemoryQuota"] = cluster_analytics_ramsize
+
         payload_data["services"] = payload_data["services"].replace("data", "kv").replace("query", "n1ql")
         payload_string = urllib.parse.urlencode(payload_data)
         command = f'echo \"$PAYLOAD_SECRET\" | curl -d @- -X POST http://127.0.0.1:{port}/clusterInit -u {username}'
@@ -1344,8 +1347,12 @@ class DatabaseCommand(object):
     @staticmethod
     def server_add_expect(shell_path, hostname, port, username, newhost, services,
                    **kwargs):
+        if kwargs.get('new_port') == "8091":
+            hostname_prefix = "http"
+        else:
+            hostname_prefix = "https"
         payload_data = {
-            "hostname": f"https://{newhost}:18091",
+            "hostname": f"{hostname_prefix}://{newhost}:{kwargs.get('new_port')}",
             "user": username,
             "password": kwargs.get('password'),
             "services": services
