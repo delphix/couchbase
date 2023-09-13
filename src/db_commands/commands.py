@@ -114,7 +114,7 @@ class OSCommand(object):
         if sudo:
             return "sudo -u \#{uid} cp -r {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
         else:
-            return "cp -r {srcname} {trgname}".format(srcname=srcname, trgname=trgname, uid=uid)
+            return "cp -r {srcname} {trgname}".format(srcname=srcname, trgname=trgname)
 
     @staticmethod
     def get_dlpx_bin(**kwargs):

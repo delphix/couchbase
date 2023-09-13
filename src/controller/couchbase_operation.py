@@ -827,16 +827,16 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         if int(self.repository.version.split(".")[0]) >= 7:
             chronicle_target_dir = os.path.join(targetdir, f"chronicle_{nodeno}")
-            command_output, std_err, exit_code = self.run_os_command(
+            chronicle_target_dir_command_output, _, chronicle_target_dir_exit_code = self.run_os_command(
                 os_command='check_directory',
                 dir_path=chronicle_target_dir
             )
-            if exit_code == 0 and "Found" in command_output:
-                command_output, std_err, exit_code = self.run_os_command(
+            if chronicle_target_dir_exit_code == 0 and "Found" in chronicle_target_dir_command_output:
+                self.run_os_command(
                     os_command='delete_dir',
                     dirname=chronicle_target_dir
                 )
-            command_output, std_err, exit_code = self.run_os_command(
+            self.run_os_command(
                 os_command="os_cpr",
                 srcname="{}/../var/lib/couchbase/config/chronicle".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path)),
                 trgname=chronicle_target_dir
@@ -918,11 +918,11 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                     dir_path=target_folder
                 )
                 if command_output == "Found":
-                    command_output, command_stderr, command_exit_code = self.run_os_command(
+                    self.run_os_command(
                         os_command="delete_dir",
                         dirname=target_folder
                     )
-                command_output, command_stderr, command_exit_code = self.run_os_command(
+                self.run_os_command(
                     os_command='os_mv',
                     srcname=config_directory_path,
                     trgname=target_folder
@@ -1044,7 +1044,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
                 dir_path=target_chronicle_dirname
             )
             if exit_code == 0 and "Found" in command_output:
-                command_output, std_err, exit_code = self.run_os_command(
+                self.run_os_command(
                     os_command='delete_dir',
                     dirname=target_chronicle_dirname
                 )
@@ -1117,7 +1117,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         logger.debug("fix local.ini permission - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
         chronicle_dir_name = "{}/../var/lib/couchbase/config/chronicle".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
-        command_output, std_err, exit_code = self.run_os_command(
+        self.run_os_command(
             os_command='delete_dir',
             dirname=chronicle_dir_name
         )
@@ -1139,7 +1139,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         #                                         newpass=self.parameters.couchbase_admin_password,
         #                                         newname=self.parameters.tgt_cluster_name
         #                                     )
-        command_output, std_err, exit_code = self.run_couchbase_command(
+        self.run_couchbase_command(
             couchbase_command='rename_cluster',
             username=self.snapshot.couchbase_admin,
             password=self.snapshot.couchbase_admin_password,
