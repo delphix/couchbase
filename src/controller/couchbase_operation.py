@@ -1210,10 +1210,11 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         resolve_name_output, std_err, exit_code = utilities.execute_bash(self.connection, resolve_name_command)
         logger.debug("resolve_name_command Output {} ".format(resolve_name_output))
 
-        if "(CE)" in self.repository.version:
-            new_port = "8091"
-        else:
-            new_port = "18091"
+        if int(self.repository.version.split(".")[0]) >= 7:
+            if "(CE)" in self.repository.version:
+                new_port = "8091"
+            else:
+                new_port = "18091"
 
         command_output, std_err, exit_code = self.run_couchbase_command(
                                                 couchbase_command='server_add',
