@@ -54,8 +54,8 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
 
     file_random_id = random.randint(1000000000, 9999999999)
 
-    logger.debug(f"environment_vars: {environment_vars}")
     if "SHELL_DATA" in environment_vars:
+        environment_vars["CB_CMD"] = environment_vars["CB_CMD"].replace(".sh", f"_{file_random_id}.sh")
         result = libs.run_bash(
             source_connection,
             command=f'echo -e "$SHELL_DATA" > $CB_CMD',
@@ -119,6 +119,12 @@ def execute_expect(source_connection, command_name, callback_func=None, environm
         command=f"rm -rf {file_path}",
         use_login_shell=True
     )
+    if "SHELL_DATA" in environment_vars:
+        libs.run_bash(
+            source_connection,
+            command=f"rm -rf $CB_CMD",
+            use_login_shell=True
+        )
 
     if "DLPX_EXPECT_EXIT_CODE" in output:
         exit_code = int(output.split("DLPX_EXPECT_EXIT_CODE:")[1].split("\n")[0])

@@ -63,7 +63,7 @@ class _CBBackupMixin(Resource, MixinInterface):
         # logger.debug("Backup restore: {}".format(cmd))
         # utilities.execute_bash(self.connection, cmd, **kwargs)
         map_data_list = []
-        if int(self.repository.version.split(".")[0]) == 7:
+        if int(self.repository.version.split(".")[0]) >= 7:
             for bucket_name in csv_bucket.split(","):
                 logger.debug(f"bucket_name: {bucket_name}")
                 stdout, _, _ = self.run_couchbase_command(

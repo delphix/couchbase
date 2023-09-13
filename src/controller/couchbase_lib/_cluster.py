@@ -69,7 +69,7 @@ class _ClusterMixin(Resource, MixinInterface):
         lambda_expr = lambda output: bool(re.search(ALREADY_CLUSTER_INIT, output))
         env = _ClusterMixin.generate_environment_map(self)
         env['additional_services'] = additional_service
-        if int(self.repository.version.split(".")[0]) == 7:
+        if int(self.repository.version.split(".")[0]) >= 7:
             env.update(kwargs[ENV_VAR_KEY])
             cmd, env_vars = CommandFactory.cluster_init_rest_expect(cluster_name=cluster_name, **env)
             kwargs[ENV_VAR_KEY].update(env_vars)

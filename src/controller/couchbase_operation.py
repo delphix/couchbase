@@ -754,7 +754,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         target_local_filename = os.path.join(targetdir,"local.ini_{}".format(nodeno))
         target_encryption_filename = os.path.join(targetdir,"encrypted_data_keys_{}".format(nodeno))
 
-        if nodeno == 1 or int(self.repository.version.split(".")[0]) == 7:
+        if nodeno == 1 or int(self.repository.version.split(".")[0]) >= 7:
             ip_file = "{}/../var/lib/couchbase/ip".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
             target_ip_filename = os.path.join(targetdir,"ip_{}".format(nodeno))
             output, err, exit_code = self.run_os_command(
@@ -837,7 +837,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
         if exit_code != 0:
             raise UserError("Error saving configuration file: local.ini", "Check sudo or user privileges to read Couchbase local.ini file", std_err)
 
-        if int(self.repository.version.split(".")[0]) == 7:
+        if int(self.repository.version.split(".")[0]) >= 7:
             chronicle_target_dir = os.path.join(targetdir, f"chronicle_{nodeno}")
             command_output, std_err, exit_code = self.run_os_command(
                 os_command='check_directory',
@@ -1048,7 +1048,7 @@ class CouchbaseOperation(_BucketMixin, _ClusterMixin, _XDCrMixin, _CBBackupMixin
 
         logger.debug("local.ini restore - exit_code: {} stdout: {} std_err: {}".format(exit_code, command_output, std_err))
 
-        if int(self.repository.version.split(".")[0]) == 7:
+        if int(self.repository.version.split(".")[0]) >= 7:
             source_chronicle_dirname = os.path.join(sourcedir, "chronicle_{}".format(nodeno))
             target_chronicle_dirname = "{}/../var/lib/couchbase/config/chronicle".format(helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path))
             command_output, std_err, exit_code = self.run_os_command(

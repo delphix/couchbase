@@ -281,7 +281,7 @@ class DatabaseCommand(object):
         }
         payload_data["services"] = payload_data["services"].replace("data", "kv").replace("query", "n1ql")
         payload_string = urllib.parse.urlencode(payload_data)
-        command = f'echo \"{payload_string}\" | curl -d @- -X POST http://127.0.0.1:{port}/clusterInit -u {username}'
+        command = f'echo \"$PAYLOAD_SECRET\" | curl -d @- -X POST http://127.0.0.1:{port}/clusterInit -u {username}'
         expect_block = DatabaseCommand.get_parent_expect_block().format(
             command_specific_operations="""eval spawn ${env(CB_CMD)}
                                     expect {
@@ -300,7 +300,8 @@ class DatabaseCommand(object):
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": "/tmp/run_shell.sh",
-            "SHELL_DATA": command
+            "SHELL_DATA": command,
+            "PAYLOAD_SECRET": payload_string
         }
         return expect_block, env_vars
 
@@ -342,6 +343,7 @@ class DatabaseCommand(object):
                                                 }
                                             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -372,7 +374,7 @@ class DatabaseCommand(object):
             "demandEncryption": 0
         }
         payload_string = urllib.parse.urlencode(payload_data)
-        command = f"echo \"{payload_string}\" | curl -d @- -X POST http://{source_hostname}:{source_port}/pools/default/remoteClusters -u {source_username}"
+        command = f"echo \"$PAYLOAD_SECRET\" | curl -d @- -X POST http://{source_hostname}:{source_port}/pools/default/remoteClusters -u {source_username}"
         expect_block = DatabaseCommand.get_parent_expect_block().format(
             command_specific_operations="""eval spawn ${env(CB_CMD)}
                                                     expect {
@@ -391,7 +393,8 @@ class DatabaseCommand(object):
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": "/tmp/run_shell.sh",
-            "SHELL_DATA": command
+            "SHELL_DATA": command,
+            "PAYLOAD_SECRET": payload_string
         }
         return expect_block, env_vars
 
@@ -426,6 +429,7 @@ class DatabaseCommand(object):
                                                 }
                                             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": command
@@ -462,6 +466,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": command
@@ -495,6 +500,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": command
@@ -529,6 +535,7 @@ class DatabaseCommand(object):
                                                         }
                                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": command
@@ -563,6 +570,7 @@ class DatabaseCommand(object):
                                                             }
                                                         }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": command
@@ -597,6 +605,7 @@ class DatabaseCommand(object):
                                                                     }
                                                                 }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("source_password"),
             "CB_CMD": command
@@ -666,6 +675,7 @@ class DatabaseCommand(object):
                                 }
                             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -694,6 +704,7 @@ class DatabaseCommand(object):
                 }
             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -722,6 +733,7 @@ class DatabaseCommand(object):
                         }
                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -752,6 +764,7 @@ class DatabaseCommand(object):
                                 }
                             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -782,6 +795,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -811,6 +825,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -845,6 +860,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -877,6 +893,7 @@ class DatabaseCommand(object):
                                                 }
                                             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -905,6 +922,7 @@ class DatabaseCommand(object):
                         }
                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -933,6 +951,7 @@ class DatabaseCommand(object):
                                 }
                             }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -955,6 +974,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -988,6 +1008,8 @@ class DatabaseCommand(object):
                                                 }
                                             }"""
         )
+        logger.debug(f"command: {command}")
+        logger.debug(f"cb_query: {cb_query}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command,
@@ -1022,6 +1044,8 @@ class DatabaseCommand(object):
                                                 }
                                             }"""
         )
+        logger.debug(f"command: {command}")
+        logger.debug(f"cb_query: {cb_query}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command,
@@ -1072,6 +1096,8 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
+        logger.debug(f"cb_query: {index_def}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command,
@@ -1088,6 +1114,7 @@ class DatabaseCommand(object):
     @staticmethod
     def check_index_build_expect(base_path, hostname, port, username, **kwargs):
         command = f"{base_path}/cbq -e {hostname}:{port} -u {username} -q=true"
+        cb_query = "SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'"
         expect_block = DatabaseCommand.get_parent_expect_block().format(
             command_specific_operations="""eval spawn ${env(CB_CMD)}
                                             expect {
@@ -1111,10 +1138,12 @@ class DatabaseCommand(object):
                                                 }
                                             }"""
         )
+        logger.debug(f"command: {command}")
+        logger.debug(f"cb_query: {cb_query}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command,
-            "CB_QUERY": "SELECT COUNT(*) as unbuilt FROM system:indexes WHERE state <> 'online'"
+            "CB_QUERY": cb_query
         }
         return expect_block, env_vars
 
@@ -1155,7 +1184,7 @@ class DatabaseCommand(object):
         else:
             command = f"{base_path}/cbbackupmgr restore --archive {backup_location} --repo {backup_repo} --cluster couchbase://{hostname}:{port} --username {username} --password \
                         --force-updates {skip} --no-progress-bar --include-buckets {csv_bucket_list}"
-        if int(kwargs.get("repo_version").split(".")[0]) == 7:
+        if int(kwargs.get("repo_version").split(".")[0]) >= 7:
             command = f"{command} --purge"
         if kwargs.get("map_data") != "":
             command = f"{command} --map-data {kwargs.get('map_data')}"
@@ -1178,7 +1207,7 @@ class DatabaseCommand(object):
                                 }
                             }"""
         )
-        logger.debug(f"restore command:::: {command}")
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -1212,6 +1241,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -1241,6 +1271,7 @@ class DatabaseCommand(object):
                         }
                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -1270,6 +1301,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command
@@ -1279,7 +1311,7 @@ class DatabaseCommand(object):
     @staticmethod
     def change_cluster_password_expect(shell_path, hostname, port, username, newuser, **kwargs):
         payload_string = f"password={kwargs.get('newpass')}&username={newuser}&port=SAME"
-        command = f'echo \"{payload_string}\" | curl -d @- -X POST http://{hostname}:{port}/settings/web -u {username}'
+        command = f'echo \"$PAYLOAD_SECRET\" | curl -d @- -X POST http://{hostname}:{port}/settings/web -u {username}'
         expect_block = DatabaseCommand.get_parent_expect_block().format(
             command_specific_operations="""eval spawn ${env(CB_CMD)}
                                             expect {
@@ -1298,7 +1330,8 @@ class DatabaseCommand(object):
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": "/tmp/run_shell.sh",
-            "SHELL_DATA": command
+            "SHELL_DATA": command,
+            "PAYLOAD_SECRET": payload_string
         }
         return expect_block, env_vars
 
@@ -1321,7 +1354,7 @@ class DatabaseCommand(object):
         }
         payload_data["services"] = payload_data["services"].replace("data", "kv").replace("query", "n1ql")
         payload_string = urllib.parse.urlencode(payload_data)
-        command = f"echo \"{payload_string}\" | curl -d @- -X POST {hostname}:8091/controller/addNode -u {username}"
+        command = f"echo \"$PAYLOAD_SECRET\" | curl -d @- -X POST {hostname}:8091/controller/addNode -u {username}"
         expect_block = DatabaseCommand.get_parent_expect_block().format(
             command_specific_operations="""eval spawn ${env(CB_CMD)}
                                             expect {
@@ -1340,7 +1373,8 @@ class DatabaseCommand(object):
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": "/tmp/run_shell.sh",
-            "SHELL_DATA": command
+            "SHELL_DATA": command,
+            "PAYLOAD_SECRET": payload_string
         }
         return expect_block, env_vars
 
@@ -1370,7 +1404,7 @@ class DatabaseCommand(object):
                                         }
                                     }"""
         )
-        logger.debug(f"rebalance command ::::: {command}")
+        logger.debug(f"command: {command}")
         env_vars = {
             "CB_PWD": kwargs.get("password"),
             "CB_CMD": command

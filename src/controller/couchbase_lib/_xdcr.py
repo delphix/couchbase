@@ -273,7 +273,7 @@ class _XDCrMixin(Resource, MixinInterface):
 
         for bkt_name in bucket_list:
             if bkt_name not in alredy_replicated_buckets:
-                if int(self.repository.version.split(".")[0]) == 7:
+                if int(self.repository.version.split(".")[0]) >= 7:
                     logger.debug(f"bucket_name: {bkt_name}")
                     stdout, _, _ = self.run_couchbase_command(
                         couchbase_command='get_scope_list_expect',
