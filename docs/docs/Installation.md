@@ -4,7 +4,7 @@
 Prerequisites
 =============
 
--   Install Delphix Engine of version 5.3.x.
+-   Install Delphix Engine of version 14.0.0.0.
 -   Install Couchbase binaries on source, staging, and target servers
 
 
