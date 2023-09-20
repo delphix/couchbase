@@ -7,6 +7,7 @@
 This class contains methods for XDCR related operations
 This is child class of Resource and parent class of CouchbaseOperation
 """
+import json
 #######################################################################################################################
 import logging
 from utils import utilities
@@ -260,7 +261,7 @@ class _XDCrMixin(Resource, MixinInterface):
         config_setting = self.staged_source.parameters.config_settings_prov
 
         if len(config_setting) > 0:
-            bucket_list = [ config_bucket["bucketName"] for config_bucket in config_setting ]
+            bucket_list = [config_bucket["bucketName"] for config_bucket in config_setting]
         else:
             bucket_details_source = self.source_bucket_list()
             bucket_list = helper_lib.filter_bucket_name_from_json(bucket_details_source)
@@ -272,6 +273,45 @@ class _XDCrMixin(Resource, MixinInterface):
 
         for bkt_name in bucket_list:
             if bkt_name not in alredy_replicated_buckets:
+                if int(self.repository.version.split(".")[0]) >= 7:
+                    logger.debug(f"bucket_name: {bkt_name}")
+                    stdout, _, _ = self.run_couchbase_command(
+                        couchbase_command='get_scope_list_expect',
+                        base_path=helper_lib.get_base_directory_of_given_path(
+                            self.repository.cb_shell_path),
+                        hostname=self.source_config.couchbase_src_host,
+                        port=self.source_config.couchbase_src_port,
+                        username=self.staged_source.parameters.xdcr_admin,
+                        password=self.staged_source.parameters.xdcr_admin_password,
+                        bucket_name=bkt_name
+                    )
+                    json_scope_data = json.loads(stdout)
+                    logger.debug(f"json_scope_data={json_scope_data}")
+                    for s in json_scope_data["scopes"]:
+                        scope_name = s["name"]
+                        if scope_name == "_default":
+                            continue
+                        # create scope
+                        self.run_couchbase_command(
+                            couchbase_command="create_scope_expect",
+                            base_path=helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),
+                            scope_name=scope_name,
+                            bucket_name=bkt_name
+                        )
+                        collection_list = s["collections"]
+                        for c in collection_list:
+                            collection_name = c["name"]
+                            if collection_name == "_default":
+                                continue
+                            # create collection
+                            self.run_couchbase_command(
+                                couchbase_command="create_collection_expect",
+                                base_path=helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),
+                                scope_name=scope_name,
+                                bucket_name=bkt_name,
+                                collection_name=collection_name
+                            )
+
                 logger.debug("Creating replication for {}".format(bkt_name))
                 self.xdcr_replicate(bkt_name, bkt_name)
             else:

@@ -27,6 +27,8 @@ logger = logging.getLogger(__name__)
 
 def resync_xdcr(staged_source, repository, source_config, input_parameters):
     logger.debug("START resync_xdcr")
+    if input_parameters.xdcr_admin_password == "":
+        raise UserError("Source password is mandatory in XDCR dsource type!")
     dsource_type = input_parameters.d_source_type
     dsource_name = source_config.pretty_name
     bucket_size = staged_source.parameters.bucket_size

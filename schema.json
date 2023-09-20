@@ -275,8 +275,7 @@
       "bucketSize",
       "couchbaseAdmin",
       "couchbaseAdminPassword",
-      "xdcrAdmin",
-      "xdcrAdminPassword"
+      "xdcrAdmin"
     ],
     "ordering" : [
       "dSourceType",

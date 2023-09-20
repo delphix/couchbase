@@ -6,6 +6,7 @@
 """This class contains methods for all cb backup manager.
 This is child class of Resource and parent class of CouchbaseOperation
 """
+import json
 #######################################################################################################################
 import logging
 from utils import utilities
@@ -61,14 +62,36 @@ class _CBBackupMixin(Resource, MixinInterface):
         #                                     **env)
         # logger.debug("Backup restore: {}".format(cmd))
         # utilities.execute_bash(self.connection, cmd, **kwargs)
-
+        map_data_list = []
+        if int(self.repository.version.split(".")[0]) >= 7:
+            for bucket_name in csv_bucket.split(","):
+                logger.debug(f"bucket_name: {bucket_name}")
+                stdout, _, _ = self.run_couchbase_command(
+                    couchbase_command='get_scope_list_expect',
+                    base_path=helper_lib.get_base_directory_of_given_path(
+                        self.repository.cb_shell_path),
+                    bucket_name=bucket_name
+                )
+                json_scope_data = json.loads(stdout)
+                for s in json_scope_data["scopes"]:
+                    scope_name = s["name"]
+                    if scope_name == "_default":
+                        continue
+                    collection_list = s["collections"]
+                    for c in collection_list:
+                        collection_name = c["name"]
+                        if collection_name == "_default":
+                            continue
+                        map_data_list.append(f"{bucket_name}.{scope_name}.{collection_name}={bucket_name}.{scope_name}.{collection_name}")
 
         stdout, stderr, exit_code = self.run_couchbase_command(couchbase_command='cb_backup_full',
                                                             backup_location=self.parameters.couchbase_bak_loc,
                                                             csv_bucket_list=csv_bucket,
                                                             backup_repo=self.parameters.couchbase_bak_repo, 
                                                             skip=skip, 
-                                                            base_path=helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path)
+                                                            base_path=helper_lib.get_base_directory_of_given_path(self.repository.cb_shell_path),
+                                                            map_data=",".join(map_data_list),
+                                                            repo_version = self.repository.version
                                                         )
 
         if exit_code != 0:
