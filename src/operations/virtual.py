@@ -111,6 +111,7 @@ def vdb_reconfigure(virtual_source, repository, source_config, snapshot):
         server_count = len(provision_process.parameters.node_list) + 1
     else:
         multinode = False
+        server_count = 1
 
     nodeno = 1
     provision_process.restore_config(what="current", nodeno=nodeno)

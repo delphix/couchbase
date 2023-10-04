@@ -161,7 +161,6 @@ def buckets_precreation(
             logger.debug(log_msg)
             bucket = buckets_dict[config_bucket["bucketName"]]
             logger.debug("Running bucket operations for {}".format(bucket))
-            bkt_name = bucket["name"]
             bkt_size = bucket["ram"]
             bkt_type = bucket["bucketType"]
             bkt_compression = bucket["compressionMode"]

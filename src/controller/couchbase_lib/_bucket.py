@@ -215,9 +215,7 @@ class _BucketMixin(Resource, MixinInterface):
             )
             command = CommandFactory.os_mv(src, dst, self.need_sudo, self.uid)
             logger.debug("rename command: {}".format(command))
-            stdout, error, exit_code = utilities.execute_bash(
-                self.connection, command
-            )
+            utilities.execute_bash(self.connection, command)
         elif direction == "restore":
             dst = join(
                 self.virtual_source.parameters.mount_path, "data", bucket_name
@@ -229,14 +227,10 @@ class _BucketMixin(Resource, MixinInterface):
             )
             command = CommandFactory.delete_dir(dst, self.need_sudo, self.uid)
             logger.debug("delete command: {}".format(command))
-            stdout, error, exit_code = utilities.execute_bash(
-                self.connection, command
-            )
+            utilities.execute_bash(self.connection, command)
             command = CommandFactory.os_mv(src, dst, self.need_sudo, self.uid)
             logger.debug("rename command: {}".format(command))
-            stdout, error, exit_code = utilities.execute_bash(
-                self.connection, command
-            )
+            utilities.execute_bash(self.connection, command)
 
     def monitor_bucket(self, bucket_name, staging_UUID):
         # To monitor the replication

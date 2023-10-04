@@ -170,10 +170,7 @@ def execute_expect(
 def _handle_exit_code(
     exit_code, std_err=None, std_output=None, callback_func=None
 ):
-    if exit_code == 0:
-        return
-
-    else:
+    if exit_code != 0:
         # Call back function which contains logic to skip the error and
         # continue to throw
         if callback_func:
@@ -194,7 +191,7 @@ def _handle_exit_code(
                     "error: {}".format(str(err))
                 )
 
-    error_details = std_output
-    if error_details is None or error_details == "":
-        error_details = std_err
-    raise Exception(error_details)
+        error_details = std_output
+        if error_details is None or error_details == "":
+            error_details = std_err
+        raise Exception(error_details)
