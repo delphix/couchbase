@@ -195,3 +195,5 @@ def _handle_exit_code(
         if error_details is None or error_details == "":
             error_details = std_err
         raise Exception(error_details)
+    else:
+        return False
