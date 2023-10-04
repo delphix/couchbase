@@ -272,7 +272,6 @@
       "clusterEventingRAMSize",
       "clusterAnalyticsRAMSize",
       "bucketEvictionPolicy",
-      "bucketSize",
       "couchbaseAdmin",
       "couchbaseAdminPassword",
       "xdcrAdmin"
@@ -298,7 +297,7 @@
       "xdcrAdminPassword",
       "fts_service",
       "eventing_service",
-        "config_settings_prov"
+      "config_settings_prov"
     ],
     "properties" : {
       "dSourceType": {
@@ -385,11 +384,34 @@
         "default": "valueOnly"
       },
        "bucketSize": {
-        "type": "integer",
-        "prettyName": "Bucket Size",
-        "description": "The default bucket size",
-        "default": 0
-      },
+         "type": "array",
+         "prettyName": "Bucket RAM Size",
+         "description": "RAM to be allocated to each bucket",
+         "items": {
+           "type": "object",
+           "required": [
+             "bname",
+             "bsize"
+           ],
+           "ordering": [
+             "bname",
+             "bsize"
+           ],
+           "properties": {
+             "bname": {
+               "type": "string",
+               "prettyName": "Bucket Name",
+               "default": "",
+               "maxLength": 40
+             },
+             "bsize": {
+               "type": "integer",
+               "prettyName": "Bucket Size (in MB)",
+               "default": 0
+             }
+           }
+         }
+       },
       "couchbaseAdmin": {
         "type": "string",
         "prettyName": "Staging Couchbase Admin User",
