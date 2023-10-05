@@ -87,9 +87,7 @@ class _XDCrMixin(Resource, MixinInterface):
             cluster_name=self.parameters.stg_cluster_name, **env
         )
         kwargs[ENV_VAR_KEY].update(env_vars)
-        stdout, stderr, exit_code = utilities.execute_expect(
-            self.connection, cmd, **kwargs
-        )
+        utilities.execute_expect(self.connection, cmd, **kwargs)
         helper_lib.sleepForSecond(3)
 
     def xdcr_replicate(self, src, tgt):
