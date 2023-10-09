@@ -166,6 +166,18 @@ class OSCommand(object):
     def resolve_name(hostname, **kwargs):
         return "getent ahostsv4 {hostname} | grep STREAM | head -n 1 | cut -d ' ' -f 1".format(hostname=hostname)
 
+
+    @staticmethod
+    def du(mount_path: str, **kwargs)->str:
+        """
+        Returns command string to get size of dataset.
+
+        :param mount_path: The path whose size is to be calculated
+
+        :return: The du command string
+        """
+        return f"du -s --block-size=1 --apparent-size {mount_path}"
+
 class DatabaseCommand(object):
     def __init__(self):
         pass

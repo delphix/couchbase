@@ -31,6 +31,7 @@ from dlpx.virtualization.platform import Status
 from internal_exceptions.plugin_exceptions import RepositoryDiscoveryError, SourceConfigDiscoveryError, FileIOError, \
     UnmountFileSystemError
 from utils import utilities
+from dlpx.virtualization.common import RemoteConnection
 
 # Global logger object for this file
 logger = logging.getLogger(__name__)
@@ -392,9 +393,6 @@ def get_sync_lock_file_name(dsource_type, dsource_name):
 
 
 def check_stale_mountpoint(connection, path):
-
-
-
     output, stderr, exit_code = utilities.execute_bash(connection, CommandFactory.df(path))
     if exit_code != 0:
         if "No such file or directory" in stderr:
@@ -434,15 +432,11 @@ def check_server_is_used(connection, path):
                         # raise an exception
                         raise UserError("Another database (VDB or staging) is using this server.", "Disable another one to provision or enable this one", "{} {}".format(groups[0], groups[1]))
 
-
     return ret
 
 
 
 def clean_stale_mountpoint(connection, path):
-
-
-
     umount_std, umount_stderr, umount_exit_code = utilities.execute_bash(connection, CommandFactory.unmount_file_system(mount_path=path, options='-lf'))
     if umount_exit_code != 0:
         logger.error("Problem with cleaning mount path")
@@ -450,3 +444,21 @@ def clean_stale_mountpoint(connection, path):
         raise UserError("Problem with cleaning mount path", "Ask OS admin to check mount points", umount_stderr)
 
 
+def get_db_size(connection:RemoteConnection, path:str)->str:
+    """
+    Get the size of the dataset.
+
+    :param connection: Staging connection.
+    :param path: Mount location corresponding to dataset
+
+    :return: du command output.
+
+    """
+    logger.debug("Started db sizing")
+    du_std, du_stderr, du_exit_code = utilities.execute_bash(connection, CommandFactory.du(mount_path=path))
+    if du_exit_code != 0:
+        logger.error("Unable to calculate the dataset size")
+        logger.error(f"stderr: {du_stderr}")
+        raise UserError("Problem with measuring mounted file system", "Ask OS admin to check mount", du_stderr)
+    logger.debug(f"Completed db sizing {du_std}")
+    return du_std

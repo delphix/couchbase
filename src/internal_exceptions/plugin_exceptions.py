@@ -79,6 +79,13 @@ class UnmountFileSystemError(PluginException):
                                                      "Please check the logs for more details")
 
 
+class MountPathStaleError(PluginException):
+    def __init__(self,message=""):
+        message = "Failed to get the stale mount path information " + message
+        super(MountPathStaleError, self).__init__(message,
+                                                  "Please clean the stale mount point.",
+                                                  "Please check the logs for more details")
+
 ERR_RESPONSE_DATA = {
     'ERR_INSUFFICIENT_RAMQUOTA': {
         'MESSAGE': "Provided bucket size is not suffice to proceed",
