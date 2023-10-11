@@ -261,3 +261,8 @@ def add_node_to_virtual1(old_virtual_source):
     logger.debug("After changes")
     logger.debug(new_virt)
     return new_virt
+
+
+@plugin.linked.source_size()
+def linked_source_size(staged_source, repository, source_config):
+    return linked.source_size(staged_source)
