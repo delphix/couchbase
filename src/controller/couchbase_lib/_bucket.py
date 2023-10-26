@@ -114,16 +114,20 @@ class _BucketMixin(Resource, MixinInterface):
         helper_lib.sleepForSecond(2)
 
     def bucket_create(
-        self, bucket_name, ram_size, bucket_type, bucket_compression
+        self,
+        bucket_name,
+        ram_size,
+        bucket_type,
+        bucket_compression,
+        retry: bool = True,
     ):
-        logger.debug("Creating bucket: {} ".format(bucket_name))
+        logger.debug(f"Creating bucket: {bucket_name} ")
         # To create the bucket with given ram size
         self.__validate_bucket_name(bucket_name)
         if ram_size is None:
             logger.debug(
-                "Needed ramsize for bucket_create. Currently it is: {}".format(
-                    ram_size
-                )
+                "Needed ramsize for bucket_create. "
+                f"Currently it is: {ram_size}"
             )
             return
 
@@ -132,9 +136,7 @@ class _BucketMixin(Resource, MixinInterface):
             bucket_type = "couchbase"
 
         if bucket_compression is not None:
-            bucket_compression = "--compression-mode {}".format(
-                bucket_compression
-            )
+            bucket_compression = f"--compression-mode {bucket_compression}"
         else:
             bucket_compression = ""
 
@@ -150,17 +152,41 @@ class _BucketMixin(Resource, MixinInterface):
             evictionpolicy=policy,
             bucket_type=bucket_type,
             bucket_compression=bucket_compression,
-            **env
+            **env,
         )
-        logger.debug("create bucket {}".format(command))
+        logger.debug(f"create bucket {command} for {bucket_name}")
         kwargs[ENV_VAR_KEY].update(env_vars)
         output, error, exit_code = utilities.execute_expect(
             self.connection, command, **kwargs
         )
         logger.debug(
-            "create bucket output: {} {} {}".format(output, error, exit_code)
+            f"create bucket output for {bucket_name}: "
+            f"{output} {error} {exit_code}"
         )
         helper_lib.sleepForSecond(2)
+
+        bucket_list = self.bucket_list()
+        bucket_name_list = [item["name"] for item in bucket_list]
+        if bucket_name not in bucket_name_list and retry:
+            self.bucket_create(
+                bucket_name=bucket_name,
+                ram_size=ram_size,
+                bucket_type=bucket_type,
+                bucket_compression=bucket_compression,
+                retry=False,
+            )
+            logger.debug(
+                f"Bucket creation failed for {bucket_name} "
+                "on the first attempt, retrying."
+            )
+        elif bucket_name not in bucket_name_list:
+            error_message = f"Bucket creation failed for {bucket_name}" + (
+                ", even after retry." if not retry else "."
+            )
+            logger.error(error_message)
+            raise BucketOperationError(error_message)
+
+        logger.debug(f"Bucket creation successful for {bucket_name}.")
 
     def bucket_list(self, return_type=list):
         # See the all bucket.
@@ -249,7 +275,7 @@ class _BucketMixin(Resource, MixinInterface):
             source_port=self.source_config.couchbase_src_port,
             bucket_name=bucket_name,
             uuid=staging_UUID,
-            **env
+            **env,
         )
         kwargs[ENV_VAR_KEY].update(env_vars)
         stdout, stderr, exit_code = utilities.execute_expect(
