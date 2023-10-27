@@ -417,9 +417,15 @@ def unmount_file_system(rx_connection, path):
         raise UnmountFileSystemError(str(err))
 
 
-def get_bucket_size_in_MB(bucket_size, bkt_name_size):
+def get_bucket_size_in_MB(bucket_size_list, bkt_name_size, bucket_name):
     """convert bkt size into MB if current bucket_size is zero"""
-    bkt_size_mb = 0
+    bucket_size = 0
+    for bucket_dict in bucket_size_list:
+        bname = bucket_dict["bname"]
+        bsize = bucket_dict["bsize"]
+        if bname == "*" or bname == bucket_name:
+            bucket_size = bsize
+            break
 
     if bucket_size > 0:
         bkt_size_mb = bucket_size

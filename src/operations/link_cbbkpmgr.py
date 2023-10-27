@@ -6,6 +6,7 @@
 # mechanism
 ##############################################################################
 
+import copy
 import json
 import logging
 
@@ -150,7 +151,9 @@ def post_snapshot_cbbkpmgr(
     snapshot.couchbase_admin_password = (
         post_snapshot_process.parameters.couchbase_admin_password
     )
-    # logger.debug("snapshot schema: {}".format(snapshot))
+    debug_snapshot = copy.deepcopy(snapshot)
+    debug_snapshot.couchbase_admin_password = "xxxxxxxx"
+    logger.debug("snapshot schema: {}".format(debug_snapshot))
     logger.debug("Deleting the lock files")
     helper_lib.delete_file(rx_connection, config.SNAP_SYNC_FILE_NAME)
     helper_lib.delete_file(rx_connection, config.SYNC_FILE_NAME)
