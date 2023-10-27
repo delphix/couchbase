@@ -155,6 +155,13 @@ class OSCommand(object):
             )
 
     @staticmethod
+    def os_ls(dir_path, sudo=False, uid=None, **kwargs):
+        if sudo:
+            return f"sudo -u \#{uid} ls {dir_path}"
+        else:
+            return f"ls {dir_path}"
+
+    @staticmethod
     def get_dlpx_bin(**kwargs):
         return "echo $DLPX_BIN_JQ"
 

@@ -10,6 +10,8 @@ import json
 
 ##############################################################################
 import logging
+import os
+from datetime import datetime
 
 from controller import helper_lib
 from controller.couchbase_lib._mixin_interface import MixinInterface
@@ -35,6 +37,61 @@ class _CBBackupMixin(Resource, MixinInterface):
         }
         # MixinInterface.read_map(env)
         return env
+
+    def check_and_update_archive_path(self, check_file=False):
+        folder_name = self.parameters.archive_name
+        if self.parameters.archive_name == "":
+            command_output, std_err, exit_code = self.run_os_command(
+                os_command="os_ls", dir_path=self.parameters.couchbase_bak_loc
+            )
+            logger.debug(f"command_output={command_output}")
+            datetime_object_list = []
+            for archive_name in command_output.split("\n"):
+                # archive name in format 20230810010001
+                try:
+                    datetime_archive_name = datetime.strptime(
+                        archive_name, "%Y%m%d%H%M%S"
+                    )
+                    datetime_object_list.append(datetime_archive_name)
+                except ValueError:
+                    logger.debug(
+                        f"Cannot convert {archive_name} into "
+                        f"%Y%m%d%H%M%S format."
+                    )
+            if not datetime_object_list:
+                raise UserError(
+                    f"No valid backups found in %Y%m%d%H%M%S "
+                    f"format in directory "
+                    f"{self.parameters.couchbase_bak_loc}."
+                )
+            else:
+                max_date = max(datetime_object_list)
+                folder_name = max_date.strftime("%Y%m%d%H%M%S")
+                logger.debug(
+                    f"maximum date = {max_date}, " f"folder_name={folder_name}"
+                )
+                file_data = ""
+                if check_file:
+                    backup_restore_filename = os.path.join(
+                        self.parameters.mount_path,
+                        ".delphix/backup_restore.txt",
+                    )
+                    check_file_stdout, _, exit_code = self.run_os_command(
+                        os_command="check_file",
+                        file_path=backup_restore_filename,
+                    )
+
+                    if exit_code == 0 and "Found" in check_file_stdout:
+                        file_data, _, _ = self.run_os_command(
+                            os_command="cat", path=backup_restore_filename
+                        )
+                        file_data = file_data.strip()
+
+                if file_data == folder_name:
+                    raise UserError("No new backups found....exiting snapshot")
+                else:
+                    self.parameters.archive_name = folder_name
+        return folder_name
 
     def cb_backup_full(self, csv_bucket):
         logger.debug("Starting Restore via Backup file...")
@@ -79,7 +136,9 @@ class _CBBackupMixin(Resource, MixinInterface):
 
         stdout, stderr, exit_code = self.run_couchbase_command(
             couchbase_command="cb_backup_full",
-            backup_location=self.parameters.couchbase_bak_loc,
+            backup_location=os.path.join(
+                self.parameters.couchbase_bak_loc, self.parameters.archive_name
+            ),
             csv_bucket_list=csv_bucket,
             backup_repo=self.parameters.couchbase_bak_repo,
             skip=skip,
