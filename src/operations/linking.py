@@ -161,12 +161,13 @@ def buckets_precreation(
             logger.debug(log_msg)
             bucket = buckets_dict[config_bucket["bucketName"]]
             logger.debug("Running bucket operations for {}".format(bucket))
+            bkt_name = config_bucket["bucketName"]
             bkt_size = bucket["ram"]
             bkt_type = bucket["bucketType"]
             bkt_compression = bucket["compressionMode"]
 
             bkt_size_mb = helper_lib.get_bucket_size_in_MB(
-                couchbase_obj.parameters.bucket_size, bkt_size
+                couchbase_obj.parameters.bucket_size, bkt_size, bkt_name
             )
 
             if config_bucket["bucketName"] not in bucket_details_staged:
@@ -216,7 +217,7 @@ def buckets_precreation(
                 bkt_compression = items["compressionMode"]
 
                 bkt_size_mb = helper_lib.get_bucket_size_in_MB(
-                    couchbase_obj.parameters.bucket_size, bkt_size
+                    couchbase_obj.parameters.bucket_size, bkt_size, bkt_name
                 )
                 if bkt_name not in bucket_details_staged:
                     couchbase_obj.bucket_create(
