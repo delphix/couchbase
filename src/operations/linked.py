@@ -19,6 +19,8 @@ from internal_exceptions.base_exceptions import DatabaseException
 from internal_exceptions.base_exceptions import GenericUserError
 from internal_exceptions.base_exceptions import PluginException
 from internal_exceptions.plugin_exceptions import MultipleSnapSyncError
+from internal_exceptions.plugin_exceptions import MountPathStaleError
+from dlpx.virtualization.platform import StagedSource
 from operations import config
 from operations import link_cbbkpmgr
 from operations import link_xdcr
@@ -227,3 +229,48 @@ def _cleanup_in_exception_case(rx_connection, is_sync, is_snap_sync):
     except Exception as err:
         logger.debug("Failed to clean up the lock files {}".format(str(err)))
         raise
+
+
+def source_size(source_obj: StagedSource):
+    """
+    Returns space occupied by the dataset on the mount point in bytes.
+
+    :param source_obj: staged_source object corresponding to dsource
+
+    :return: Storage occupied in the mount point in bytes
+    """
+    connection = source_obj.staged_connection
+    mount_path = source_obj.parameters.mount_path
+    cluster_name = source_obj.parameters.stg_cluster_name
+    logger.info(
+        "Begin operation: Calculation of source"
+        f" sizing for dSource {cluster_name}."
+    )
+    try:
+        if not helper_lib.check_stale_mountpoint(
+            connection=connection, path=mount_path
+        ) and helper_lib.check_server_is_used(
+            connection=connection, path=mount_path
+        ):
+            db_size_output = helper_lib.get_db_size(connection, mount_path)
+            if db_size_output:
+                db_size = int(db_size_output.split()[0])
+                logger.debug(
+                    f"mount_point={mount_path} , "
+                    f"db_size_calculated={db_size}"
+                )
+            logger.info(
+                "End operation: Calculation of source"
+                f" sizing for dSource {cluster_name}."
+            )
+            return db_size
+        else:
+            raise MountPathStaleError(message=mount_path)
+    except Exception as error:
+        logger.debug("Exception: {}".format(str(error)))
+        raise
+    finally:
+        logger.info(
+            "End operation: Calculation of source"
+            f" sizing for dSource {cluster_name} couldn't be completed."
+        )
