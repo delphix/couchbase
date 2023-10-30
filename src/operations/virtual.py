@@ -10,7 +10,6 @@
 
 import json
 import logging
-import sys
 import time
 
 from controller import helper_lib
@@ -465,10 +464,9 @@ def vdb_start(virtual_source, repository, source_config):
                     ),
                 )
                 addnode.start_couchbase()
-    except Exception:
-        raise CouchbaseServicesError(" Start").to_user_error()(
-            None
-        ).with_traceback(sys.exc_info()[2])
+    except Exception as ex_obj:
+        logger.exception(ex_obj)
+        raise CouchbaseServicesError(" Start").to_user_error()
 
 
 def vdb_stop(virtual_source, repository, source_config):
