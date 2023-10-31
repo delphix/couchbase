@@ -6,7 +6,6 @@
 #############################################################################
 
 import logging
-import sys
 
 import db_commands
 from controller import helper_lib
@@ -42,7 +41,8 @@ def resync(staged_source, repository, source_config, input_parameters):
             )
 
         logger.debug("Completed resynchronization")
-    except UserError:
+    except UserError as ex_obj:
+        logger.exception(ex_obj)
         raise
 
     except Exception as ex_obj:
@@ -56,14 +56,13 @@ def resync(staged_source, repository, source_config, input_parameters):
             link_cbbkpmgr.unmount_file_system_in_error_case(
                 staged_source, repository, source_config
             )
+        logger.exception(ex_obj)
         if (
             isinstance(ex_obj, PluginException)
             or isinstance(ex_obj, DatabaseException)
             or isinstance(ex_obj, GenericUserError)
         ):
-            raise ex_obj.to_user_error()(None).with_traceback(
-                sys.exc_info()[2],
-            )
+            raise ex_obj.to_user_error()
         raise
 
 
@@ -88,14 +87,13 @@ def pre_snapshot(staged_source, repository, source_config, input_parameters):
             link_cbbkpmgr.unmount_file_system_in_error_case(
                 staged_source, repository, source_config
             )
+        logger.exception(ex_obj)
         if (
             isinstance(ex_obj, PluginException)
             or isinstance(ex_obj, DatabaseException)
             or isinstance(ex_obj, GenericUserError)
         ):
-            raise ex_obj.to_user_error()(None).with_traceback(
-                sys.exc_info()[2],
-            )
+            raise ex_obj.to_user_error()
         raise
 
 
