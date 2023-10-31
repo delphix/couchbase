@@ -316,7 +316,9 @@ def _do_provision(provision_process, snapshot):
         bkt_size = item["ram"]
         bkt_type = item["bucketType"]
         bkt_compression = item["compressionMode"]
-        bkt_size_mb = helper_lib.get_bucket_size_in_MB(0, bkt_size)
+        bkt_size_mb = helper_lib.get_bucket_size_in_MB(
+            0, bkt_size, bucket_name
+        )
         if bucket_name not in bucket_list:
             # a new bucket needs to be created
             logger.debug("Creating bucket: {}".format(bucket_name))

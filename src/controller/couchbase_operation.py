@@ -535,6 +535,7 @@ class CouchbaseOperation(
             os_command="get_backup_bucket_list",
             path=os.path.join(
                 self.parameters.couchbase_bak_loc,
+                self.parameters.archive_name,
                 self.parameters.couchbase_bak_repo,
             ),
         )
@@ -908,6 +909,14 @@ class CouchbaseOperation(
                     )
                 ),
                 trgname=chronicle_target_dir,
+            )
+        if self.parameters.d_source_type == constants.CBBKPMGR:
+            self.run_os_command(
+                os_command="write_file",
+                filename=os.path.join(
+                    self.parameters.mount_path, ".delphix/backup_restore.txt"
+                ),
+                data=self.parameters.archive_name,
             )
 
     def check_cluster_notconfigured(self):

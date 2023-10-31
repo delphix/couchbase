@@ -6,6 +6,7 @@
 # mechanism
 ##############################################################################
 
+import copy
 import json
 import logging
 
@@ -31,6 +32,7 @@ def resync_cbbkpmgr(
         .set_source_config(source_config)
         .build()
     )
+    resync_process.check_and_update_archive_path()
 
     linking.check_for_concurrent(
         resync_process, dsource_type, dsource_name, couchbase_host
@@ -74,21 +76,41 @@ def pre_snapshot_cbbkpmgr(
         .set_source_config(source_config)
         .build()
     )
-
+    old_archive_name = input_parameters.archive_name
+    new_archive_name = pre_snapshot_process.check_and_update_archive_path(
+        check_file=True
+    )
     dsource_type = input_parameters.d_source_type
     dsource_name = source_config.pretty_name
     couchbase_host = input_parameters.couchbase_host
     linking.check_for_concurrent(
         pre_snapshot_process, dsource_type, dsource_name, couchbase_host
     )
+    if old_archive_name == new_archive_name:
+        logger.debug("Finding source and staging bucket list")
+        bucket_details_staged = pre_snapshot_process.bucket_list()
+        filter_bucket_list = helper_lib.filter_bucket_name_from_output(
+            bucket_details_staged
+        )
+        csv_bucket_list = ",".join(filter_bucket_list)
+    else:
+        logger.debug("Running resync process....for ingesting new backup!")
+        linking.configure_cluster(pre_snapshot_process)
 
-    logger.debug("Finding source and staging bucket list")
+        logger.debug("Finding source and staging bucket list")
+        bucket_details_source = (
+            pre_snapshot_process.source_bucket_list_offline()
+        )
+        bucket_details_staged = helper_lib.filter_bucket_name_from_output(
+            pre_snapshot_process.bucket_list()
+        )
 
-    bucket_details_staged = pre_snapshot_process.bucket_list()
-    filter_bucket_list = helper_lib.filter_bucket_name_from_output(
-        bucket_details_staged
-    )
-    csv_bucket_list = ",".join(filter_bucket_list)
+        buckets_toprocess = linking.buckets_precreation(
+            pre_snapshot_process, bucket_details_source, bucket_details_staged
+        )
+
+        csv_bucket_list = ",".join(buckets_toprocess)
+
     pre_snapshot_process.cb_backup_full(csv_bucket_list)
     logger.info("Re-ingesting from latest backup complete.")
 
@@ -129,7 +151,9 @@ def post_snapshot_cbbkpmgr(
     snapshot.couchbase_admin_password = (
         post_snapshot_process.parameters.couchbase_admin_password
     )
-    # logger.debug("snapshot schema: {}".format(snapshot))
+    debug_snapshot = copy.deepcopy(snapshot)
+    debug_snapshot.couchbase_admin_password = "xxxxxxxx"
+    logger.debug("snapshot schema: {}".format(debug_snapshot))
     logger.debug("Deleting the lock files")
     helper_lib.delete_file(rx_connection, config.SNAP_SYNC_FILE_NAME)
     helper_lib.delete_file(rx_connection, config.SYNC_FILE_NAME)
