@@ -8,7 +8,6 @@ This module contains the methods responsible for discovery operations
 """
 ##############################################################################
 import logging
-import sys
 
 from controller import helper_lib
 from generated.definitions import RepositoryDefinition
@@ -59,7 +58,8 @@ def find_repos(source_connection):
 
         return repositories
     except RepositoryDiscoveryError as err:
-        raise err.to_user_error()(None).with_traceback(sys.exc_info()[2])
+        logger.exception(err)
+        raise err.to_user_error()
     except Exception as err:
         logger.debug("find_repos: Caught unexpected exception!" + str(err))
         raise
@@ -102,7 +102,8 @@ def find_source(source_connection, repository):
             # # Couchbase supports only 1 instance on server so that instance
             # on host should be managed by delphix
     except SourceConfigDiscoveryError as err:
-        raise err.to_user_error()(None).with_traceback(sys.exc_info()[2])
+        logger.exception(err)
+        raise err.to_user_error()
     except Exception as err:
         logger.debug("find_source: Caught unexpected exception!" + str(err))
         raise
