@@ -910,7 +910,10 @@ class CouchbaseOperation(
                 ),
                 trgname=chronicle_target_dir,
             )
-        if self.parameters.d_source_type == constants.CBBKPMGR:
+        if (
+            hasattr(self.parameters, "d_source_type")
+            and self.parameters.d_source_type == constants.CBBKPMGR
+        ):
             self.run_os_command(
                 os_command="write_file",
                 filename=os.path.join(
