@@ -36,4 +36,5 @@ repos:
                   .isort.cfg|
                   LICENSE|
                   .gitignore|
+                  plugin_config.yml
           )$
