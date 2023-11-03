@@ -32,29 +32,33 @@ logger = logging.getLogger(__name__)
 
 @plugin.upgrade.linked_source("2023.10.27.01")
 def update_bucket_size(old_linked_source):
+    logger.debug(f"Started upgrade update_bucket_size:{old_linked_source}")
     old_linked_source = dict(old_linked_source)
-    if isinstance(old_linked_source["bucket_size"], int):
-        if old_linked_source["bucket_size"] == 0:
-            old_linked_source["bucket_size"] = []
+    if isinstance(old_linked_source["bucketSize"], int):
+        if old_linked_source["bucketSize"] == 0:
+            old_linked_source["bucketSize"] = []
         else:
-            d = [{"bname": "*", "bsize": old_linked_source["bucket_size"]}]
-            old_linked_source["bucket_size"] = d
+            d = [{"bname": "*", "bsize": old_linked_source["bucketSize"]}]
+            old_linked_source["bucketSize"] = d
+    logger.debug(f"Completed update_bucket_size: {old_linked_source}")
     return old_linked_source
 
 
 @plugin.upgrade.linked_source("2023.10.27.02")
 def update_archive_name(old_linked_source):
+    logger.debug(f"Started upgrade update_archive_name:{old_linked_source}")
     old_linked_source = dict(old_linked_source)
-    if "archive_name" not in old_linked_source.keys():
-        if old_linked_source["couchbase_bak_loc"] == "":
-            old_linked_source["archive_name"] = ""
+    if "archiveName" not in old_linked_source.keys():
+        if old_linked_source["couchbaseBakLoc"] == "":
+            old_linked_source["archiveName"] = ""
         else:
-            old_linked_source["archive_name"] = os.path.basename(
-                old_linked_source["couchbase_bak_loc"]
+            old_linked_source["archiveName"] = os.path.basename(
+                old_linked_source["couchbaseBakLoc"]
             )
-            old_linked_source["couchbase_bak_loc"] = os.path.dirname(
-                old_linked_source["couchbase_bak_loc"]
+            old_linked_source["couchbaseBakLoc"] = os.path.dirname(
+                old_linked_source["couchbaseBakLoc"]
             )
+    logger.debug(f"Completed update_archive_name: {old_linked_source}")
     return old_linked_source
 
 
