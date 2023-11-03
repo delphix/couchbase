@@ -415,7 +415,9 @@
              "bsize": {
                "type": "integer",
                "prettyName": "Bucket Size (in MB)",
-               "default": 0
+               "description": "Greater than or equal to 100MB.",
+               "default": 100,
+               "minimum": 100
              }
            }
          }
