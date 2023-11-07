@@ -30,27 +30,37 @@ Staging environment created and source database configured in discovered reposit
 
     ![Screenshot](./image/add_dsource_1.png)
 
-13. Enter the details for **Staging Cluster Admin User**  and **Staging Cluster Admin Password**
-14. Enter the details for **Source Cluster Admin User**  and **Source Cluster Admin Password**
+13. Configure the bucket size as an array.
+    - If "bucket_name" is set to "*", and "bucket_size" is assigned a numeric value, all buckets should be configured with the specified size.
+    - When both "bucket_name" and "bucket_size" are provided with specific values, individual buckets should be configured according to the corresponding values.
+
+      ![Screenshot](./image/bucket_size_add.png)
+    
+14. Enter the details of **Bucket Name** and **Bucket Size (in MB)**. Size must be greater than or equals to 100MB. 
+
+    ![Screenshot](./image/bucket_ram_size_allocation.png)
+
+15. Enter the details for **Staging Cluster Admin User**  and **Staging Cluster Admin Password**
+16. Enter the details for **Source Cluster Admin User**  and **Source Cluster Admin Password**
 
     ![Screenshot](./image/add_dsource_2.png)
 
-15. If not all buckets needs to be replicated, click on **+** plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.  
+17. If not all buckets needs to be replicated, click on **+** plus symbol to modify configuration settings. Mention bucket list for which cross datacenter replication (XDCR) only be enabled.  
     ![Screenshot](./image/image14.png)
 
-16. Enter the details of **Bucket Name** to be part of XDCR. Then click on **Next** button  
+18. Enter the details of **Bucket Name** to be part of XDCR. Then click on **Next** button  
     ![Screenshot](./image/image15.png)
 
-17. Provide the details for **dSource Name** and **Target group** on the dSource configuration page.  
+19. Provide the details for **dSource Name** and **Target group** on the dSource configuration page.  
     ![Screenshot](./image/add_dsource_3.png)
 
-18. On the **Data management** page, select the following:
+20. On the **Data management** page, select the following:
     - Staging Environment: This will be your staging host where source config was created.
     - User: Database OS user with required privileges for linking the dataset.
 
     ![Screenshot](./image/add_dsource_4.png)
 
-19. On the next screens, configure a policy, hooks and review the configuration and click on **Next** button to view the summary.
+21. On the next screens, configure a policy, hooks and review the configuration and click on **Next** button to view the summary.
 
     ![Screenshot](./image/add_dsource_5.png)
 
@@ -95,11 +105,14 @@ PROD - repository
 7. Based on approach selection, follow the steps either for XDCR or Couchbase Backup Manager method. The Description of both methods is below.
 8. Enter the details for **Staging Couchbase host** - FQDN or IP address recommended.
 9. Enter the details for **Staging Port Number** available on the staging host. The default port for couchbase is 8091.
-10. Enter the details for **Backup Location** available on the staging host. 
-11. Enter the details for **Backup repository** 
-12. Enter the details for **Mount Path** available on the staging host. This empty folder acts as a base for NFS mounts.
-13. Enter the details for **Staging Cluster Name** to setup new cluster on the staging host.
-14. Enter the configuration details for your staging cluster as per resource availability on the staging host.
+10. Enter the details for **Backup Location** available on the staging host.  For instance, if your Backup Path is specified as "/u01/couchbase/backups/," the corresponding **Backup Location** should be set as "/u01/couchbase".
+11. Enter the details for **Backup Archive Name**. 
+    - If Backup Path is specified as "/u01/couchbase/backups/," the corresponding **Backup Archive Name** should be set as "backups".
+    - If the **Backup Archive Name** field left empty then it will automatically ingest new full backups. The plugin will search for backup folders in the format %Y%m%d%H%M%S within **Backup Location**.
+12. Enter the details for **Backup repository** 
+13. Enter the details for **Mount Path** available on the staging host. This empty folder acts as a base for NFS mounts.
+14. Enter the details for **Staging Cluster Name** to setup new cluster on the staging host.
+15. Enter the configuration details for your staging cluster as per resource availability on the staging host.
     - Cluster RAM Size
     - Cluster Index RAM Size
     - Cluster FTS RAM Size
@@ -107,24 +120,32 @@ PROD - repository
     - Cluster Analysis RAM Size - this should be 0    
 
     ![Screenshot](./image/add_dsource_1backup.png)
+16. Configure the bucket size as an array.
+    - If "bucket_name" is set to "*", and "bucket_size" is assigned a numeric value, all buckets should be configured with the specified size.
+    - When both "bucket_name" and "bucket_size" are provided with specific values, individual buckets should be configured according to the corresponding values.
 
-15. Enter the details for **Staging Cluster Admin User**  and **Staging Cluster Admin Password**
-16. Enter dummy values for **Source Cluster Admin User**  and **Source Cluster Admin Password** - they are not used
+      ![Screenshot](./image/bucket_size_add.png)
+    
+17. Enter the details of **Bucket Name** and **Bucket Size (in MB)**. Size must be greater than or equals to 100MB. 
+
+    ![Screenshot](./image/bucket_ram_size_allocation.png)
+18. Enter the details for **Staging Cluster Admin User**  and **Staging Cluster Admin Password**
+19. Enter dummy values for **Source Cluster Admin User**  and **Source Cluster Admin Password** - they are not used
 
     ![Screenshot](./image/add_dsource_2backup.png)
 
-17. Then click on **Next** button  
+20. Then click on **Next** button  
 
-17. Provide the details for **dSource Name** and **Target group** on the dSource configuration page.  
+21. Provide the details for **dSource Name** and **Target group** on the dSource configuration page.  
     ![Screenshot](./image/add_dsource_3.png)
 
-18. On the **Data management** page, select the following:
+22. On the **Data management** page, select the following:
     - Staging Environment: This will be your staging host where source config was created.
     - User: Database OS user with required privileges for linking the dataset.
 
     ![Screenshot](./image/add_dsource_4.png)
 
-19. On the next screens, configure a policy, hooks and review the configuration and click on **Next** button to view the summary.
+23. On the next screens, configure a policy, hooks and review the configuration and click on **Next** button to view the summary.
 
     ![Screenshot](./image/add_dsource_5.png)
 
