@@ -120,7 +120,8 @@ PROD - repository
     - Cluster Analysis RAM Size - this should be 0    
 
     ![Screenshot](./image/add_dsource_1backup.png)
-16. Configure the bucket size as an array.
+
+16. Configure the bucket size as an array.  
     - If "bucket_name" is set to "*", and "bucket_size" is assigned a numeric value, all buckets should be configured with the specified size.
     - When both "bucket_name" and "bucket_size" are provided with specific values, individual buckets should be configured according to the corresponding values.
 

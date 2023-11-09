@@ -30,3 +30,9 @@
 | Couchbase 7.1.x   |      ![Screenshot](../image/check.svg)      |![Screenshot](../image/check.svg)     |
 
 
+### <a id="Plugin/Delphix Engine Compatibility"></a>Plugin/Delphix Engine Compatibility
+
+| Delphix Engine Version |       Plugin version 1.2.2        |       Plugin version 1.3.0        |
+|:-----------------------|:---------------------------------:|:---------------------------------:|
+| 6.0.x.0                | ![Screenshot](../image/check.svg) | ![Screenshot](../image/error.svg) |
+| \>=7.0.0.0             | ![Screenshot](../image/check.svg) | ![Screenshot](../image/check.svg) |
