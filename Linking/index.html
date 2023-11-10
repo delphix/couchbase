@@ -531,6 +531,53 @@
 
             
           
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_3" type="checkbox" id="__nav_8_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8_3">
+          1.3.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.3.0" data-md-level="2">
+        <label class="md-nav__title" for="__nav_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          1.3.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Release_Notes/1.3.0/Release-v1.3.0/" class="md-nav__link">
+        Release-v1.3.0
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -627,6 +674,18 @@
 <p><img alt="Screenshot" src="../image/add_dsource_1.png" /></p>
 </li>
 <li>
+<p>Configure the bucket size as an array.</p>
+<ul>
+<li>If &ldquo;bucket_name&rdquo; is set to &ldquo;*&rdquo;, and &ldquo;bucket_size&rdquo; is assigned a numeric value, all buckets should be configured with the specified size.</li>
+<li>When both &ldquo;bucket_name&rdquo; and &ldquo;bucket_size&rdquo; are provided with specific values, individual buckets should be configured according to the corresponding values.</li>
+</ul>
+<p><img alt="Screenshot" src="../image/bucket_size_add.png" /></p>
+</li>
+<li>
+<p>Enter the details of <strong>Bucket Name</strong> and <strong>Bucket Size (in MB)</strong>. Size must be greater than or equals to 100MB. </p>
+<p><img alt="Screenshot" src="../image/bucket_ram_size_allocation.png" /></p>
+</li>
+<li>
 <p>Enter the details for <strong>Staging Cluster Admin User</strong>  and <strong>Staging Cluster Admin Password</strong></p>
 </li>
 <li>
@@ -688,7 +747,12 @@ Access to production backup with those ex. values:</p>
 <li>Based on approach selection, follow the steps either for XDCR or Couchbase Backup Manager method. The Description of both methods is below.</li>
 <li>Enter the details for <strong>Staging Couchbase host</strong> - FQDN or IP address recommended.</li>
 <li>Enter the details for <strong>Staging Port Number</strong> available on the staging host. The default port for couchbase is 8091.</li>
-<li>Enter the details for <strong>Backup Location</strong> available on the staging host. </li>
+<li>Enter the details for <strong>Backup Location</strong> available on the staging host.  For instance, if your Backup Path is specified as &ldquo;/u01/couchbase/backups/,&rdquo; the corresponding <strong>Backup Location</strong> should be set as &ldquo;/u01/couchbase&rdquo;.</li>
+<li>Enter the details for <strong>Backup Archive Name</strong>. <ul>
+<li>If Backup Path is specified as &ldquo;/u01/couchbase/backups/,&rdquo; the corresponding <strong>Backup Archive Name</strong> should be set as &ldquo;backups&rdquo;.</li>
+<li>If the <strong>Backup Archive Name</strong> field left empty then it will automatically ingest new full backups. The plugin will search for backup folders in the format %Y%m%d%H%M%S within <strong>Backup Location</strong>.</li>
+</ul>
+</li>
 <li>Enter the details for <strong>Backup repository</strong> </li>
 <li>Enter the details for <strong>Mount Path</strong> available on the staging host. This empty folder acts as a base for NFS mounts.</li>
 <li>Enter the details for <strong>Staging Cluster Name</strong> to setup new cluster on the staging host.</li>
@@ -704,10 +768,18 @@ Access to production backup with those ex. values:</p>
 <p><img alt="Screenshot" src="../image/add_dsource_1backup.png" /></p>
 </li>
 <li>
-<p>Enter the details for <strong>Staging Cluster Admin User</strong>  and <strong>Staging Cluster Admin Password</strong></p>
+<p>Configure the bucket size as an array.  </p>
+<ul>
+<li>If &ldquo;bucket_name&rdquo; is set to &ldquo;*&rdquo;, and &ldquo;bucket_size&rdquo; is assigned a numeric value, all buckets should be configured with the specified size.</li>
+<li>When both &ldquo;bucket_name&rdquo; and &ldquo;bucket_size&rdquo; are provided with specific values, individual buckets should be configured according to the corresponding values.</li>
+</ul>
+<p><img alt="Screenshot" src="../image/bucket_size_add.png" /></p>
 </li>
 <li>
-<p>Enter dummy values for <strong>Source Cluster Admin User</strong>  and <strong>Source Cluster Admin Password</strong> - they are not used</p>
+<p>Enter the details of <strong>Bucket Name</strong> and <strong>Bucket Size (in MB)</strong>. Size must be greater than or equals to 100MB. </p>
+<p><img alt="Screenshot" src="../image/bucket_ram_size_allocation.png" />
+18. Enter the details for <strong>Staging Cluster Admin User</strong>  and <strong>Staging Cluster Admin Password</strong>
+19. Enter dummy values for <strong>Source Cluster Admin User</strong>  and <strong>Source Cluster Admin Password</strong> - they are not used</p>
 <p><img alt="Screenshot" src="../image/add_dsource_2backup.png" /></p>
 </li>
 <li>
