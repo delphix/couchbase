@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2023 by Delphix. All rights reserved.
+# Copyright (c) 2020-2024 by Delphix. All rights reserved.
 #
 
 ##############################################################################
@@ -195,6 +195,9 @@ class CouchbaseOperation(
         stdout, stderr, exit_code = utilities.execute_bash(
             self.connection, command
         )
+        logger.debug(f"os_command stdout: {stdout}")
+        logger.debug(f"os_command stderr: {stderr}")
+        logger.debug(f"os_command exit_code: {exit_code}")
         return [stdout, stderr, exit_code]
 
     def restart_couchbase(self, provision=False):
@@ -430,6 +433,53 @@ class CouchbaseOperation(
 
         logger.debug("Changed the permission of directory")
 
+    def check_stale_mountpoint(self, path):
+
+        output, stderr, exit_code = self.run_os_command(
+            os_command="df", path=path
+        )
+        if exit_code != 0:
+            if "No such file or directory" in stderr:
+                # this is actually OK
+                return False
+            else:
+                logger.error(
+                    "df retured error - stale mount point or other error"
+                )
+                logger.error(
+                    "stdout: {} stderr: {} exit_code: {}".format(
+                        output, stderr, exit_code
+                    )
+                )
+                return True
+        else:
+            return False
+
+    def get_db_size(self, path: str) -> str:
+        """
+        Get the size of the dataset.
+
+        :param connection: Staging connection.
+        :param path: Mount location corresponding to dataset
+
+        :return: du command output.
+
+        """
+        logger.debug("Started db sizing")
+        du_std, du_stderr, du_exit_code = self.run_os_command(
+            os_command="du", mount_path=path
+        )
+        if du_exit_code != 0:
+            logger.error("Unable to calculate the dataset size")
+            logger.error(f"stderr: {du_stderr}")
+            raise UserError(
+                "Problem with measuring mounted file system",
+                "Ask OS admin to check mount",
+                du_stderr,
+            )
+        logger.debug(f"Completed db sizing {du_std}")
+        return du_std
+
     def create_config_dir(self):
         """create and return the hidden folder directory with name 'delphix'"""
 
@@ -494,8 +544,9 @@ class CouchbaseOperation(
 
     def get_backup_date(self, x):
         w = x.replace(
-            "{}/{}".format(
+            "{}/{}/{}".format(
                 self.parameters.couchbase_bak_loc,
+                self.parameters.archive_name,
                 self.parameters.couchbase_bak_repo,
             ),
             "",
@@ -1018,11 +1069,11 @@ class CouchbaseOperation(
                     srcname=config_directory_path,
                     trgname=target_folder,
                 )
-                logger.debug(
-                    f"mv directory >> command_output=={command_output}"
-                    f" , command_stderr=={command_stderr} , "
-                    f"command_exit_code=={command_exit_code}"
-                )
+                # logger.debug(
+                #     f"mv directory >> command_output=={command_output}"
+                #     f" , command_stderr=={command_stderr} , "
+                #     f"command_exit_code=={command_exit_code}"
+                # )
 
     def delete_xdcr_config(self):
         if self.parameters.d_source_type == "XDCR":

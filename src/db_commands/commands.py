@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2023 by Delphix. All rights reserved.
+# Copyright (c) 2020-2024 by Delphix. All rights reserved.
 #
 
 ##############################################################################
@@ -90,8 +90,13 @@ class OSCommand(object):
             )
 
     @staticmethod
-    def write_file(filename, data, **kwargs):
-        return "echo {data} > {filename}".format(filename=filename, data=data)
+    def write_file(filename, data, sudo=False, uid=None, **kwargs):
+        if sudo:
+            return f"sudo -u \#{uid} echo {data} > {filename}"
+        else:
+            return "echo {data} > {filename}".format(
+                filename=filename, data=data
+            )
 
     @staticmethod
     def get_ip_of_hostname(**kwargs):
@@ -196,11 +201,14 @@ class OSCommand(object):
             return "cat {path}".format(path=path)
 
     @staticmethod
-    def df(mount_path, **kwargs):
-        return "df -h {mount_path}".format(mount_path=mount_path)
+    def df(path, sudo=False, uid=None, **kwargs):
+        if sudo:
+            return f"sudo -u \#{uid} df -h {path}"
+        else:
+            return f"df -h {path}"
 
     @staticmethod
-    def mount(**kwargs):
+    def mount(sudo=False, uid=None, **kwargs):
         return "mount"
 
     @staticmethod
@@ -211,7 +219,7 @@ class OSCommand(object):
         )
 
     @staticmethod
-    def du(mount_path: str, **kwargs) -> str:
+    def du(mount_path: str, sudo=False, uid=None, **kwargs) -> str:
         """
         Returns command string to get size of dataset.
 
@@ -219,7 +227,13 @@ class OSCommand(object):
 
         :return: The du command string
         """
-        return f"du -s --block-size=1 --apparent-size {mount_path}"
+        if sudo:
+            return (
+                f"sudo -u \#{uid} du -s --block-size=1 --apparent-size "
+                f"{mount_path}"
+            )
+        else:
+            return f"du -s --block-size=1 --apparent-size {mount_path}"
 
 
 class DatabaseCommand(object):

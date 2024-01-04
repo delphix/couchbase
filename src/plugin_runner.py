@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2023 by Delphix. All rights reserved.
+# Copyright (c) 2020-2024 by Delphix. All rights reserved.
 #
 #
 
@@ -298,4 +298,4 @@ def add_node_to_virtual1(old_virtual_source):
 
 @plugin.linked.source_size()
 def linked_source_size(staged_source, repository, source_config):
-    return linked.source_size(staged_source)
+    return linked.source_size(staged_source, repository, source_config)
