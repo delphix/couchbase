@@ -521,29 +521,3 @@ def clean_stale_mountpoint(connection, path):
             "Ask OS admin to check mount points",
             umount_stderr,
         )
-
-
-# def get_db_size(connection: RemoteConnection, path: str) -> str:
-#     """
-#     Get the size of the dataset.
-#
-#     :param connection: Staging connection.
-#     :param path: Mount location corresponding to dataset
-#
-#     :return: du command output.
-#
-#     """
-#     logger.debug("Started db sizing")
-#     du_std, du_stderr, du_exit_code = utilities.execute_bash(
-#         connection, CommandFactory.du(mount_path=path)
-#     )
-#     if du_exit_code != 0:
-#         logger.error("Unable to calculate the dataset size")
-#         logger.error(f"stderr: {du_stderr}")
-#         raise UserError(
-#             "Problem with measuring mounted file system",
-#             "Ask OS admin to check mount",
-#             du_stderr,
-#         )
-#     logger.debug(f"Completed db sizing {du_std}")
-#     return du_std

@@ -272,8 +272,3 @@ def source_size(source_obj: StagedSource, repository, source_config):
     except Exception as error:
         logger.debug("Exception: {}".format(str(error)))
         raise
-    # finally:
-    #     logger.info(
-    #         "End operation: Calculation of source"
-    #         f" sizing for dSource {cluster_name} couldn't be completed."
-    #     )
