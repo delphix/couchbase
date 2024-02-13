@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2023 by Delphix. All rights reserved.
+# Copyright (c) 2020-2024 by Delphix. All rights reserved.
 #
 #############################################################################
 # In this module, all dSource related operations are implemented
@@ -229,7 +229,7 @@ def _cleanup_in_exception_case(rx_connection, is_sync, is_snap_sync):
         raise
 
 
-def source_size(source_obj: StagedSource):
+def source_size(source_obj: StagedSource, repository, source_config):
     """
     Returns space occupied by the dataset on the mount point in bytes.
 
@@ -244,13 +244,18 @@ def source_size(source_obj: StagedSource):
         "Begin operation: Calculation of source"
         f" sizing for dSource {cluster_name}."
     )
+    srcsize_obj = CouchbaseOperation(
+        Resource.ObjectBuilder.set_staged_source(source_obj)
+        .set_repository(repository)
+        .build()
+    )
     try:
         if not helper_lib.check_stale_mountpoint(
             connection=connection, path=mount_path
         ) and helper_lib.check_server_is_used(
             connection=connection, path=mount_path
         ):
-            db_size_output = helper_lib.get_db_size(connection, mount_path)
+            db_size_output = srcsize_obj.get_db_size(path=mount_path)
             if db_size_output:
                 db_size = int(db_size_output.split()[0])
                 logger.debug(
@@ -267,8 +272,3 @@ def source_size(source_obj: StagedSource):
     except Exception as error:
         logger.debug("Exception: {}".format(str(error)))
         raise
-    finally:
-        logger.info(
-            "End operation: Calculation of source"
-            f" sizing for dSource {cluster_name} couldn't be completed."
-        )
