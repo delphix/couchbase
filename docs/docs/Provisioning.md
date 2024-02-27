@@ -1,3 +1,17 @@
+<html>
+ <head>
+<script type="text/JavaScript">
+ function Redirect() {
+window.location = "https://cd.delphix.com/docs/latest/couchbase-data-sources";
+ }
+ document.write("You will be redirected to the newer documentation..");
+ setTimeout(function() {
+Redirect();
+ }, 0);
+</script>
+ </head>
+</html>
+
 # Provisioning
 
 Virtual databases are a virtualized copies of dSource. 

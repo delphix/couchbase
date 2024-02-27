@@ -1,3 +1,17 @@
+<html>
+ <head>
+<script type="text/JavaScript">
+ function Redirect() {
+window.location = "https://cd.delphix.com/docs/latest/couchbase-data-sources";
+ }
+ document.write("You will be redirected to the newer documentation..");
+ setTimeout(function() {
+Redirect();
+ }, 0);
+</script>
+ </head>
+</html>
+
 # Overview
 
 Couchbase plugin is developed to virtualize Couchbase data source. The ingestion (synchronization process) leveraging the following built-in Couchbase technologies

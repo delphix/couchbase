@@ -1,3 +1,16 @@
+<html>
+ <head>
+<script type="text/JavaScript">
+ function Redirect() {
+window.location = "https://cd.delphix.com/docs/latest/couchbase-data-sources";
+ }
+ document.write("You will be redirected to the newer documentation..");
+ setTimeout(function() {
+Redirect();
+ }, 0);
+</script>
+ </head>
+</html>
 # Release-v1.3.0
 
 To deploy and configure Couchbase plugin, refer to [Overview](/).
