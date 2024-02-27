@@ -1,3 +1,16 @@
+<html>
+ <head>
+<script type="text/JavaScript">
+ function Redirect() {
+window.location = "https://cd.delphix.com/docs/latest/couchbase-data-sources";
+ }
+ document.write("You will be redirected to the newer documentation..");
+ setTimeout(function() {
+Redirect();
+ }, 0);
+</script>
+ </head>
+</html>
 # Linking
 
 Linking a data source will create a dSource object on the engine and allow Delphix to ingest data from this source. The dSource is an object that the Delphix Virtualization Engine uses to create and update virtual copies of your database. 
